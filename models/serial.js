@@ -1,0 +1,39 @@
+"use strict";
+
+module.exports = (sequelize, DataTypes) => {
+  const Serial = sequelize.define(
+    "Serial",
+    {
+      serialNumber: {
+        DataTypes: STRING,
+        allowNull: false,
+        unique: true,
+      },
+      status: {
+        DataTypes: NUMBER,
+        defaultValue: 0,
+        allowNull: false,
+        validate: {
+          customValidator: (value) => {
+            const enums = [0, 1]; //pending, actived
+            if (!enums.includes(value)) {
+              throw new Error("not a valid option");
+            }
+          },
+        },
+      },
+      remark: DataTypes.STRING,
+    },
+    {
+      paranoid: true,
+    }
+  );
+
+  Serial.associatte = (models) => {
+    Serial.hasOne(models.User, {
+      foreignKey: "serialId",
+    });
+  };
+
+  return Serial;
+};
