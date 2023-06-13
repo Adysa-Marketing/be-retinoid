@@ -21,12 +21,12 @@ module.exports = (sequelize, DataTypes) => {
   );
 
   Mutation.associate = (models) => {
-    Mutation.belogsTo(models.Transaction, {
+    Mutation.belongsTo(models.TrSale, {
       foreignKey: {
-        field: "trId",
+        field: "saleId",
       },
     });
-    Mutation.belogsTo(models.user, {
+    Mutation.belongsTo(models.User, {
       foreignKey: {
         field: "userId",
       },

@@ -2,7 +2,7 @@
 
 module.exports = (sequelize, DataTypes) => {
   const Testimonial = sequelize.define(
-    "testimonial",
+    "Testimonial",
     {
       rating: DataTypes.STRING,
       testimonial: DataTypes.STRING,
@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
   );
 
   Testimonial.associate = (models) => {
-    Testimonial.belogsTo(models.User, {
+    Testimonial.belongsTo(models.User, {
       foreignKey: {
         field: "userId",
       },

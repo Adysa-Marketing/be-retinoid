@@ -3,43 +3,49 @@
 const moment = require("moment");
 
 module.exports = (sequelize, DataTypes) => {
-  const TrReward = sequelize.define(
-    "TrReward",
+  const Agen = sequelize.define(
+    "Agen",
     {
-      date: {
-        type: DataTypes.DATE,
-        defaultValue: moment().format("YYYY-MM-DD"),
+      name: {
+        type: DataTypes.STRING,
+        allowNull: false,
       },
       status: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        defauleValue: 0,
+        defaultValue: 0,
         validate: {
           customValidator: (value) => {
-            const enums = [0, 1, 2]; //pending, approve, reject
+            const enums = [0, 1, 2];
             if (!enums.includes(value)) {
               throw new Error("not a valid option");
             }
           },
         },
       },
+      dateApproved: {
+        type: DataTypes.DATE,
+        defaultValue: moment().format("YYYY-MM-DD"),
+      },
       remark: DataTypes.STRING,
     },
-    { paranoid: true }
+    {
+      paranoid: true,
+    }
   );
 
-  TrReward.associate = (models) => {
-    TrReward.belongsTo(models.User, {
+  Agen.associate = (models) => {
+    Agen.belongsTo(models.User, {
       foreignKey: {
         field: "userId",
       },
     });
-    TrReward.belongsTo(models.Reward, {
+    Agen.belongsTo(models.Stokis, {
       foreignKey: {
-        field: "rewardId",
+        field: "stokisId",
       },
     });
   };
 
-  return TrReward;
+  return Agen;
 };

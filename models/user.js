@@ -38,18 +38,18 @@ module.exports = (sequelize, DataTypes) => {
         },
       },
       image: DataTypes.STRING,
-      point: DataTypes.NUMBER,
+      point: DataTypes.INTEGER,
       sponsorKey: {
         type: DataTypes.STRING,
         unique: true,
         allowNull: false,
       },
-      wallet: DataTypes.NUMBER,
+      wallet: DataTypes.INTEGER,
       verCode: DataTypes.STRING,
       address: DataTypes.STRING,
       kodepos: DataTypes.STRING,
       isActive: {
-        type: DataTypes.BOOLEAM,
+        type: DataTypes.BOOLEAN,
         defaultValue: true,
       },
       remark: DataTypes.STRING,
@@ -59,40 +59,52 @@ module.exports = (sequelize, DataTypes) => {
       indexes: [
         {
           unique: true,
-          field: ["sponsorKey"],
+          fields: ["sponsorKey"],
         },
       ],
     }
   );
 
   User.associate = (models) => {
-    User.belogsTo(models.Role, {
+    // belongsTo
+    User.belongsTo(models.Role, {
       foreignKey: {
         field: "roleId",
       },
     });
-    User.belogsTo(models.Serial, {
+    User.belongsTo(models.Serial, {
       foreignKey: {
         field: "serialId",
       },
     });
-    User.belogsTo(models.Country, {
+    User.belongsTo(models.Country, {
       foreignKey: {
         field: "countryId",
       },
     });
-    User.belogsTo(models.Province, {
+    User.belongsTo(models.Province, {
       foreignKey: {
         field: "provinceId",
       },
     });
-    User.belogsTo(models.District, {
+    User.belongsTo(models.District, {
       foreignKey: {
         field: "districtId",
       },
     });
+    User.belongsTo(models.SubDistrict, {
+      foreignKey: {
+        field: "subDistrictId",
+      },
+    });
 
-    //
+    // belongsToMany
+    User.belongsToMany(models.Product, {
+      through: models.AgenProduct,
+      foreignKey: "userId",
+    });
+
+    // has Many
     User.hasMany(models.Referral, {
       foreignKey: "userId",
     });
@@ -108,7 +120,7 @@ module.exports = (sequelize, DataTypes) => {
     User.hasMany(models.Widhraw, {
       foreignKey: "userId",
     });
-    User.hasMany(models.Transaction, {
+    User.hasMany(models.TrSale, {
       foreignKey: "userId",
     });
     User.hasMany(models.Mutation, {
@@ -117,8 +129,18 @@ module.exports = (sequelize, DataTypes) => {
     User.hasMany(models.TrReward, {
       foreignKey: "userId",
     });
+    User.hasMany(models.ATrSale, {
+      foreignKey: "userId",
+    });
+    User.hasMany(models.TrStokis, {
+      foreignKey: "userId",
+    });
 
+    // hasOne
     User.hasOne(models.Testimonial, {
+      foreignKey: "userId",
+    });
+    User.hasOne(models.Agen, {
       foreignKey: "userId",
     });
   };

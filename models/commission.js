@@ -22,13 +22,13 @@ module.exports = (sequelize, DataTypes) => {
   );
 
   Commission.associate = (models) => {
-    Commission.belosTo(models.User, {
+    Commission.belongsTo(models.User, {
       as: "Upline",
       foreinKey: {
         field: "userId",
       },
     });
-    Commission.belosTo(models.User, {
+    Commission.belongsTo(models.User, {
       as: "Downline",
       foreinKey: {
         field: "downlineId",

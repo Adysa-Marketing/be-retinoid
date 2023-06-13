@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       description: DataTypes.STRING,
       point: {
-        type: DataTypes.NUMBER,
+        type: DataTypes.INTEGER,
         allowNull: false,
       },
       image: DataTypes.STRING,

@@ -24,7 +24,10 @@ module.exports = (sequelize, DataTypes) => {
   );
 
   Bank.associate = (models) => {
-    Bank.hasMany(models.Transaction, {
+    Bank.hasMany(models.TrSale, {
+      foreignKey: "bankId",
+    });
+    Bank.hasMany(models.TrStokis, {
       foreignKey: "bankId",
     });
   };

@@ -4,13 +4,13 @@ module.exports = (sequelize, DataTypes) => {
   const Serial = sequelize.define(
     "Serial",
     {
-      serialNumber: {
-        DataTypes: STRING,
+      serialINTEGER: {
+        type: DataTypes.STRING,
         allowNull: false,
         unique: true,
       },
       status: {
-        DataTypes: NUMBER,
+        type: DataTypes.INTEGER,
         defaultValue: 0,
         allowNull: false,
         validate: {

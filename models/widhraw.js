@@ -9,7 +9,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
       status: {
-        type: DataTypes.NUMBER,
+        type: DataTypes.INTEGER,
         defaultValue: 0,
         validate: {
           customValidator: (value) => {
@@ -32,6 +32,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      image: DataTypes.STRING,
       remark: DataTypes.STRING,
     },
     {
@@ -40,7 +41,7 @@ module.exports = (sequelize, DataTypes) => {
   );
 
   Widhraw.associate = (models) => {
-    Widhraw.belogsTo(models.User, {
+    Widhraw.belongsTo(models.User, {
       foreignKey: {
         field: "userId",
       },
