@@ -4,6 +4,10 @@ module.exports = (sequelize, DataTypes) => {
   const SubDistrict = sequelize.define(
     "SubDistrict",
     {
+      key: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
       name: {
         type: DataTypes.STRING,
         allowNull: false,
