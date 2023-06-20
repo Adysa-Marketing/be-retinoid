@@ -9,11 +9,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.BIGINT,
         allowNull: false,
       },
-      commissionData: {
+      date: {
         type: DataTypes.DATE,
         defaultValue: moment().format("YYYY-MM-DD"),
       },
-      commissionLevel: DataTypes.STRING,
       remark: DataTypes.STRING,
     },
     {
@@ -32,6 +31,11 @@ module.exports = (sequelize, DataTypes) => {
       as: "Downline",
       foreinKey: {
         field: "downlineId",
+      },
+    });
+    Commission.belongsTo(models.CommissionLevel, {
+      foreinKey: {
+        field: "levelId",
       },
     });
   };
