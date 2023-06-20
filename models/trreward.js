@@ -10,6 +10,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.DATE,
         defaultValue: moment().format("YYYY-MM-DD"),
       },
+      imageKtp: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
       remark: DataTypes.STRING,
     },
     { paranoid: true }

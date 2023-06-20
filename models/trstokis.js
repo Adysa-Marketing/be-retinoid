@@ -10,6 +10,14 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.BIGINT,
         allowNull: false,
       },
+      kk: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      imageKtp: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
       image: DataTypes.STRING,
       phoneNumber: DataTypes.STRING,
       fromBank: DataTypes.STRING,

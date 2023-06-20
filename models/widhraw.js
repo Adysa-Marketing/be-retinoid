@@ -8,18 +8,6 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.BIGINT,
         allowNull: false,
       },
-      status: {
-        type: DataTypes.INTEGER,
-        defaultValue: 0,
-        validate: {
-          customValidator: (value) => {
-            const enums = [0, 1, 2]; //pending, approve, reject
-            if (!enums.indexOf(value)) {
-              throw new Error("not a valid option");
-            }
-          },
-        },
-      },
       noRekening: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -33,6 +21,10 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
       image: DataTypes.STRING,
+      imageKtp: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
       remark: DataTypes.STRING,
     },
     {
@@ -44,6 +36,11 @@ module.exports = (sequelize, DataTypes) => {
     Widhraw.belongsTo(models.User, {
       foreignKey: {
         field: "userId",
+      },
+    });
+    Widhraw.belongsTo(models.WdStatus, {
+      foreignKey: {
+        field: "statusId",
       },
     });
   };

@@ -16,6 +16,7 @@ module.exports = (sequelize, DataTypes) => {
       email: {
         type: DataTypes.STRING,
         allowNull: false,
+        unique: true,
       },
       password: {
         type: DataTypes.STRING,
@@ -37,6 +38,7 @@ module.exports = (sequelize, DataTypes) => {
           },
         },
       },
+      kk: DataTypes.STRING,
       image: DataTypes.STRING,
       point: DataTypes.INTEGER,
       sponsorKey: {
@@ -44,7 +46,10 @@ module.exports = (sequelize, DataTypes) => {
         unique: true,
         allowNull: false,
       },
-      wallet: DataTypes.INTEGER,
+      wallet: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+      },
       verCode: DataTypes.STRING,
       address: DataTypes.STRING,
       kodepos: DataTypes.STRING,
