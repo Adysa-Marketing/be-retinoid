@@ -6,7 +6,7 @@ module.exports = {
     host: process.env.DEV_PG_HOST,
     port: process.env.DEV_PG_PORT,
     dialect: "postgres",
-    loggin: false,
+    logging: false,
     operatorsAliases: 0,
     dialectOptions: {
       supportBigNumbers: true,
@@ -20,7 +20,7 @@ module.exports = {
     host: process.env.PG_HOST,
     port: process.env.PG_PORT,
     dialect: "postgres",
-    loggin: false,
+    logging: false,
     operatorsAliases: 0,
     dialectOptions: {
       supportBigNumbers: true,

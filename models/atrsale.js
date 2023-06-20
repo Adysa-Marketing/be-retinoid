@@ -12,32 +12,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.BIGINT,
         allowNull: false,
       },
-      paymentType: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        validate: {
-          customValodator: (value) => {
-            const enums = ["CASH", "TRANSFER"];
-            if (!enums.includes(value)) {
-              throw new Error("not a valid option");
-            }
-          },
-        },
-      },
       image: DataTypes.STRING,
-      status: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        defaultValue: 0,
-        validate: {
-          customValodator: (value) => {
-            const enums = [0, 1, 2]; //pending, approve, reject
-            if (!enums.includes(value)) {
-              throw new Error("not a valid option");
-            }
-          },
-        },
-      },
       remark: DataTypes.STRING,
     },
     {
@@ -54,6 +29,16 @@ module.exports = (sequelize, DataTypes) => {
     ATrSale.belongsTo(models.Product, {
       foreignKey: {
         field: "productId",
+      },
+    });
+    ATrSale.belongsTo(models.PaymentType, {
+      foreignKey: {
+        field: "paymentTypeId",
+      },
+    });
+    ATrSale.belongsTo(models.TrStatus, {
+      foreignKey: {
+        field: "statusId",
       },
     });
   };

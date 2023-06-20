@@ -10,19 +10,6 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.DATE,
         defaultValue: moment().format("YYYY-MM-DD"),
       },
-      status: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        defauleValue: 0,
-        validate: {
-          customValidator: (value) => {
-            const enums = [0, 1, 2]; //pending, approve, reject
-            if (!enums.includes(value)) {
-              throw new Error("not a valid option");
-            }
-          },
-        },
-      },
       remark: DataTypes.STRING,
     },
     { paranoid: true }
@@ -37,6 +24,11 @@ module.exports = (sequelize, DataTypes) => {
     TrReward.belongsTo(models.Reward, {
       foreignKey: {
         field: "rewardId",
+      },
+    });
+    TrReward.belongsTo(models.RwStatus, {
+      foreignKey: {
+        field: "statusId",
       },
     });
   };

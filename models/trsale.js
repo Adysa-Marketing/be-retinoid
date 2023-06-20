@@ -14,31 +14,6 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.BIGINT,
         allowNull: false,
       },
-      paymentType: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        validate: {
-          customValidator: (value) => {
-            const enums = ["CASH", "TRANSFER"];
-            if (!enums.includes(value)) {
-              throw new Error("not a valid option");
-            }
-          },
-        },
-      },
-      status: {
-        type: DataTypes.INTEGER,
-        defaultValue: 0,
-        allowNull: false,
-        validate: {
-          customValidator: (value) => {
-            const enums = [0, 1, 2]; //pending, approve, reject
-            if (!enums.includes(value)) {
-              throw new Error("not a valid option");
-            }
-          },
-        },
-      },
       image: DataTypes.STRING,
       fromBank: DataTypes.STRING,
       accountName: DataTypes.STRING,
@@ -65,6 +40,16 @@ module.exports = (sequelize, DataTypes) => {
     TrSale.belongsTo(models.Bank, {
       foreignKey: {
         field: "bankId",
+      },
+    });
+    TrSale.belongsTo(models.PaymentType, {
+      foreignKey: {
+        field: "paymentTypeId",
+      },
+    });
+    TrSale.belongsTo(models.TrStatus, {
+      foreignKey: {
+        field: "statusId",
       },
     });
 
