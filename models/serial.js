@@ -4,7 +4,7 @@ module.exports = (sequelize, DataTypes) => {
   const Serial = sequelize.define(
     "Serial",
     {
-      serialINTEGER: {
+      serial: {
         type: DataTypes.STRING,
         allowNull: false,
         unique: true,
