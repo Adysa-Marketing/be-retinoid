@@ -41,11 +41,6 @@ module.exports = (sequelize, DataTypes) => {
       kk: DataTypes.STRING,
       image: DataTypes.STRING,
       point: DataTypes.INTEGER,
-      sponsorKey: {
-        type: DataTypes.STRING,
-        unique: true,
-        allowNull: false,
-      },
       wallet: {
         type: DataTypes.INTEGER,
         defaultValue: 0,
@@ -61,12 +56,6 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       paranoid: true,
-      indexes: [
-        {
-          unique: true,
-          fields: ["sponsorKey"],
-        },
-      ],
     }
   );
 
@@ -102,6 +91,11 @@ module.exports = (sequelize, DataTypes) => {
         field: "subDistrictId",
       },
     });
+    User.belongsTo(models.SponsorKey, {
+      foreignKey: {
+        field: "sponsorId",
+      },
+    });
 
     // belongsToMany
     User.belongsToMany(models.Product, {
@@ -110,11 +104,8 @@ module.exports = (sequelize, DataTypes) => {
     });
 
     // has Many
-    User.hasMany(models.Referral, {
+    User.hasOne(models.Referral, {
       foreignKey: "userId",
-    });
-    User.hasMany(models.Referral, {
-      foreignKey: "referredId",
     });
     User.hasMany(models.Commission, {
       foreignKey: "userId",
@@ -146,6 +137,9 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: "userId",
     });
     User.hasOne(models.Agen, {
+      foreignKey: "userId",
+    });
+    User.hasOne(models.SponsorKey, {
       foreignKey: "userId",
     });
   };

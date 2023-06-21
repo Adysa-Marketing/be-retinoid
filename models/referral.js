@@ -18,16 +18,14 @@ module.exports = (sequelize, DataTypes) => {
 
   Referral.associate = (models) => {
     Referral.belongsTo(models.User, {
-      as: "Downline",
       foreignKey: {
         field: "userId",
       },
     });
 
-    Referral.belongsTo(models.User, {
-      as: "Upline",
+    Referral.belongsTo(models.SponsorKey, {
       foreignKey: {
-        field: "referredId",
+        field: "sponsorId",
       },
     });
   };
