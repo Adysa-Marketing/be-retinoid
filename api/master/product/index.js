@@ -16,11 +16,11 @@ router.post(
   Create
 );
 router.put(
-  "/",
+  "/update",
   Asset.Directory,
   Update.fields([{ name: "image", maxCount: 1 }]),
   Update
 );
-router.delete("/", Delete);
+router.delete("/delete", Delete);
 
 module.exports = router;

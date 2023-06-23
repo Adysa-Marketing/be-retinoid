@@ -28,7 +28,7 @@ module.exports = async (req, res) => {
     if (!product)
       return res.status(404).json({
         status: "error",
-        messaeg: "Data Product tidak ditemukan",
+        message: "Data Product tidak ditemukan",
       });
 
     files && files.image && (await RemoveFile(product, true));
@@ -36,7 +36,7 @@ module.exports = async (req, res) => {
 
     return res.status(200).json({
       status: "success",
-      message: "Product berhasil diperbarui",
+      message: "Data Product berhasil diperbarui",
     });
   } catch (error) {
     console.log("[!] Error : ", error);

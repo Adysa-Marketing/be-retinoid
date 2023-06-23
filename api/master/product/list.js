@@ -1,4 +1,4 @@
-const { Product } = require("../../models");
+const { Product } = require("../../../models");
 const logger = require("../../../libs/logger");
 const Sequelize = require("sequelize");
 const Op = Sequelize.Op;
