@@ -3,11 +3,10 @@ const Bank = require("./bank");
 const Product = require("./product");
 const Reward = require("./reward");
 const Serial = require("./serial");
-const IsAdmin = require("../middleware/isAdmin");
 
-router.use("/bank", IsAdmin, Bank);
-router.use("/product", IsAdmin, Product);
-router.use("/reward", IsAdmin, Reward);
-router.use("/serial", IsAdmin, Serial);
+router.use("/bank", Bank);
+router.use("/product", Product);
+router.use("/reward", Reward);
+router.use("/serial", Serial);
 
 module.exports = router;
