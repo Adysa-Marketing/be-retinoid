@@ -42,7 +42,7 @@ module.exports = (sequelize, DataTypes) => {
       image: DataTypes.STRING,
       point: DataTypes.INTEGER,
       wallet: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.BIGINT,
         defaultValue: 0,
       },
       verCode: DataTypes.STRING,

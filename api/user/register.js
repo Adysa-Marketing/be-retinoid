@@ -8,6 +8,7 @@ const {
 } = require("../../models");
 const logger = require("../../libs/logger");
 const db = require("../../models");
+const sequelize = require("sequelize");
 
 const bcrypt = require("bcryptjs");
 const cryptoString = require("crypto-random-string");
@@ -91,8 +92,10 @@ module.exports = async (req, res) => {
     // proses commission 5 level
     const productAmount = 500000;
     const commissionLevel = await CommissionLevel.findAll();
-    const commission = (commissionLevel[0].percent * productAmount) / 100;
-    const message = `Selamat anda mendapatkan bonus senilai Rp. ${commission} dari downline ${commission[0].name}`;
+    const commission = parseInt(
+      (commissionLevel[0].percent * productAmount) / 100
+    );
+    const message = `Selamat anda mendapatkan bonus senilai Rp. ${commission} dari downline ${commission[0].name} dengan kedalaman level 1`;
     await Commission.create(
       {
         userId: sponsor.userId,
@@ -105,7 +108,15 @@ module.exports = async (req, res) => {
       { transaction }
     );
 
-  // kurang notification wa untuk info commission masuk
+    // update wallet
+    await User.upate(
+      { wallet: sequelize.col("wallet") + commission },
+      { where: { id: sponsor.userId }, transaction }
+    );
+
+    // kurang notification wa bot untuk info commission masuk
+
+    // end notifikasi wa bot
 
     await calculateDownlineBonus(
       sponsor.userId, // id penyeponsor
@@ -115,7 +126,7 @@ module.exports = async (req, res) => {
       transaction // db transactional
     );
     // proses commission
-    
+
     transaction.commit();
     return res.json({
       status: "success",
@@ -183,8 +194,9 @@ const calculateDownlineBonus = async (
   const commission = (commissionLevel[level - 1].percent * amount) / 100;
   const message = `Selamat anda mendapatkan bonus senilai Rp. ${commission} dari downline ${
     commission[level - 1].name
-  }`;
+  } dengan kedalaman level ${level}`;
 
+  // create commission
   await Commission.create(
     {
       userId: userUplineId,
@@ -195,6 +207,12 @@ const calculateDownlineBonus = async (
       remark: message,
     },
     { transaction }
+  );
+
+  // update wallet
+  await User.upate(
+    { wallet: sequelize.col("wallet") + commission },
+    { where: { id: userUplineId }, transaction }
   );
 
   // kurang notification wa untuk info commission masuk
