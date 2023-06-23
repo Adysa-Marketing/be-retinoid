@@ -1,4 +1,6 @@
 const { Reward } = require("../../../models");
+const { RemoveFile } = require("./asset");
+
 const logger = require("../../../libs/logger");
 
 module.exports = async (req, res) => {
@@ -18,7 +20,7 @@ module.exports = async (req, res) => {
       remark: source.remark,
     };
 
-    logger.info({source, files, payload})
+    logger.info({ source, files, payload });
 
     await Reward.create(payload);
     return res.status(201).json({
@@ -27,6 +29,7 @@ module.exports = async (req, res) => {
     });
   } catch (error) {
     console.log("[!] Error : ", error);
+    await RemoveFile(files, false);
     return res.status(500).json({
       status: "error",
       message: error.message,

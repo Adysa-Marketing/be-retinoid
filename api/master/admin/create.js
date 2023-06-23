@@ -1,6 +1,7 @@
 const { User, Referral, SponsorKey } = require("../../models");
 const logger = require("../../../libs/logger");
 const db = require("../../../models");
+const { RemoveFile } = require("./asset");
 
 const bcrypt = require("bcryptjs");
 const cryptoString = require("crypto-random-string");
@@ -61,6 +62,7 @@ module.exports = async (req, res) => {
     });
   } catch (err) {
     console.log("[!] Error : ", err);
+    await RemoveFile(files, false);
     transaction.rollback();
     if (err.errors && err.errors.length > 0 && err.errors[0].path) {
       logger.err(err.errors);

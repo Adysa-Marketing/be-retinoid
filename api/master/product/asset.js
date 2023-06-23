@@ -23,10 +23,10 @@ const Directory = (req, res, next) => {
   }
 };
 
-const RemoveFile = (rows, options) => {
+const RemoveFile = (rows, status) => {
   return new Promise(async (resolve, reject) => {
     const tempDir = `${config.tempDir}/product/`;
-    const image = rows
+    const image = status
       ? rows.image
       : rows && rows.image.length > 0
       ? rows.image[0].filename

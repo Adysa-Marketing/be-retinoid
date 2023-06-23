@@ -49,6 +49,7 @@ module.exports = async (req, res) => {
     });
   } catch (error) {
     console.log("[!] Error : ", error);
+    await RemoveFile(files, false);
     return res.status(500).json({
       status: "error",
       message: error.message,
