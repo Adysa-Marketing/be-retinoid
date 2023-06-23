@@ -20,7 +20,7 @@ app.use(express.static(path.join(__dirname, "public")));
 
 const port = config.port;
 
-app.use(router);
+app.use('/api/v1', router);
 
 app.listen(port, () => {
   console.log(
