@@ -7,25 +7,24 @@ const Get = require("./get");
 const List = require("./list");
 const Update = require("./update");
 const Upload = require("../../../libs/upload");
-const IsAdmin = require("../../middleware/isAdmin");
+const IsRoot = require("../../middleware/isRoot");
 
 router.get("/get/:id", Get);
 router.get("/list", List);
 router.post(
   "/create",
-  IsAdmin,
+  IsRoot,
   Asset.Directory,
   Upload.fields([{ name: "image", maxCount: 1 }]),
   Create
 );
 router.put(
   "/update",
-  IsAdmin,
   Asset.Directory,
   Update.fields([{ name: "image", maxCount: 1 }]),
   Update
 );
-router.put("/change-status", ChangeStat);
-router.delete("/delete",IsAdmin, Delete);
+router.put("/change-status",IsRoot, ChangeStat);
+router.delete("/delete",IsRoot, Delete);
 
 module.exports = router;

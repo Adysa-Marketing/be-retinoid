@@ -3,17 +3,11 @@ const logger = require("../../../libs/logger");
 
 module.exports = async (req, res) => {
   const source = req.body;
-  const user = req.user;
   try {
     const id = source.id;
     const status = source.isActive;
 
-    if (![1].includes(user.roleId))
-      return res.status(405).json({
-        status: "error",
-        message: "Anda tidak memiliki hak akses",
-      });
-
+    logger.info({ is, status });
     const admin = await User.findOne({ where: { id } });
     if (!admin)
       return res.status(404).json({
