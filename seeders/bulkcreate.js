@@ -9,7 +9,10 @@ const {
   TrStatus,
   User,
   WdStatus,
+  SponsorKey,
 } = require("../models");
+const db = require("../models");
+
 const bcrypt = require("bcryptjs");
 const cryptoString = require("crypto-random-string");
 
@@ -20,7 +23,7 @@ async function createRole() {
     { name: "AGEN" },
     { name: "MEMBER" },
   ]);
-  console.log("[DONE CRETE ROLE]");
+  console.log("[DONE CREATE ROLE]");
 }
 
 async function createTrStatus() {
@@ -34,7 +37,7 @@ async function createTrStatus() {
 }
 
 async function createPaymentType() {
-  await PaymentType.bulkCreate([{ name: "Cash" }, { name: "Transfer" }]);
+  await PaymentType.bulkCreate([{ name: "CASH" }, { name: "TRANSFER" }]);
 }
 
 async function createRwStatus() {
@@ -61,11 +64,11 @@ async function createWdStatus() {
 
 async function createCommissionLevel() {
   await CommissionLevel.bulkCreate([
-    { name: "Level 1", percent: 17 },
+    { name: "Level 1", percent: 16 },
     { name: "Level 2", percent: 10 },
-    { name: "Level 3", percent: 5 },
-    { name: "Level 4", percent: 1 },
-    { name: "Level 5", percent: 1 },
+    { name: "Level 3", percent: 6 },
+    { name: "Level 4", percent: 3 },
+    { name: "Level 5", percent: 2 },
   ]);
 }
 
@@ -89,28 +92,35 @@ async function bulkSync() {
 }
 
 async function createUser() {
+  const transaction = await db.sequelize.transaction({ autocommit: false });
   const sponsorKey = cryptoString({ length: 10, type: "base64" });
   const password = bcrypt.hashSync("rahasia", bcrypt.genSaltSync(2));
-  const payload = {
-    name: "Super Admin",
-    username: "Super Admin",
-    email: "superadmin@gmail.com",
-    password,
-    phone: "085325224829",
-    gender: "Male",
-    kk: "3318161304010001",
-    sponsorKey,
-    roleId: 1,
-  };
-  User.create(payload)
-    .then((result) => {
-      console.log("[DONE CREATE USER]");
-      process.exit(0);
-    })
-    .catch((err) => {
-      console.log("Error : ", err);
-      process.exit(0);
-    });
+
+  try {
+    const payload = {
+      name: "Super Admin",
+      username: "Super Admin",
+      email: "superadmin@gmail.com",
+      password,
+      phone: "085325224829",
+      gender: "Male",
+      kk: "3318161304010001",
+      roleId: 1,
+    };
+
+    const userData = await User.create(payload, { transaction });
+    // create sponsorKey
+    const userSponsor = await SponsorKey.create(
+      { userId: userData.userId, key: sponsorKey },
+      { transaction }
+    );
+    await userData.update({ sponsorId: userSponsor.id }, { transaction });
+    console.log("[DONE CREATE USER]");
+    process.exit(0);
+  } catch (err) {
+    console.log("Error : ", err);
+    process.exit(0);
+  }
 }
 
 async function createState() {
@@ -124,5 +134,5 @@ async function createState() {
 }
 
 // createState()
-// bulkSync()
+bulkSync()
 // createUser()
