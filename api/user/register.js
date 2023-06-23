@@ -133,7 +133,7 @@ module.exports = async (req, res) => {
       message: "Registrasi Berhasil",
     });
   } catch (err) {
-    console.log(err);
+    console.log("[!] Error : ", err);
     transaction.rollback();
     if (err.errors && err.errors.length > 0 && err.errors[0].path) {
       logger.err(err.errors);
