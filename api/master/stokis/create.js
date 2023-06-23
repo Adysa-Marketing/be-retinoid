@@ -1,23 +1,24 @@
-const { Serial } = require("../../models");
+const { Stokis } = require("../../models");
 const logger = require("../../../libs/logger");
-const cryptoString = require("crypto-random-string");
 
 module.exports = async (req, res) => {
   const source = req.body;
 
   try {
-    const serial = cryptoString({ length: 10, type: "numeric" });
     const payload = {
-      serialNumber: source.serialNumber ? source.serialNumber : serial,
-      status: 0,
-      remark: source.remark ? source.remark : null,
+      name: source.name,
+      price: source.price,
+      discount: source.discount,
+      description: source.description,
+      remark: source.remark,
     };
-    logger.info({ source, payload });
 
-    await Serial.create(payload);
+    logger.info({ source, payload });
+    await Stokis.create(payload);
+
     return res.status(201).json({
       status: "success",
-      data: "Data Serial berhasil dibuat",
+      data: "Data Stokis berhasil dibuat",
     });
   } catch (error) {
     console.log("[!]Error : ", error);
