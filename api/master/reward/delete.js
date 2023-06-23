@@ -1,21 +1,25 @@
-const { Serial } = require("../../models");
+const { Reward } = require("../../../models");
+const { RemoveFile } = require("./asset");
 const logger = require("../../../libs/logger");
 
 module.exports = async (req, res) => {
   try {
-    const id = req.params.id;
-    const serial = await Serial.findOne({ where: { id } });
-    if (!serial) {
+    const id = req.body.id;
+    const reward = await Reward.findOne({ where: { id } });
+
+    logger.info(id);
+    if (!reward)
       return res.status(404).json({
         status: "error",
-        message: "Serial tidak ditemukan",
+        message: "Data Reward tidak ditemukan",
       });
-    }
 
-    logger.info({ source });
+    await RemoveFile(reward, true);
+    await reward.destroy();
+
     return res.json({
       status: "success",
-      data: serial,
+      message: "Data Reward berhasil dihapus",
     });
   } catch (error) {
     console.log("[!] Error : ", error);

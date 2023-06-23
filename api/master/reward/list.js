@@ -1,4 +1,5 @@
-const { Serial } = require("../../models");
+const { Reward } = require("../../../models");
+const { RemoveFile } = require("./asset");
 const logger = require("../../../libs/logger");
 const Sequelize = require("sequelize");
 const Op = Sequelize.Op;
@@ -6,7 +7,6 @@ const Op = Sequelize.Op;
 module.exports = async (req, res) => {
   try {
     const source = req.body;
-
     const id =
       source.keyword.length > 3
         ? source.keyword.substr(3, source.keyword.length - 1)
@@ -19,9 +19,9 @@ module.exports = async (req, res) => {
             {
               [Op.and]: [
                 Sequelize.where(
-                  Sequelize.fn("lower", Sequelize.col("Serial.serialNumber")),
+                  Sequelize.fn("lower", Sequelize.col("Reward.name")),
                   Op.like,
-                  "%" + source.keyword.toString().toLowerCase() + "%"
+                  "%" + source.keycode.toString().toLowerCase() + "%"
                 ),
               ],
             },
@@ -35,17 +35,11 @@ module.exports = async (req, res) => {
         }
       : {};
 
-    const queryStatus = source.statusId ? { status: source.statusId } : {};
-    const where = {
-      ...keyword,
-      ...queryStatus,
-    };
-
-    logger.info({ source, where });
+    logger.info(source);
 
     const rowsPerPage = source.rowsPerPage;
     const currentPage = source.currentPage;
-    const totalData = await Serial.count({ where });
+    const totalData = await Serial.count({ where: { ...keyword } });
 
     const totalPages =
       rowsPerPage !== "All"
@@ -59,7 +53,10 @@ module.exports = async (req, res) => {
     const limit = rowsPerPage !== "All" ? rowsPerPage : totalData;
     const offsetLimit = rowsPerPage !== "All" ? { offset, limit } : {};
 
-    const data = await Serial.findAll({ ...offsetLimit, where });
+    const data = await Reward.findAll({
+      ...offsetLimit,
+      where: { ...keyword },
+    });
 
     return res.json({
       status: "success",
@@ -71,7 +68,7 @@ module.exports = async (req, res) => {
     console.log("[!] Error : ", error);
     return res.status(500).json({
       status: "error",
-      messag: error.message,
+      message: error.message,
     });
   }
 };
