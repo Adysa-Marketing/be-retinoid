@@ -1,5 +1,6 @@
 const { User } = require("../../../../models");
 const logger = require("../../../../libs/logger");
+const bcrypt = require("bcryptjs");
 const Validator = require("fastest-validator");
 const v = new Validator();
 
@@ -8,7 +9,7 @@ module.exports = async (req, res) => {
   try {
     const schema = {
       id: "number|empty:false",
-      isActive: "boolean|empty:false",
+      password: "string|empty:false",
     };
 
     const validate = v.compile(schema)(source);
@@ -19,23 +20,23 @@ module.exports = async (req, res) => {
       });
 
     const id = source.id;
-    const status = source.isActive;
+    const password = bcrypt.hashSync(source.password, bcrypt.genSaltSync(2));
 
     logger.info(source);
     const user = await User.findOne({
-      attributes: ["id", "name", "isActive"],
-      where: { id, roleId: 2 },
+      attributes: ["id", "name", "password"],
+      where: { id, roleId: 4 },
     });
-    if (!admin)
+    if (!user)
       return res.status(404).json({
         status: "error",
-        message: "Data Admin tidak ditemukan",
+        message: "Data User tidak ditemukan",
       });
 
-    await admin.update({ isActive: status });
+    await user.update({ password });
     return res.status(404).json({
       status: "success",
-      message: "Status Admin berhasil diperbarui",
+      message: "Password User berhasil diperbarui",
     });
   } catch (error) {
     console.log("[!] Error : ", error);

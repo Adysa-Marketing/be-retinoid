@@ -24,18 +24,18 @@ module.exports = async (req, res) => {
     logger.info(source);
     const user = await User.findOne({
       attributes: ["id", "name", "isActive"],
-      where: { id, roleId: 2 },
+      where: { id, roleId: 4 },
     });
-    if (!admin)
+    if (!user)
       return res.status(404).json({
         status: "error",
-        message: "Data Admin tidak ditemukan",
+        message: "Data User tidak ditemukan",
       });
 
-    await admin.update({ isActive: status });
+    await user.update({ isActive: status });
     return res.status(404).json({
       status: "success",
-      message: "Status Admin berhasil diperbarui",
+      message: "Status User berhasil diperbarui",
     });
   } catch (error) {
     console.log("[!] Error : ", error);

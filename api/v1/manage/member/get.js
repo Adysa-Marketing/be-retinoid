@@ -1,4 +1,9 @@
-const { User, SponsorKey, Referral } = require("../../../../models");
+const {
+  User,
+  Testimonial,
+  SponsorKey,
+  Referral,
+} = require("../../../../models");
 const logger = require("../../../../libs/logger");
 const Validator = require("fastest-validator");
 const v = new Validator();
@@ -17,7 +22,7 @@ module.exports = async (req, res) => {
       });
 
     const id = req.params.id;
-    const admin = await User.findOne({
+    const user = await User.findOne({
       attributes: [
         "id",
         "name",
@@ -32,6 +37,7 @@ module.exports = async (req, res) => {
         "wallet",
       ],
       include: [
+        { model: Testimonial },
         { model: SponsorKey },
         {
           model: Referral,
@@ -44,19 +50,18 @@ module.exports = async (req, res) => {
           },
         },
       ],
-      where: { id, roleId: 2 },
+      where: { id, roleId: 4 },
     });
 
     logger.info(id);
-    if (!admin)
+    if (!user)
       return res
         .status(404)
-        .json({ status: "error", message: "Data Admin tidak ditemukan" });
+        .json({ status: "error", message: "Data User tidak ditemukan" });
 
-    delete admin.password;
     return res.json({
       status: "success",
-      data: admin,
+      data: user,
     });
   } catch (error) {
     console.log("[!] Error : ", error);

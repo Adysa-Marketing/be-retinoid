@@ -41,7 +41,6 @@ module.exports = async (req, res) => {
         message: validate,
       });
 
-    const password = bcrypt.hashSync(source.password, bcrypt.genSaltSync(2));
     const sponsorKey = cryptoString({ length: 10, type: "base64" });
     const { countryId, provinceId, districtId, subDistrictId } = source;
     const image =

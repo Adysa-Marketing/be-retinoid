@@ -58,7 +58,7 @@ module.exports = async (req, res) => {
     const where = { ...keyword, ...queryStatus, ...queryGender };
 
     logger.info({ source, where });
-
+    
     const rowsPerPage = source.rowsPerPage;
     const currentPage = source.currentPage;
     const totalData = await User.count({ where });
@@ -100,7 +100,7 @@ module.exports = async (req, res) => {
     console.log("[!] Error : ", error);
     return res.status(500).json({
       status: "error",
-      messag: error.message,
+      message: error.message,
     });
   }
 };
