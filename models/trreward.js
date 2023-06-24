@@ -8,7 +8,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       date: {
         type: DataTypes.DATE,
-        defaultValue: moment().format("YYYY-MM-DD"),
+        defaultValue: moment().format("YYYY-MM-DD HH:mm:ss"),
       },
       imageKtp: {
         type: DataTypes.STRING,

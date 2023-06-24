@@ -25,7 +25,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       dateApproved: {
         type: DataTypes.DATE,
-        defaultValue: moment().format("YYYY-MM-DD"),
+        defaultValue: moment().format("YYYY-MM-DD HH:mm:ss"),
       },
       remark: DataTypes.STRING,
     },
