@@ -8,12 +8,15 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      description: DataTypes.STRING,
-      point: {
-        type: DataTypes.INTEGER,
+      description: {
+        type: DataTypes.STRING,
         allowNull: false,
       },
-      image: DataTypes.STRING,
+      image: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      point: DataTypes.INTEGER,
       remark: DataTypes.STRING,
     },
     {

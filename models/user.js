@@ -38,7 +38,10 @@ module.exports = (sequelize, DataTypes) => {
           },
         },
       },
-      kk: DataTypes.STRING,
+      kk: {
+        type: DataTypes.STRING,
+        unique: true,
+      },
       image: DataTypes.STRING,
       point: DataTypes.INTEGER,
       wallet: {
