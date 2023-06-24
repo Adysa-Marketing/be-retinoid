@@ -3,8 +3,8 @@ const Auth = require("./auth");
 // const userRouter = require("./userRouter");
 // app.use("/api/v1/user", userRouter);
 
-const Master = require("../api/master");
-const User = require("../api/user");
+const Master = require("../api/v1/master");
+const User = require("../api/v1/user");
 
 // Auth Unless
 // app.use(

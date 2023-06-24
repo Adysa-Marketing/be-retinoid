@@ -1,0 +1,48 @@
+const { Serial } = require("../../../../models");
+const logger = require("../../../../libs/logger");
+const Validator = require("fastest-validator");
+const v = new Validator();
+
+module.exports = async (req, res) => {
+  const source = req.body;
+  try {
+    const schema = {
+      id: "number|empty:false",
+      status: {
+        type: "number",
+        optional: true,
+        enum: [0, 1, 2],
+      },
+    };
+
+    const validate = v.compile(schema)(source);
+    if (validate.length)
+      return res.status(400).json({
+        status: "error",
+        message: validate,
+      });
+
+    const id = source.id;
+    const status = source.status;
+
+    logger.info(source);
+    const serial = await Serial.findByPk(id);
+    if (!serial)
+      return res.status(404).json({
+        status: "error",
+        message: "Data Serial tidak ditemukan",
+      });
+
+    await serial.update({ status });
+    return res.status(404).json({
+      status: "success",
+      message: "Status Serial berhasil diperbarui",
+    });
+  } catch (error) {
+    console.log("[!] Error : ", error);
+    return res.status(500).json({
+      status: "error",
+      message: error.message,
+    });
+  }
+};
