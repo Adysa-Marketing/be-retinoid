@@ -7,11 +7,11 @@ const Master = require("../api/v1/master");
 const User = require("../api/v1/user");
 
 // Auth Unless
-// app.use(
-//   Auth.unless({
-//     path: ["/user/login", "/user/register", '/user/testiomoni'],
-//   })
-// );
+app.use(
+  Auth.unless({
+    path: ["/api/v1/user/login", "/user/register", "/api/v1/user/testimoni"],
+  })
+);
 
 // Routing API
 app.use("/master", Master);

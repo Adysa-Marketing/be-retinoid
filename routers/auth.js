@@ -1,10 +1,10 @@
-const {unless} = require("express-unless");
+const { unless } = require("express-unless");
 const logger = require("../libs/logger");
 const Session = require("../libs/session");
 
 const Auth = (req, res, next) => {
   const header = req.headers.authorization;
-  const source = req.useragen.source;
+  const source = req.useragent.source;
   const ip = req.clientIp;
   const url = req.originalUrl;
 
