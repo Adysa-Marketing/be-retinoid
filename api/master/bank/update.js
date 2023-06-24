@@ -1,9 +1,24 @@
 const { Bank } = require("../../../models");
 const logger = require("../../../libs/logger");
+const Validator = require("fastest-validator");
+const v = new Validator();
 
 module.exports = async (req, res) => {
+  const source = req.body;
   try {
-    const source = req.body;
+    const schema = {
+      name: "string|optional",
+      noRekening: "string|optional",
+      accountName: "string|optional",
+    };
+
+    const validate = v.compile(schema)(source);
+    if (validate.length)
+      return res.status(400).json({
+        status: "error",
+        message: validate,
+      });
+
     const payload = {
       name: source.name,
       noRekening: source.noRekening,
@@ -12,7 +27,7 @@ module.exports = async (req, res) => {
     };
 
     logger.info({ source, payload });
-    const bank = await Bank.findOne({ where: { id: source.id } });
+    const bank = await Bank.findByPk(id);
     if (!bank)
       return res
         .status(404)

@@ -1,10 +1,23 @@
 const { Reward } = require("../../../models");
 const logger = require("../../../libs/logger");
+const Validator = require("fastest-validator");
+const v = new Validator();
 
 module.exports = async (req, res) => {
   try {
+    const schema = {
+      id: "number|empty:false",
+    };
+
+    const validate = v.compile(schema)(req.params);
+    if (validate.length)
+      return res.status(400).json({
+        status: "error",
+        message: validate,
+      });
+
     const id = req.params.id;
-    const data = await Reward.findOne({ where: { id } });
+    const data = await Reward.findByPk(id);
 
     if (!data)
       return res.status(404).json({

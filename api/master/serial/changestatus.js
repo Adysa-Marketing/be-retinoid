@@ -1,36 +1,42 @@
-const { Stokis } = require("../../../models");
+const { Serial } = require("../../../models");
 const logger = require("../../../libs/logger");
 const Validator = require("fastest-validator");
 const v = new Validator();
 
 module.exports = async (req, res) => {
+  const source = req.body;
   try {
     const schema = {
       id: "number|empty:false",
+      status: {
+        type: "number",
+        optional: true,
+        enum: [0, 1, 2],
+      },
     };
 
-    const validate = v.compile(schema)(req.body);
+    const validate = v.compile(schema)(source);
     if (validate.length)
       return res.status(400).json({
         status: "error",
         message: validate,
       });
 
-    const id = req.body.id;
-    const stokis = await Stokis.findByPk(id);
+    const id = source.id;
+    const status = source.status;
 
-    logger.info(id);
-    if (!stokis)
+    logger.info(source);
+    const serial = await Serial.findByPk(id);
+    if (!serial)
       return res.status(404).json({
         status: "error",
-        message: "Data Stokis tidak ditemukan",
+        message: "Data Serial tidak ditemukan",
       });
 
-    await stokis.destroy();
-
-    return res.json({
+    await serial.update({ status });
+    return res.status(404).json({
       status: "success",
-      message: "Data Stokis berhasil dihapus",
+      message: "Status Serial berhasil diperbarui",
     });
   } catch (error) {
     console.log("[!] Error : ", error);

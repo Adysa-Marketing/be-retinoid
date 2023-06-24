@@ -1,10 +1,23 @@
 const { Bank } = require("../../../models");
 const logger = require("../../../libs/logger");
+const Validator = require("fastest-validator");
+const v = new Validator();
 
 module.exports = async (req, res) => {
   try {
+    const schema = {
+      id: "number|empty:false",
+    };
+
+    const validate = v.compile(schema)(req.body);
+    if (validate.length)
+      return res.status(400).json({
+        status: "error",
+        message: validate,
+      });
+
     const id = req.body.id;
-    const bank = await Bank.findOne({ where: { id } });
+    const bank = await Bank.findByPk(id);
 
     logger.info(id);
 

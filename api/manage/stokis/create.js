@@ -1,9 +1,26 @@
 const { Stokis } = require("../../../models");
 const logger = require("../../../libs/logger");
+const Validator = require("fastest-validator");
+const v = new Validator();
 
 module.exports = async (req, res) => {
   const source = req.body;
   try {
+    const schema = {
+      name: "string|empty:false",
+      price: "number|empty:false",
+      discount: "number|empty:false",
+      description: "string|empty:false",
+      remark: "string|optional",
+    };
+
+    const validate = v.compile(schema)(source);
+    if (validate.length)
+      return res.status(400).json({
+        status: "error",
+        message: validate,
+      });
+
     const payload = {
       name: source.name,
       price: source.price,

@@ -1,11 +1,26 @@
 const { Reward } = require("../../../models");
 const { RemoveFile } = require("./asset");
 const logger = require("../../../libs/logger");
+const Validator = require("fastest-validator");
+const v = new Validator();
 
 module.exports = async (req, res) => {
   const source = req.user;
   const files = req.files;
   try {
+    const schema = {
+      id: "number|empty:false",
+      name: "string|optional",
+      description: "string|optional",
+    };
+
+    const validate = v.compile(schema)(source);
+    if (validate.length)
+      return res.status(400).json({
+        status: "error",
+        message: validate,
+      });
+
     const id = source.id;
     const image =
       files && files.image && files.image.length > 0
@@ -22,7 +37,7 @@ module.exports = async (req, res) => {
 
     logger.info({ source, files, payload });
 
-    const reward = await Reward.findOne({ id });
+    const reward = await Reward.findByPk(id);
     if (!reward)
       return res.status(404).json({
         status: "error",

@@ -1,11 +1,29 @@
 const { Product } = require("../../../models");
 const { RemoveFile } = require("./asset");
 const logger = require("../../../libs/logger");
+const Validator = require("fastest-validator");
+const v = new Validator();
 
 module.exports = async (req, res) => {
   const source = req.user;
   const files = req.files;
   try {
+    const schema = {
+      id: "number|empty:false",
+      name: "string|optional",
+      type: "string|optional",
+      amount: "number|optional",
+      description: "string|optional",
+      stock: "number|optional",
+    };
+
+    const validate = v.compile(schema)(source);
+    if (validate.length)
+      return res.status(400).json({
+        status: "error",
+        message: validate,
+      });
+
     const id = source.id;
     const image =
       files && files.image && files.image.length > 0

@@ -14,11 +14,41 @@ const bcrypt = require("bcryptjs");
 const cryptoString = require("crypto-random-string");
 const moment = require("moment");
 
+const Validator = require("fastest-validator");
+const v = new Validator();
+
 module.exports = async (req, res) => {
   const source = req.body;
   const transaction = await db.sequelize.transaction({ autocommit: false });
 
   try {
+    const schema = {
+      name: "string|empty:false",
+      username: "string|empty:false",
+      password: "string|empty:false|min:5",
+      email: "email|empty:false",
+      phone: "string|optional|min:9|max:13",
+      gender: {
+        type: "string",
+        enum: ["Male", "Female"],
+        optional: true,
+      },
+      kk: "string|optional",
+      address: "string|optional",
+      noRekening: "string|optional",
+      countryId: "number|optional",
+      districtId: "number|optional",
+      subDistrictId: "number|optional",
+      remark: "string|optional",
+    };
+
+    const validate = v.compile(schema)(source);
+    if (validate.length)
+      return res.status(400).json({
+        status: "error",
+        message: validate,
+      });
+
     const password = bcrypt.hashSync(source.password, bcrypt.genSaltSync(2));
     const sponsorKey = cryptoString({ length: 10, type: "base64" });
     const { countryId, provinceId, districtId, subDistrictId, referral } =

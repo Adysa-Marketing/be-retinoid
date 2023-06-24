@@ -6,9 +6,22 @@ const { User, SponsorKey, Serial } = require("../../models");
 const bcryptjs = require("bcryptjs");
 
 module.exports = async (req, res) => {
-  const { username, password } = req.body;
+  const source = req.body;
 
   try {
+    const schema = {
+      username: "string|empty:false",
+      password: "string|empty:false",
+    };
+
+    const validate = v.compile(schema)(source);
+    if (validate.length)
+      return res.status(400).json({
+        status: "error",
+        message: validate,
+      });
+
+    const { username, password } = source;
     const attributes = {
       exclude: ["countryId", "provinceId", "districtId", "subDistrictId"],
     };

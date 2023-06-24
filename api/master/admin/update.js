@@ -2,10 +2,41 @@ const { User } = require("../../../models");
 const { RemoveFile } = require("./asset");
 const logger = require("../../../libs/logger");
 
+const Validator = require("fastest-validator");
+const v = new Validator();
+
 module.exports = async (req, res) => {
   const source = req.user;
   const files = req.files;
   try {
+    const schema = {
+      id: "number|empty:false",
+      name: "string|optional",
+      username: "string|optional",
+      password: "string|optional|min:5",
+      email: "email|optional",
+      phone: "string|optional|min:9|max:13",
+      gender: {
+        type: "string",
+        enum: ["Male", "Female"],
+        optional: true,
+      },
+      kk: "string|optional",
+      address: "string|optional",
+      noRekening: "string|optional",
+      countryId: "number|optional",
+      districtId: "number|optional",
+      subDistrictId: "number|optional",
+      remark: "string|optional",
+    };
+
+    const validate = v.compile(schema)(source);
+    if (validate.length)
+      return res.status(400).json({
+        status: "error",
+        message: validate,
+      });
+
     const id = source.id;
     const password = source.password
       ? bcrypt.hashSync(source.password, bcrypt.genSaltSync(2))
@@ -33,7 +64,7 @@ module.exports = async (req, res) => {
 
     logger.info({ source, files, payload });
 
-    const admin = await User.findOne({ id });
+    const admin = await User.findByPk(id);
     if (!admin)
       return res.status(404).json({
         status: "error",

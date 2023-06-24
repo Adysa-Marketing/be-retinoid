@@ -2,11 +2,25 @@ const { Reward } = require("../../../models");
 const { RemoveFile } = require("./asset");
 
 const logger = require("../../../libs/logger");
+const Validator = require("fastest-validator");
+const v = new Validator();
 
 module.exports = async (req, res) => {
   const source = req.user;
   const files = req.files;
   try {
+    const schema = {
+      name: "string|empty:false",
+      description: "string|empty:false",
+    };
+
+    const validate = v.compile(schema)(source);
+    if (validate.length)
+      return res.status(400).json({
+        status: "error",
+        message: validate,
+      });
+
     const image =
       files && files.image && files.image.length > 0
         ? { image: files.image[0].filename }
