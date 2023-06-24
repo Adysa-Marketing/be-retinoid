@@ -56,6 +56,10 @@ module.exports = (sequelize, DataTypes) => {
         defaultValue: true,
       },
       noRekening: DataTypes.STRING,
+      totalDownline: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0
+      },
       remark: DataTypes.STRING,
     },
     {

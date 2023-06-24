@@ -20,6 +20,8 @@ const v = new Validator();
 module.exports = async (req, res) => {
   const source = req.body;
   const transaction = await db.sequelize.transaction({ autocommit: false });
+  let isRegistered = false;
+  let upliner = null;
 
   try {
     const schema = {
@@ -158,6 +160,11 @@ module.exports = async (req, res) => {
     // proses commission
 
     transaction.commit();
+
+    // condition for calculate downline in the upliner
+    isRegistered = true;
+    upliner = sponsor.userId;
+
     return res.json({
       status: "success",
       message: "Registrasi Berhasil",
@@ -188,6 +195,10 @@ module.exports = async (req, res) => {
         status: "error",
         message: err.message,
       });
+    }
+  } finally {
+    if (isRegistered && upliner != null) {
+      await calculateDownline(upliner);
     }
   }
 };
@@ -254,4 +265,38 @@ const calculateDownlineBonus = async (
     downlineId,
     transaction
   );
+};
+
+const calculateDownline = async (userSponsorId) => {
+  try {
+    // menambahkan jumlah downline kepada upline
+    await User.update(
+      { totalDownline: sequelize.col("totalDownline") + 1 },
+      { where: { id: userSponsorId } }
+    );
+
+    let referral = await Referral.findOne({
+      attributes: ["userId", "sponsorId"],
+      where: { userId: userSponsorId },
+      include: [
+        {
+          attributes: ["userId", "sponsorKey"],
+          model: SponsorKey,
+          required: true,
+        },
+      ],
+    });
+    // jika tidak ada sponsorId langsung return
+    if (!referral) {
+      return;
+    }
+    referral = JSON.parse(JSON.stringify(referral));
+
+    // next uplineId
+    const userUplineId = referral.SponsorKey[0].userId;
+
+    await calculateDownline(userUplineId);
+  } catch (error) {
+    console.log("[!] Error :", error);
+  }
 };
