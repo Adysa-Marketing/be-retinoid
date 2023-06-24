@@ -8,7 +8,7 @@ module.exports = async (req, res) => {
     const status = source.isActive;
 
     logger.info({ is, status });
-    const admin = await User.findOne({ where: { id } });
+    const admin = await User.findByPk(id);
     if (!admin)
       return res.status(404).json({
         status: "error",

@@ -1,4 +1,4 @@
-const { Serial } = require("../../models");
+const { Serial } = require("../../../models");
 const logger = require("../../../libs/logger");
 
 module.exports = async (req, res) => {

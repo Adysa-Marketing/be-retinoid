@@ -21,7 +21,7 @@ router.put(
   "/update",
   IsAdmin,
   Asset.Directory,
-  Update.fields([{ name: "image", maxCount: 1 }]),
+  Upload.fields([{ name: "image", maxCount: 1 }]),
   Update
 );
 router.delete("/delete",IsAdmin, Delete);

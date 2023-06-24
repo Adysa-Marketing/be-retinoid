@@ -2,8 +2,8 @@ const env = process.env.NODE_ENV;
 const config = require("../../config/redis")[env];
 
 const redis = require("redis");
-const { promiseAll } = require("bluebird");
-promiseAll(redis);
+const { promisifyAll } = require("bluebird");
+promisifyAll(redis);
 
 const redisClient = redis.createClient(config);
 redisClient.on("error", (err) => {

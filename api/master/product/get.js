@@ -1,5 +1,5 @@
 const { Product } = require("../../../models");
-const logger = require("../../../libs");
+const logger = require("../../../libs/logger");
 
 module.exports = async (req, res) => {
   try {
