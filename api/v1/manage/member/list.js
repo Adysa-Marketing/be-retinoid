@@ -55,10 +55,10 @@ module.exports = async (req, res) => {
 
     const queryStatus = source.isActive ? { isActive: source.isActive } : {};
     const queryGender = source.gender ? { gender: source.gender } : {};
-    const where = { ...keyword, ...queryStatus, ...queryGender };
+    const where = { ...keyword, ...queryStatus, ...queryGender, roleId: 4 };
 
     logger.info({ source, where });
-    
+
     const rowsPerPage = source.rowsPerPage;
     const currentPage = source.currentPage;
     const totalData = await User.count({ where });
