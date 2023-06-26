@@ -3,7 +3,7 @@ const config = require("../../../../config/core")[env];
 const fs = require("fs");
 
 const Directory = (req, res, next) => {
-  const dir = `${config.tempdir}/trx/widhraw`;
+  const dir = `${config.tempdir}/trx/stokis`;
   req.tempdir = dir;
   try {
     if (fs.existsSync(dir)) {
@@ -25,7 +25,7 @@ const Directory = (req, res, next) => {
 
 const RemoveFile = (files, status) => {
   return new Promise(async (resolve, reject) => {
-    const tempDir = `${config.tempDir}/trx/widhraw/`;
+    const tempDir = `${config.tempDir}/trx/stokis/`;
     const image = status
       ? files.image
       : files && files.image.length > 0

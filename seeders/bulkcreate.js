@@ -76,10 +76,10 @@ async function createCommissionLevel() {
 
 async function createAgenStatus() {
   await AgenStatus.bulkCreate([
-    { name: "PENDING" },
-    { name: "DISABLED" },
-    { name: "REJECTED" },
-    { name: "ACTIVED" },
+    { name: "Pending" },
+    { name: "Disabled" },
+    { name: "Rejected" },
+    { name: "Actived" },
   ]);
   console.log("[DONE CREATE AGEN-STATUS]");
 }
