@@ -56,7 +56,7 @@ async function createWdStatus() {
     { name: "Pending" },
     { name: "Canceled" },
     { name: "Rejected" },
-    { name: "Process" },
+    { name: "Processed" },
     { name: "Transfered" },
   ]);
   console.log("[DONE CREATE WD-STATUS]");
