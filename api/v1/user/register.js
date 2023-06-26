@@ -113,7 +113,7 @@ module.exports = async (req, res) => {
     await Referral.create(
       {
         userId: userData.id,
-        sponsorId: userSponsor.id,
+        sponsorId: sponsor.id,
       },
       { transaction }
     );
@@ -287,7 +287,7 @@ const calculateDownline = async (userSponsorId) => {
       ],
     });
     // jika tidak ada sponsorId langsung return
-    if (!referral || !referral.sponsorKey) {
+    if (!referral || !referral.sponsorId) {
       return;
     }
     referral = JSON.parse(JSON.stringify(referral));
