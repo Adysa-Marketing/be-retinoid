@@ -44,6 +44,24 @@ module.exports = async (req, res) => {
               ],
             },
             {
+              [Op.and]: [
+                Sequelize.where(
+                  Sequelize.fn("lower", Sequelize.col("User.username")),
+                  Op.like,
+                  "%" + source.keyword.toString().toLowerCase() + "%"
+                ),
+              ],
+            },
+            {
+              [Op.and]: [
+                Sequelize.where(
+                  Sequelize.fn("lower", Sequelize.col("User.email")),
+                  Op.like,
+                  "%" + source.keyword.toString().toLowerCase() + "%"
+                ),
+              ],
+            },
+            {
               id: !isNaN(source.keyword) ? parseInt(source.keyword) : 0,
             },
             {

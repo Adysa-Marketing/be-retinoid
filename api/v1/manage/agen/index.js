@@ -1,23 +1,17 @@
 const router = require("express").Router();
-const Asset = require("./asset");
-const ChangePass = require('./changepassword')
+const ChangePass = require("./changepassword");
 const ChangeStat = require("./changestatus");
 const Create = require("./create");
+const Delete = require("./delete");
 const Get = require("./get");
 const List = require("./list");
-const Upload = require("../../../../libs/upload");
 const IsAdmin = require("../../../middleware/isAdmin");
 
 router.get("/get/:id", IsAdmin, Get);
 router.get("/list", IsAdmin, List);
-router.post(
-  "/create",
-  IsAdmin,
-  Asset.Directory,
-  Upload.fields([{ name: "image", maxCount: 1 }]),
-  Create
-);
+router.post("/create", IsAdmin, Create);
 router.put("/change-pass", IsAdmin, ChangePass);
 router.put("/change-status", IsAdmin, ChangeStat);
+router.delete("/delete", IsAdmin, Delete);
 
 module.exports = router;
