@@ -8,19 +8,6 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      type: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        defaultValue: "PAKET A",
-        validate: {
-          customValidator: (value) => {
-            const enums = ["PAKET A", "PAKET B", "PAKET C"];
-            if (!enums.includes(value)) {
-              throw new Error("not a valid option");
-            }
-          },
-        },
-      },
       amount: {
         type: DataTypes.BIGINT,
         allowNull: false,
@@ -44,6 +31,12 @@ module.exports = (sequelize, DataTypes) => {
     });
     Product.hasMany(models.ATrSale, {
       foreignKey: "productId",
+    });
+
+    Product.belongsTo(models.ProductCategory, {
+      foreignKey: {
+        field: "categoryId",
+      },
     });
 
     Product.belongsToMany(models.User, {
