@@ -58,7 +58,7 @@ module.exports = (sequelize, DataTypes) => {
       noRekening: DataTypes.STRING,
       totalDownline: {
         type: DataTypes.INTEGER,
-        defaultValue: 0
+        defaultValue: 0,
       },
       remark: DataTypes.STRING,
     },
@@ -137,6 +137,9 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: "userId",
     });
     User.hasMany(models.TrStokis, {
+      foreignKey: "userId",
+    });
+    User.hasMany(models.Bank, {
       foreignKey: "userId",
     });
 

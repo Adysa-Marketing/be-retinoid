@@ -24,6 +24,12 @@ module.exports = (sequelize, DataTypes) => {
   );
 
   Bank.associate = (models) => {
+    Bank.belongsTo(models.User, {
+      foreignKey: {
+        field: "userId",
+      },
+    });
+
     Bank.hasMany(models.TrSale, {
       foreignKey: "bankId",
     });
