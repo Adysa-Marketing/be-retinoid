@@ -1,5 +1,6 @@
-const { Bank } = require("../../../../models");
+const { ProductCategory } = require("../../../../models");
 const logger = require("../../../../libs/logger");
+
 const Validator = require("fastest-validator");
 const v = new Validator();
 
@@ -7,10 +8,8 @@ module.exports = async (req, res) => {
   const source = req.body;
   try {
     const schema = {
-      name: "string|optional",
-      noRekening: "string|optional",
-      accountName: "string|optional",
-      remark: "string|optional"
+      name: "string|empty:false",
+      remark: "string|optional",
     };
 
     const validate = v.compile(schema)(source);
@@ -22,22 +21,15 @@ module.exports = async (req, res) => {
 
     const payload = {
       name: source.name,
-      noRekening: source.noRekening,
-      accountName: source.accountName,
       remark: source.remark,
     };
 
     logger.info({ source, payload });
-    const bank = await Bank.findByPk(id);
-    if (!bank)
-      return res
-        .status(404)
-        .json({ status: "error", message: "Data Bank tidak ditemukan" });
+    await ProductCategory.create(payload);
 
-    await bank.update(payload);
-    return res.json({
+    return res.status(201).json({
       status: "success",
-      message: "Data Bank berhasil diperbarui",
+      message: "Data Kategori Produk berhasil dibuat",
     });
   } catch (error) {
     console.log("[!] Error : ", error);
