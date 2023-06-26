@@ -34,7 +34,7 @@ module.exports = async (req, res) => {
       });
 
     await serial.update({ status });
-    return res.status(404).json({
+    return res.json({
       status: "success",
       message: "Status Serial berhasil diperbarui",
     });
