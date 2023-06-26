@@ -4,6 +4,7 @@ const Validator = require("fastest-validator");
 const v = new Validator();
 
 module.exports = async (req, res) => {
+  const user = req.user;
   try {
     const schema = {
       id: "number|empty:false",
@@ -16,6 +17,7 @@ module.exports = async (req, res) => {
         message: validate,
       });
 
+    const queryUser = user && [4].includes(user.role) ? { id: user.id } : {};
     let commission = await Commission.findOne({
       where: { id },
       include: [
@@ -23,6 +25,7 @@ module.exports = async (req, res) => {
           attributes: ["id", "name", "username", "email", "phone"],
           as: "Upline",
           model: User,
+          where: { ...queryUser },
         },
         {
           attributes: ["id", "name", "username", "email", "phone"],

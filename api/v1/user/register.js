@@ -270,10 +270,10 @@ const calculateDownlineBonus = async (
 const calculateDownline = async (userSponsorId) => {
   try {
     // menambahkan jumlah downline kepada upline
-    await User.update(
-      { totalDownline: sequelize.col("totalDownline") + 1 },
-      { where: { id: userSponsorId } }
-    );
+    const user = await User.findByPk({ userSponsorId });
+    if (!user) return;
+
+    await user.update({ totalDownline: sequelize.col("totalDownline") + 1 });
 
     let referral = await Referral.findOne({
       attributes: ["userId", "sponsorId"],
@@ -287,7 +287,7 @@ const calculateDownline = async (userSponsorId) => {
       ],
     });
     // jika tidak ada sponsorId langsung return
-    if (!referral) {
+    if (!referral || !referral.sponsorKey) {
       return;
     }
     referral = JSON.parse(JSON.stringify(referral));

@@ -85,24 +85,32 @@ module.exports = async (req, res) => {
       ...offsetLimit,
       where,
       include: [...includeParent],
-    }).then((result) => {
-      result = JSON.parse(JSON.stringify(result));
-      const data = result.map((comm) => {
-        comm = moment(comm.date)
-          .utc()
-          .add(7, "hours")
-          .format("YYYY-MM-DD HH:mm:ss");
+    })
+      .then((result) => {
+        result = JSON.parse(JSON.stringify(result));
+        const data = result.map((comm) => {
+          comm.date = moment(comm.date)
+            .utc()
+            .add(7, "hours")
+            .format("YYYY-MM-DD HH:mm:ss");
 
-        return comm;
-      });
+          return comm;
+        });
 
-      return res.json({
-        status: "success",
-        data,
-        totalData,
-        totalPages,
+        return res.json({
+          status: "success",
+          data,
+          totalData,
+          totalPages,
+        });
+      })
+      .catch((error) => {
+        console.log("[!] Error : ", error);
+        return res.status(500).json({
+          status: "error",
+          message: error.message,
+        });
       });
-    });
   } catch (error) {
     console.log("[!] Error : ", error);
     return res.status(500).json({
