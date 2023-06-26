@@ -10,7 +10,7 @@ module.exports = async (req, res) => {
   try {
     const schema = {
       name: "string|empty:false",
-      type: "string|empty:false",
+      categoryId: "number|empty:false",
       amount: "number|empty:false",
       description: "string|optional",
       stock: "number|empty:false",
@@ -30,7 +30,7 @@ module.exports = async (req, res) => {
 
     const payload = {
       name: source.name,
-      type: source.type,
+      categoryId: source.categoryId,
       amount: source.amount,
       description: source.description,
       stock: source.stock,

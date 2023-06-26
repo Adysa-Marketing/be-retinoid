@@ -11,7 +11,7 @@ module.exports = async (req, res) => {
     const schema = {
       id: "number|empty:false",
       name: "string|optional",
-      type: "string|optional",
+      categoryId: "number|optional",
       amount: "number|optional",
       description: "string|optional",
       stock: "number|optional",
@@ -32,7 +32,7 @@ module.exports = async (req, res) => {
 
     const payload = {
       name: source.name,
-      type: source.type,
+      categoryId: source.categoryId,
       amount: source.amount,
       description: source.description,
       stock: source.stock,

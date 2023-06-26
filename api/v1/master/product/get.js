@@ -1,4 +1,4 @@
-const { Product } = require("../../../../models");
+const { Product, ProductCategory } = require("../../../../models");
 const logger = require("../../../../libs/logger");
 const Validator = require("fastest-validator");
 const v = new Validator();
@@ -17,7 +17,12 @@ module.exports = async (req, res) => {
       });
 
     const id = req.params.id;
-    const product = await Product.findByPk(id);
+    const product = await Product.findOne({
+      where: { id },
+      include: {
+        model: ProductCategory,
+      },
+    });
 
     logger.info(id);
     if (!product)

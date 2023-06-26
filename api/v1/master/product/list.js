@@ -1,4 +1,4 @@
-const { Product } = require("../../../../models");
+const { Product, ProductCategory } = require("../../../../models");
 const logger = require("../../../../libs/logger");
 const Sequelize = require("sequelize");
 const Op = Sequelize.Op;
@@ -35,17 +35,24 @@ module.exports = async (req, res) => {
         }
       : {};
 
-    const queryStatus = source.statusId ? { status: source.statusId } : {};
+    const queryCategory = source.categoryId
+      ? { categoryId: source.categoryId }
+      : {};
     const where = {
       ...keyword,
-      ...queryStatus,
+      ...queryCategory,
     };
 
     logger.info({ source, where });
 
     const rowsPerPage = source.rowsPerPage;
     const currentPage = source.currentPage;
-    const totalData = await Product.count({ where });
+    const totalData = await Product.count({
+      where,
+      include: {
+        model: ProductCategory,
+      },
+    });
 
     const totalPages =
       rowsPerPage !== "All"
@@ -59,7 +66,13 @@ module.exports = async (req, res) => {
     const limit = rowsPerPage !== "All" ? rowsPerPage : totalData;
     const offsetLimit = rowsPerPage !== "All" ? { offset, limit } : {};
 
-    const data = await Product.findAll({ ...offsetLimit, where });
+    const data = await Product.findAll({
+      ...offsetLimit,
+      where,
+      include: {
+        model: ProductCategory,
+      },
+    });
 
     return res.json({
       status: "success",
