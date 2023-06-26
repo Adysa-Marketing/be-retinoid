@@ -1,8 +1,8 @@
 "use strict";
 
 module.exports = (sequelize, DataTypes) => {
-  const Bank = sequelize.define(
-    "Bank",
+  const UserBank = sequelize.define(
+    "UserBank",
     {
       name: {
         type: DataTypes.STRING,
@@ -23,13 +23,10 @@ module.exports = (sequelize, DataTypes) => {
     }
   );
 
-  Bank.associate = (models) => {
-    Bank.hasMany(models.TrSale, {
-      foreignKey: "bankId",
-    });
-    Bank.hasMany(models.TrStokis, {
-      foreignKey: "bankId",
+  UserBank.associate = (models) => {
+    UserBank.belongsTo(models.User, {
+      foreignKey: "userId",
     });
   };
-  return Bank;
+  return UserBank;
 };
