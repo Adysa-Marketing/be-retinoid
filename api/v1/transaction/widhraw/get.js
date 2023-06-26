@@ -1,4 +1,6 @@
-const { Commission, User, CommissionLevel } = require("../../../../models");
+const { User, Widhraw, WdStatus } = require("../../../../models");
+const logger = require("../../../../libs/logger");
+
 const moment = require("moment");
 const Validator = require("fastest-validator");
 const v = new Validator();
@@ -17,44 +19,36 @@ module.exports = async (req, res) => {
         message: validate,
       });
 
-    const queryMember =
-      user && [4].includes(user.role) ? { userId: user.id } : {};
+    const id = req.params.id;
+    const queryMember = [4].includes(user.id) ? { userId: user.id } : {};
 
-    let commission = await Commission.findOne({
+    let widhraw = await Widhraw.findOne({
       where: { id, ...queryMember },
       include: [
         {
-          attributes: ["id", "name", "username", "email", "phone"],
-          as: "Upline",
+          attribute: ["id", "name", "email", "phone"],
           model: User,
         },
         {
-          attributes: ["id", "name", "username", "email", "phone"],
-          as: "Downline",
-          model: User,
-        },
-        {
-          attributes: ["id", "name", "percent"],
-          model: CommissionLevel,
+          attribute: ["id", "name", "remark"],
+          model: WdStatus,
         },
       ],
     });
 
-    if (!commission)
-      return res.status(404).json({
-        status: "error",
-        message: "Data Komisi tidak ditemukan",
-      });
+    logger.info(id);
+    if (!widhraw)
+      return res
+        .status(404)
+        .json({ status: "error", message: "Data Widhraw tidak ditemukan" });
 
-    commission = JSON.parse(JSON.stringify(commission));
-    commission.date = moment(commission.date)
+    widhraw.createdAt = moment(widhraw.createdAt)
       .utc()
       .add(7, "hours")
       .format("YYYY-MM-DD HH:mm:ss");
-
     return res.json({
       status: "success",
-      data: commission,
+      data: widhraw,
     });
   } catch (error) {
     console.log("[!] Error : ", error);

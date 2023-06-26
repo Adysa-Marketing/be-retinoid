@@ -6,6 +6,7 @@ const Auth = require("./auth");
 const Manage = require("../api/v1/manage");
 const Master = require("../api/v1/master");
 const Setting = require("../api/v1/setting");
+const Transaction = require("../api/v1/transaction");
 const User = require("../api/v1/user");
 
 // Auth Unless
@@ -19,6 +20,7 @@ app.use(
 app.use("/manage", Manage);
 app.use("/master", Master);
 app.use("/setting", Setting);
+app.use("/trx", Transaction);
 app.use("/user", User);
 
 module.exports = app;
