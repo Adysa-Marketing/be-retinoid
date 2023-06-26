@@ -20,7 +20,7 @@ module.exports = async (req, res) => {
             {
               [Op.and]: [
                 Sequelize.where(
-                  Sequelize.fn("lower", Sequelize.col("Refferal.User.name")),
+                  Sequelize.fn("lower", Sequelize.col("User.name")),
                   Op.like,
                   "%" + source.keyword.toString().toLowerCase() + "%"
                 ),
@@ -36,12 +36,15 @@ module.exports = async (req, res) => {
         }
       : {};
 
-    const sponsorKey = await SponsorKey.findOne({ where: { userId: user.id } });
+    let sponsorKey = null;
+    if ([4].includes(user.roleId)) {
+      sponsorKey = await SponsorKey.findOne({
+        attributes: ["id", "userId", "key"],
+        where: { userId: user.id },
+      });
+    }
+    const queryMember = sponsorKey ? { userId: sponsorKey.userId } : {}; // upline roleId 4
 
-    const where = {
-      ...keyword,
-      sponsorId: sponsorKey.id,
-    };
     const includeParent = [
       {
         attributes: [
@@ -52,7 +55,28 @@ module.exports = async (req, res) => {
           "phone",
           "totalDownline",
         ],
-        model: User,
+        model: User, //downline
+        where: {
+          ...keyword,
+        },
+      },
+      {
+        attributes: ["id", "userId", "key"],
+        model: SponsorKey,
+        where: {
+          ...queryMember,
+        },
+        include: {
+          attributes: [
+            "id",
+            "name",
+            "username",
+            "email",
+            "phone",
+            "totalDownline",
+          ],
+          model: User,  //upline
+        },
       },
     ];
 
