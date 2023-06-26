@@ -16,17 +16,14 @@ module.exports = (sequelize, DataTypes) => {
         defaultValue: 0,
         validate: {
           customValidator: (value) => {
-            const enums = [0, 1, 2]; //pending, approve, reject
+            const enums = [0, 1, 2]; //pending, active, disabled
             if (!enums.includes(value)) {
               throw new Error("not a valid option");
             }
           },
         },
       },
-      dateApproved: {
-        type: DataTypes.DATE,
-        defaultValue: moment().format("YYYY-MM-DD HH:mm:ss"),
-      },
+      dateApproved: DataTypes.DATE,
       remark: DataTypes.STRING,
     },
     {

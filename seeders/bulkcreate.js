@@ -1,6 +1,7 @@
 require("dotenv").config({ path: "../.env" });
 
 const {
+  AgenStatus,
   CommissionLevel,
   Country,
   PaymentType,
@@ -70,10 +71,21 @@ async function createCommissionLevel() {
     { name: "Level 4", percent: 3 },
     { name: "Level 5", percent: 2 },
   ]);
+  console.log("[DONE CREATE COMMISSION-LEVEL]");
+}
+
+async function createAgenStatus() {
+  await AgenStatus.bulkCreate([
+    { name: "PENDING" },
+    { name: "ACTIVED" },
+    { name: "DISABLED" },
+  ]);
+  console.log("[DONE CREATE AGEN-STATUS]");
 }
 
 async function bulkSync() {
   Promise.all(
+    createAgenStatus(),
     createRole(),
     createTrStatus(),
     createPaymentType(),
@@ -106,6 +118,7 @@ async function createUser() {
       gender: "Male",
       kk: "3318161304010001",
       roleId: 1,
+      isActive: true,
     };
 
     const userData = await User.create(payload, { transaction });
@@ -134,5 +147,5 @@ async function createState() {
 }
 
 // createState()
-bulkSync()
+bulkSync();
 // createUser()

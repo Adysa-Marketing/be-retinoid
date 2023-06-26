@@ -1,4 +1,4 @@
-const { User, Referral, SponsorKey } = require("../../../../models");
+const { User, SponsorKey } = require("../../../../models");
 const logger = require("../../../../libs/logger");
 const db = require("../../../models");
 const { RemoveFile } = require("./asset");
@@ -41,6 +41,7 @@ module.exports = async (req, res) => {
         message: validate,
       });
 
+    const password = bcrypt.hashSync(source.password, bcrypt.genSaltSync(2));
     const sponsorKey = cryptoString({ length: 10, type: "base64" });
     const { countryId, provinceId, districtId, subDistrictId } = source;
     const image =
@@ -74,15 +75,6 @@ module.exports = async (req, res) => {
       { transaction }
     );
     await userData.update({ sponsorId: userSponsor.id }, { transaction });
-
-    // create referral
-    await Referral.create(
-      {
-        userId: userData.id,
-        sponsorId: userSponsor.id,
-      },
-      { transaction }
-    );
 
     transaction.commit();
     return res.json({

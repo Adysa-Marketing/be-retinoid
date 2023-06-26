@@ -1,4 +1,4 @@
-const { User } = require("../../../../models");
+const { User, Agen } = require("../../../../models");
 const logger = require("../../../../libs/logger");
 const bcrypt = require("bcryptjs");
 const Validator = require("fastest-validator");
@@ -25,17 +25,24 @@ module.exports = async (req, res) => {
     const password = bcrypt.hashSync(source.password, bcrypt.genSaltSync(2));
 
     logger.info(source);
-    const admin = await User.findOne({
-      attributes: ["id", "name", "password"],
-      where: { id, roleId: 2 },
-    });
-    if (!admin)
+    const agen = await Agen.findByPk(id);
+    if (!agen)
       return res.status(404).json({
         status: "error",
-        message: "Data Admin tidak ditemukan",
+        message: "Data Agen tidak ditemukan",
       });
 
-    if (user && [2].includes(user.roleId)) {
+    const account = await User.findOne({
+      attributes: ["id", "name", "password"],
+      where: { id: agen.userId, roleId: 3 },
+    });
+    if (!account)
+      return res.status(404).json({
+        status: "error",
+        message: "Account tidak ditemukan",
+      });
+
+    if (user && [3].includes(user.roleId)) {
       // validate old password
       if (!source.oldPassword)
         return res.status(400).json({
@@ -43,7 +50,7 @@ module.exports = async (req, res) => {
           message: "Tolong inputkan password lama anda",
         });
 
-      if (!bcrypt.compareSync(source.oldPassword, admin.password)) {
+      if (!bcrypt.compareSync(source.oldPassword, account.password)) {
         return res.status(400).json({
           status: "error",
           message: "Password lama yang anda masukkan salah",
@@ -51,10 +58,10 @@ module.exports = async (req, res) => {
       }
     }
 
-    await admin.update({ password });
+    await account.update({ password });
     return res.json({
       status: "success",
-      message: "Password Admin berhasil diperbarui",
+      message: "Password Agen berhasil diperbarui",
     });
   } catch (error) {
     console.log("[!] Error : ", error);

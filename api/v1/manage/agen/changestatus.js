@@ -1,14 +1,15 @@
-const { User } = require("../../../../models");
+const { Agen } = require("../../../../models");
 const logger = require("../../../../libs/logger");
 const Validator = require("fastest-validator");
 const v = new Validator();
+const moment = require("moment");
 
 module.exports = async (req, res) => {
   const source = req.body;
   try {
     const schema = {
       id: "number|empty:false",
-      isActive: "boolean|empty:false",
+      status: "number|empty:false",
     };
 
     const validate = v.compile(schema)(source);
@@ -19,23 +20,31 @@ module.exports = async (req, res) => {
       });
 
     const id = source.id;
-    const status = source.isActive;
+    const dateApproved =
+      source.status == 1
+        ? { dateApproved: moment().format("YYYY-MM-DD HH:mm:ss") }
+        : {};
 
-    logger.info(source);
-    const admin = await User.findOne({
-      attributes: ["id", "name", "isActive"],
-      where: { id, roleId: 2 },
+    const payload = {
+      status: source.status,
+      dateApproved,
+    };
+
+    logger.info({ source, payload });
+    const agen = await Agen.findOne({
+      attributes: ["id", "name", "status"],
+      where: { id },
     });
-    if (!admin)
+    if (!agen)
       return res.status(404).json({
         status: "error",
-        message: "Data Admin tidak ditemukan",
+        message: "Data Agen tidak ditemukan",
       });
 
-    await admin.update({ isActive: status });
+    await agen.update(payload);
     return res.json({
       status: "success",
-      message: "Status Admin berhasil diperbarui",
+      message: "Status Agen berhasil diperbarui",
     });
   } catch (error) {
     console.log("[!] Error : ", error);

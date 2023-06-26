@@ -1,4 +1,4 @@
-const { User } = require("../../../../models");
+const { Agen } = require("../../../../models");
 const logger = require("../../../../libs/logger");
 const Sequelize = require("sequelize");
 const Op = Sequelize.Op;
@@ -10,13 +10,8 @@ module.exports = async (req, res) => {
     const source = req.body;
 
     const schema = {
-      isActive: "boolean|optional",
-      gender: {
-        type: "string",
-        enum: ["Male", "Female"],
-        optional: true,
-      },
-      keyword: "string|optional"
+      status: "number|optional",
+      keyword: "string|optional",
     };
 
     const validate = v.compile(schema)(source);
@@ -38,7 +33,7 @@ module.exports = async (req, res) => {
             {
               [Op.and]: [
                 Sequelize.where(
-                  Sequelize.fn("lower", Sequelize.col("User.name")),
+                  Sequelize.fn("lower", Sequelize.col("Agen.name")),
                   Op.like,
                   "%" + source.keyword.toString().toLowerCase() + "%"
                 ),
@@ -54,15 +49,14 @@ module.exports = async (req, res) => {
         }
       : {};
 
-    const queryStatus = source.isActive ? { isActive: source.isActive } : {};
-    const queryGender = source.gender ? { gender: source.gender } : {};
-    const where = { ...keyword, ...queryStatus, ...queryGender };
+    const queryStatus = source.status ? { status: source.status } : {};
+    const where = { ...keyword, ...queryStatus };
 
     logger.info({ source, where });
 
     const rowsPerPage = source.rowsPerPage;
     const currentPage = source.currentPage;
-    const totalData = await User.count({ where });
+    const totalData = await Agen.count({ where });
 
     const totalPages =
       rowsPerPage !== "All"
@@ -76,18 +70,8 @@ module.exports = async (req, res) => {
     const limit = rowsPerPage !== "All" ? rowsPerPage : totalData;
     const offsetLimit = rowsPerPage !== "All" ? { offset, limit } : {};
 
-    const data = await User.findAll({
+    const data = await Agen.findAll({
       ...offsetLimit,
-      attributes: [
-        "id",
-        "name",
-        "username",
-        "email",
-        "phone",
-        "gender",
-        "totalDownline",
-        "isActive",
-      ],
       where,
     });
 

@@ -1,11 +1,9 @@
-const { User, Agen, Referral, SponsorKey } = require("../../../../models");
+const { User, Agen, Stokis } = require("../../../../models");
 const logger = require("../../../../libs/logger");
 const db = require("../../../models");
 const { RemoveFile } = require("./asset");
 
 const bcrypt = require("bcryptjs");
-const cryptoString = require("crypto-random-string");
-
 const Validator = require("fastest-validator");
 const v = new Validator();
 
@@ -15,6 +13,7 @@ module.exports = async (req, res) => {
   const transaction = await db.sequelize.transaction({ autocommit: false });
   try {
     const schema = {
+      stokisId: "string|empty:false",
       name: "string|empty:false",
       username: "string|empty:false",
       password: "string|empty:false|min:5",
@@ -41,7 +40,7 @@ module.exports = async (req, res) => {
         message: validate,
       });
 
-    const sponsorKey = cryptoString({ length: 10, type: "base64" });
+    const password = bcrypt.hashSync(source.password, bcrypt.genSaltSync(2));
     const { countryId, provinceId, districtId, subDistrictId } = source;
     const image =
       files && files.image && files.image.length > 0
@@ -67,22 +66,24 @@ module.exports = async (req, res) => {
 
     logger.info({ source, payload });
 
-    const userData = await User.create(payload, { transaction });
-    // create sponsorKey
-    const userSponsor = await SponsorKey.create(
-      { userId: userData.userId, key: sponsorKey },
-      { transaction }
-    );
-    await userData.update({ sponsorId: userSponsor.id }, { transaction });
+    const stokis = await Stokis.findByPk(source.stokisId);
+    if (!stokis)
+      return res.status(404).json({
+        status: "error",
+        message: "Data Stokis tidak ditemukan",
+      });
 
-    // create referral
-    await Referral.create(
-      {
-        userId: userData.id,
-        sponsorId: userSponsor.id,
-      },
-      { transaction }
-    );
+    const userData = await User.create(payload, { transaction });
+
+    const payloadAgen = {
+      name: userData.name,
+      status: 0,
+      userId: userData.id,
+      stokisId: stokis.id,
+      remark: source.remark,
+    };
+
+    await Agen.create(payloadAgen, { transaction });
 
     transaction.commit();
     return res.json({
