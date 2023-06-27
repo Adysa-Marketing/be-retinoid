@@ -16,7 +16,14 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      point: DataTypes.INTEGER,
+      point: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      minFoot: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
       remark: DataTypes.STRING,
     },
     {

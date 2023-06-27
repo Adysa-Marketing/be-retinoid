@@ -54,7 +54,7 @@ module.exports = async (req, res) => {
           "username",
           "email",
           "phone",
-          "totalDownline",
+          "point",
         ],
         model: User, //downline
         where: {
@@ -75,7 +75,7 @@ module.exports = async (req, res) => {
             "username",
             "email",
             "phone",
-            "totalDownline",
+            "point",
           ],
           model: User, //upline
         },

@@ -212,7 +212,7 @@ module.exports = async (req, res) => {
     }
   } finally {
     if (isRegistered && upliner != null) {
-      await calculateDownline(upliner);
+      await calculatePoint(upliner);
     }
   }
 };
@@ -292,13 +292,13 @@ const calculateDownlineBonus = async (
   );
 };
 
-const calculateDownline = async (userSponsorId) => {
+const calculatePoint = async (userSponsorId) => {
   try {
-    // menambahkan jumlah downline kepada upline
+    // menambahkan jumlah point kepada upline
     const user = await User.findByPk({ userSponsorId });
     if (!user) return;
 
-    await user.update({ totalDownline: sequelize.col("totalDownline") + 1 });
+    await user.update({ point: sequelize.col("point") + 1 });
 
     let referral = await Referral.findOne({
       attributes: ["userId", "sponsorId"],
@@ -320,7 +320,7 @@ const calculateDownline = async (userSponsorId) => {
     // next uplineId
     const userUplineId = referral.SponsorKey[0].userId;
 
-    await calculateDownline(userUplineId);
+    await calculatePoint(userUplineId);
   } catch (error) {
     console.log("[!] Error :", error);
   }

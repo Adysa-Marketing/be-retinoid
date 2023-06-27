@@ -25,7 +25,7 @@ module.exports = async (req, res) => {
         "email",
         "phone",
         "gender",
-        "totalDownline",
+        "point",
         "isActive",
         "image",
         "kk",

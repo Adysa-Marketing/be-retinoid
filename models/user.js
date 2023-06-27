@@ -43,7 +43,10 @@ module.exports = (sequelize, DataTypes) => {
         unique: true,
       },
       image: DataTypes.STRING,
-      point: DataTypes.INTEGER,
+      point: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+      },
       wallet: {
         type: DataTypes.BIGINT,
         defaultValue: 0,
@@ -56,10 +59,6 @@ module.exports = (sequelize, DataTypes) => {
         defaultValue: true,
       },
       noRekening: DataTypes.STRING,
-      totalDownline: {
-        type: DataTypes.INTEGER,
-        defaultValue: 0,
-      },
       remark: DataTypes.STRING,
     },
     {
