@@ -1,3 +1,5 @@
+const env = process.env.NODE_ENV;
+const config = require("../../../../config/core")[env];
 const { User, Widhraw, WdStatus } = require("../../../../models");
 const logger = require("../../../../libs/logger");
 
@@ -5,6 +7,25 @@ module.exports = async (req, res) => {
   const source = req.body;
   const user = req.user;
   try {
+    const id =
+      req.body.keyword.length > 3
+        ? req.body.keyword.substr(3, req.body.keyword.length - 1)
+        : 0;
+    const keycode = !isNaN(id) ? { id } : {};
+
+    const keyword = req.body.keyword
+      ? {
+          [Op.or]: [
+            {
+              id: !isNaN(req.body.keyword) ? parseInt(req.body.keyword) : 0,
+            },
+            {
+              ...keycode,
+            },
+          ],
+        }
+      : {};
+
     const startDate = moment(source.startDate, "YYYY-MM-DD")
       .startOf("days")
       .toDate();
@@ -27,9 +48,10 @@ module.exports = async (req, res) => {
     const queryMember = [4].includes(user.roleId) ? { userId: user.id } : {};
 
     const where = {
-      ...queryStatus,
-      ...queryMember,
+      ...keyword,
       ...dateRange,
+      ...queryMember,
+      ...queryStatus,
     };
 
     logger.info(source);
@@ -81,6 +103,7 @@ module.exports = async (req, res) => {
         result = JSON.parse(JSON.stringify(result));
 
         const data = result.map((wd) => {
+          const code = wd.id.toString().padStart(config.maxFill, 0);
           wd.createdAt = moment(wd.createdAt)
             .utc()
             .add(7, "hours")
@@ -93,6 +116,7 @@ module.exports = async (req, res) => {
 
           return {
             ...wd,
+            kode: `TRW${code}`,
           };
         });
 

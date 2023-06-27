@@ -1,3 +1,5 @@
+const env = process.env.NODE_ENV;
+const config = require("../../../../config/core")[env];
 const {
   Bank,
   PaymentStatus,
@@ -12,6 +14,25 @@ module.exports = async (req, res) => {
   const source = req.body;
   const user = req.user;
   try {
+    const id =
+      source.keyword.length > 3
+        ? source.keyword.substr(3, source.keyword.length - 1)
+        : 0;
+    const keycode = !isNaN(id) ? { id } : {};
+
+    const keyword = source.keyword
+      ? {
+          [Op.or]: [
+            {
+              id: !isNaN(source.keyword) ? parseInt(source.keyword) : 0,
+            },
+            {
+              ...keycode,
+            },
+          ],
+        }
+      : {};
+
     const startDate = moment(source.startDate, "YYYY-MM-DD")
       .startOf("days")
       .toDate();
@@ -37,6 +58,7 @@ module.exports = async (req, res) => {
     const queryMember = [4].includes(user.roleId) ? { userId: user.id } : {};
 
     const where = {
+      ...keyword,
       ...queryStatus,
       ...queryPaymentType,
       ...queryBank,
@@ -94,6 +116,7 @@ module.exports = async (req, res) => {
         result = JSON.parse(JSON.stringify(result));
 
         const data = result.map((tr) => {
+          const code = tr.id.toString().padStart(config.maxFill, 0);
           tr.date = moment(tr.date)
             .utc()
             .add(7, "hours")
@@ -101,6 +124,7 @@ module.exports = async (req, res) => {
 
           return {
             ...tr,
+            kode: `TRS${code}`,
           };
         });
 
