@@ -1,4 +1,4 @@
-const { TrReward, Reward } = require("../../../../models");
+const { TrReward, Reward, Refferal, User } = require("../../../../models");
 const logger = require("../../../../libs/logger");
 
 const moment = require("moment");
@@ -67,6 +67,35 @@ module.exports = async (req, res) => {
           "Mohon maaf permintaan anda tidak dapat di proses. Anda sudah pernah melakukan transaksi untuk item reward ini",
       });
 
+    // cek apakah user memenuhi kriteria untuk meminta reward atau tidak
+    const reffreal = await Refferal.findAll({
+      where: { sponsorId: user.sponsorId },
+      include: {
+        attributes: ["id", "name", "point"],
+        as: "Downline",
+        model: User,
+      },
+    });
+
+    if (!reffreal)
+      return res.status(400).json({
+        status: "error",
+        message:
+          "Mohon maaf, Anda tidak memenuhi kriteria untuk melakukan transaksi ini",
+      });
+
+    // jika ada reffreal. lakukan pengecekan apakah boleh ambil reward atau tidak berdasarkan point refferal
+    const checkPoint = reffreal.filter(
+      (ref) => ref.Downline.point >= reward.point
+    );
+    if (!checkPoint.length >= reward.minFoot)
+      return res.status(400).json({
+        status: "error",
+        message:
+          "Mohon maaf, Anda tidak memenuhi kriteria untuk melakukan transaksi ini",
+      });
+
+    // buat transaksi
     await TrReward.create(payload);
     return res.stus(201).json({
       status: "success",

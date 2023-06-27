@@ -61,7 +61,7 @@ module.exports = async (req, res) => {
         result = JSON.parse(JSON.stringify(result));
         let userRefferal = null;
 
-        // jika login role 3 dan 4. lakukan pengecekan apakah boleh ambil widhraw atau tidak berdasarkan point refferal
+        // jika login role 3 dan 4. lakukan pengecekan apakah boleh ambil reward atau tidak berdasarkan point refferal
         if ([3, 4].includes(user.roleId)) {
           await Refferal.findAll({
             where: { sponsorId: user.sponsorId },
@@ -78,7 +78,7 @@ module.exports = async (req, res) => {
           const minFoot = rw.minFoot;
           let status = false; //status diperbolehkan amnbil reward
 
-          // jika ada reffreal. lakukan pengecekan apakah boleh ambil widhraw atau tidak berdasarkan point refferal
+          // jika ada reffreal. lakukan pengecekan apakah boleh ambil reward atau tidak berdasarkan point refferal
           if (userRefferal) {
             const checkPoint = userRefferal.filter(
               (ref) => ref.Downline.point >= point
