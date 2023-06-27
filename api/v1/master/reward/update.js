@@ -10,9 +10,11 @@ module.exports = async (req, res) => {
   const files = req.files;
   try {
     const schema = {
-      id: "number|empty:false",
+      id: "number|optional",
       name: "string|optional",
       description: "string|optional",
+      point: "number|optional",
+      minFoot: "number|optional",
     };
 
     const validate = v.compile(schema)(source);
@@ -32,6 +34,7 @@ module.exports = async (req, res) => {
       name: source.name,
       description: source.description,
       point: source.point,
+      minFoot: source.minFoot,
       ...image,
       remark: source.remark,
     };

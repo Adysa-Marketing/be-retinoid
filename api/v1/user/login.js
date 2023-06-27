@@ -23,7 +23,10 @@ module.exports = async (req, res) => {
 
     const { username, password } = source;
     const attributes = {
-      exclude: ["countryId", "provinceId", "districtId", "subDistrictId"],
+      exclude: [
+        "createdAt",
+        "updatedAt",
+      ],
     };
 
     const userData = await User.findOne({

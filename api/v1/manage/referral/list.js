@@ -37,25 +37,24 @@ module.exports = async (req, res) => {
       : {};
 
     let sponsorKey = null;
-    if ([4].includes(user.roleId)) {
+    // upline roleId 4
+    if ([3, 4].includes(user.roleId)) {
       sponsorKey = await SponsorKey.findOne({
         attributes: ["id", "userId", "key"],
         where: { userId: user.id },
       });
     }
 
-    const queryMember = [4].includes(user.roleId) ? { userId: user.id } : {}; // upline roleId 4
+    const querySponsor = sponsorKey ? { sponsorId: sponsorKey.id } : {};
+
+    const where = {
+      ...querySponsor,
+    };
 
     const includeParent = [
       {
-        attributes: [
-          "id",
-          "name",
-          "username",
-          "email",
-          "phone",
-          "point",
-        ],
+        attributes: ["id", "name", "username", "email", "phone", "point"],
+        as: "Downline",
         model: User, //downline
         where: {
           ...keyword,
@@ -65,18 +64,11 @@ module.exports = async (req, res) => {
         attributes: ["id", "userId", "key"],
         model: SponsorKey,
         where: {
-          ...queryMember,
           ...keyword,
         },
         include: {
-          attributes: [
-            "id",
-            "name",
-            "username",
-            "email",
-            "phone",
-            "point",
-          ],
+          attributes: ["id", "name", "username", "email", "phone", "point"],
+          as: "Upline",
           model: User, //upline
         },
       },

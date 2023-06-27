@@ -12,6 +12,8 @@ module.exports = async (req, res) => {
     const schema = {
       name: "string|empty:false",
       description: "string|empty:false",
+      point: "number|empty:false",
+      minFoot: "number|empty:false",
     };
 
     const validate = v.compile(schema)(source);
@@ -30,6 +32,7 @@ module.exports = async (req, res) => {
       name: source.name,
       description: source.description,
       point: source.point,
+      minFoot: source.minFoot,
       ...image,
       remark: source.remark,
     };
