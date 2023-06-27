@@ -148,7 +148,7 @@ module.exports = async (req, res) => {
       {
         userId: sponsor.userId,
         downlineId: userData.id,
-        level: commissionLevel[0].id,
+        levelId: commissionLevel[0].id,
         remark: commissionLevel[0].name,
       },
       { transaction }
@@ -269,7 +269,7 @@ const calculateDownlineBonus = async (
     {
       userId: sponsor.userId,
       downlineId: userData.id,
-      level: commissionLevel[level - 1].id,
+      levelId: commissionLevel[level - 1].id,
       remark: commissionLevel[level - 1].name,
     },
     { transaction }

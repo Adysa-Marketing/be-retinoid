@@ -5,6 +5,7 @@ const Auth = require("./auth");
 
 const Manage = require("../api/v1/manage");
 const Master = require("../api/v1/master");
+const Network = require("../api/v1/network");
 const Setting = require("../api/v1/setting");
 const Transaction = require("../api/v1/transaction");
 const User = require("../api/v1/user");
@@ -25,6 +26,7 @@ app.use(
 // Routing API
 app.use("/manage", Manage);
 app.use("/master", Master);
+app.use("/network", Network);
 app.use("/setting", Setting);
 app.use("/trx", Transaction);
 app.use("/user", User);

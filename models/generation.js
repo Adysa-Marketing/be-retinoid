@@ -4,11 +4,6 @@ module.exports = (sequelize, DataTypes) => {
   const Generation = sequelize.define(
     "Generation",
     {
-      level: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        defaultValue: 1,
-      },
       remark: DataTypes.STRING,
     },
     {
