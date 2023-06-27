@@ -1,8 +1,15 @@
-const { Product, TrSale, Mutation, User } = require("../../../../models");
+const {
+  AgenProduct,
+  Product,
+  TrSale,
+  Mutation,
+  User,
+} = require("../../../../models");
 const logger = require("../../../../libs/logger");
 const db = require("../../../../models");
 
 const sequelize = require("sequelize");
+const Op = sequelize.Op;
 const Validator = require("fastest-validator");
 const v = new Validator();
 
@@ -110,6 +117,39 @@ module.exports = async (req, res) => {
         },
         { transaction }
       );
+
+      // Data Produk Agen
+      const agenProduct = await AgenProduct.findOne({
+        where: {
+          [Op.and]: [
+            {
+              userId: user.id,
+            },
+            {
+              productId: product.id,
+            },
+          ],
+        },
+      });
+
+      if (!agenProduct) {
+        await AgenProduct.create(
+          {
+            stock: trSalse.qty,
+            userId: user.id,
+            productId: product.id,
+          },
+          { transaction }
+        );
+      } else {
+        // update stock
+        await agenProduct.update(
+          {
+            stock: sequelize.col("stock") + trSalse.wty,
+          },
+          { transaction }
+        );
+      }
 
       // proses notifikasi wa kalau transaksi di approve oleh admin
 
