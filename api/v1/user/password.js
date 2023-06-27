@@ -1,5 +1,5 @@
-const { User } = require("../../../../models");
-const logger = require("../../../../libs/logger");
+const { User } = require("../../../models");
+const logger = require("../../../libs/logger");
 
 const cryptoString = require("crypto-random-string");
 const Validator = require("fastest-validator");

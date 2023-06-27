@@ -37,7 +37,6 @@ module.exports = async (req, res) => {
       },
       kk: "string|optional",
       address: "string|optional",
-      noRekening: "string|optional",
       countryId: "number|optional",
       districtId: "number|optional",
       subDistrictId: "number|optional",
@@ -91,6 +90,9 @@ module.exports = async (req, res) => {
       email: source.email,
       password,
       phone: source.phone,
+      gender: source.gender,
+      kk: source.kk,
+      address: source.address,
       roleId: 4,
       serialId: serial.id,
       countryId: countryId ? countryId : 1,
@@ -165,7 +167,7 @@ module.exports = async (req, res) => {
     isRegistered = true;
     upliner = sponsor.userId;
 
-    return res.json({
+    return res.status(201).json({
       status: "success",
       message: "Registrasi Berhasil",
     });
