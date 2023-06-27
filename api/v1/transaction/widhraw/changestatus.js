@@ -32,7 +32,7 @@ module.exports = async (req, res) => {
     };
 
     const id = source.id;
-    const queryMember = [4].includes(user.id) ? { userId: user.id } : {};
+    const queryMember = [4].includes(user.roleId) ? { userId: user.id } : {};
 
     // bukti transfer apabila status transfered oleh admin
     const image =

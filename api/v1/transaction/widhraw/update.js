@@ -36,7 +36,7 @@ module.exports = async (req, res) => {
       files && files.imageKtp && files.imageKtp.length > 0
         ? { imageKtp: files.imageKtp[0].filename }
         : {};
-    const queryMember = [4].includes(user.id) ? { userId: user.id } : {};
+    const queryMember = [4].includes(user.roleId) ? { userId: user.id } : {};
 
     const payload = {
       userId: user.id,
@@ -101,7 +101,7 @@ module.exports = async (req, res) => {
 
     // update widhraw
     await widhraw.update(payload, { transaction });
-    files && files.imageKtp && (await RemoveFile(widhraw, true));
+    files && files.imageKtp  && files.imageKtp.length > 0 && (await RemoveFile(widhraw, true));
 
     // update wallet
     await userData.update(

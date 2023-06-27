@@ -53,7 +53,7 @@ module.exports = async (req, res) => {
     logger.info({ source, files, payload });
 
     const id = req.body.id;
-    const queryMember = [4].includes(user.id) ? { userId: user.id } : {};
+    const queryMember = [4].includes(user.roleId) ? { userId: user.id } : {};
     const trStokis = await TrStokis.findOne({
       where: {
         id,

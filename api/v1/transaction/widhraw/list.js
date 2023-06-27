@@ -23,7 +23,7 @@ module.exports = async (req, res) => {
         : {};
 
     const queryStatus = source.statusId ? { statusId: source.statusId } : {};
-    const queryMember = [4].includes(user.id) ? { userId: user.id } : {};
+    const queryMember = [4].includes(user.roleId) ? { userId: user.id } : {};
 
     const where = {
       ...queryStatus,

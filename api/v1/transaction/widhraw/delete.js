@@ -24,7 +24,7 @@ module.exports = async (req, res) => {
       });
 
     const id = req.body.id;
-    const queryMember = [4].includes(user.id) ? { userId: user.id } : {};
+    const queryMember = [4].includes(user.roleId) ? { userId: user.id } : {};
 
     const widhraw = await Widhraw.findOne({
       attributes: ["id", "userId", "amount", "statudId", "imageKtp", "image"],

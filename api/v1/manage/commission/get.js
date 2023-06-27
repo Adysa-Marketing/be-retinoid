@@ -18,7 +18,7 @@ module.exports = async (req, res) => {
       });
 
     const queryMember =
-      user && [4].includes(user.role) ? { userId: user.id } : {};
+      user && [4].includes(user.roleId) ? { userId: user.id } : {};
 
     let commission = await Commission.findOne({
       where: { id, ...queryMember },

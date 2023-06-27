@@ -20,7 +20,7 @@ module.exports = async (req, res) => {
       });
 
     const id = req.params.id;
-    const queryMember = [4].includes(user.id) ? { userId: user.id } : {};
+    const queryMember = [4].includes(user.roleId) ? { userId: user.id } : {};
 
     let widhraw = await Widhraw.findOne({
       where: { id, ...queryMember },

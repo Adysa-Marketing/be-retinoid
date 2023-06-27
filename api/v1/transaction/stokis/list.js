@@ -34,7 +34,7 @@ module.exports = async (req, res) => {
       ? { paymentTypeId: source.paymentTypeId }
       : {};
     const queryBank = source.bankId ? { bankId: source.bankId } : {};
-    const queryMember = [4].includes(user.id) ? { userId: user.id } : {};
+    const queryMember = [4].includes(user.roleId) ? { userId: user.id } : {};
 
     const where = {
       ...queryStatus,
