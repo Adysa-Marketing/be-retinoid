@@ -1,6 +1,7 @@
 const { User, Widhraw, WdStatus } = require("../../../../models");
 const { RemoveFile } = require("./asset");
 const logger = require("../../../../libs/logger");
+const db = require("../../../../models");
 
 const sequelize = require("sequelize");
 const Validator = require("fastest-validator");

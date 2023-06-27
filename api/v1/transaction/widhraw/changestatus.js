@@ -1,5 +1,6 @@
 const { User, Widhraw } = require("../../../../models");
 const logger = require("../../../../libs/logger");
+const db = require("../../../../models");
 
 const sequelize = require("sequelize");
 const Validator = require("fastest-validator");

@@ -5,7 +5,7 @@ const Dropdown = require("./dropdown");
 const Get = require("./get");
 const List = require("./list");
 const Update = require("./update");
-const IsAdmin = require("../../middleware/isAdmin");
+const IsAdmin = require("../../../middleware/isAdmin");
 
 router.get("/get/:id", Get);
 router.get("/list", List);

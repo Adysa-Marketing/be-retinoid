@@ -1,4 +1,4 @@
-const { Stokis } = require("../../../models");
+const { Stokis } = require("../../../../models");
 const logger = require("../../../../libs/logger");
 const Validator = require("fastest-validator");
 const v = new Validator();

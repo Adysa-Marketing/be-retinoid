@@ -1,6 +1,6 @@
 const { User, SponsorKey } = require("../../../../models");
 const logger = require("../../../../libs/logger");
-const db = require("../../../models");
+const db = require("../../../../models");
 const { RemoveFile } = require("./asset");
 
 const bcrypt = require("bcryptjs");

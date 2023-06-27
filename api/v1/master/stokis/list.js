@@ -1,5 +1,5 @@
-const { Stokis } = require("../../../models");
-const logger = require("../../../libs/logger");
+const { Stokis } = require("../../../../models");
+const logger = require("../../../../libs/logger");
 const Sequelize = require("sequelize");
 const Op = Sequelize.Op;
 

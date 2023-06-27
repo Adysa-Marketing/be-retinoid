@@ -24,7 +24,7 @@ router.put(
   "/update",
   IsRoot,
   Asset.Directory,
-  Update.fields([{ name: "image", maxCount: 1 }]),
+  Upload.fields([{ name: "image", maxCount: 1 }]),
   Update
 );
 router.put("/change-pass", IsRoot, ChangePass);

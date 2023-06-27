@@ -1,6 +1,6 @@
 const { Agen, User } = require("../../../../models");
 const logger = require("../../../../libs/logger");
-const db = require("../../../models");
+const db = require("../../../../models");
 const Validator = require("fastest-validator");
 const v = new Validator();
 
