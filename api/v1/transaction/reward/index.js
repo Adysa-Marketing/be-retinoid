@@ -1,31 +1,34 @@
 const router = require("express").Router();
 const Asset = require("./asset");
+const ChangeStatus = require("./changestatus");
 const Create = require("./create");
 const Delete = require("./delete");
-const Dropdown = require("./dropdown");
 const Get = require("./get");
 const List = require("./list");
 const Update = require("./update");
 const Upload = require("../../../../libs/upload");
-const IsAdmin = require("../../../middleware/isAdmin");
 
 router.get("/get/:id", Get);
 router.get("/list", List);
-router.get("/dropdown", Dropdown);
 router.post(
   "/create",
-  IsAdmin,
   Asset.Directory,
-  Upload.fields([{ name: "image", maxCount: 1 }]),
+  Upload.fields([
+    { name: "image", maxCount: 1 },
+    { name: "imageKtp", maxCount: 1 },
+  ]),
   Create
 );
 router.put(
   "/update",
-  IsAdmin,
   Asset.Directory,
-  Upload.fields([{ name: "image", maxCount: 1 }]),
+  Upload.fields([
+    { name: "image", maxCount: 1 },
+    { name: "imageKtp", maxCount: 1 },
+  ]),
   Update
 );
-router.delete("/delete", IsAdmin, Delete);
+router.put("/change-status", ChangeStatus);
+router.delete("/delete", Delete);
 
 module.exports = router;

@@ -1,4 +1,4 @@
-const { User, Widhraw, WdStatus } = require("../../../../models");
+const { Reward, RwStatus, TrReward, User } = require("../../../../models");
 const logger = require("../../../../libs/logger");
 
 module.exports = async (req, res) => {
@@ -15,7 +15,7 @@ module.exports = async (req, res) => {
     const dateRange =
       source.startDate && source.endDate
         ? {
-            createdAt: {
+            date: {
               [Op.gte]: startDate,
               [Op.lte]: endDate,
             },
@@ -24,31 +24,36 @@ module.exports = async (req, res) => {
 
     const queryName = source.keyword ? { name: source.keyword } : {};
     const queryStatus = source.statusId ? { statusId: source.statusId } : {};
+    const queryReward = source.rewardId ? { rewardId: source.rewardId } : {};
     const queryMember = [4].includes(user.roleId) ? { userId: user.id } : {};
 
     const where = {
       ...queryStatus,
+      ...queryReward,
       ...queryMember,
       ...dateRange,
     };
 
+    const includeParent = [
+      {
+        attribute: ["id", "name", "email", "phone"],
+        model: User,
+        where: { ...queryName },
+      },
+      {
+        model: RwStatus,
+      },
+      {
+        model: Reward,
+      },
+    ];
     logger.info(source);
 
     const rowsPerPage = source.rowsPerPage;
     const currentPage = source.currentPage;
-    const totalData = await Widhraw.count({
+    const totalData = await TrReward.count({
       where,
-      include: [
-        {
-          attribute: ["id", "name", "email", "phone"],
-          model: User,
-          where: { ...queryName },
-        },
-        {
-          attribute: ["id", "name", "remark"],
-          model: WdStatus,
-        },
-      ],
+      include: [...includeParent],
     });
 
     const totalPages =
@@ -63,36 +68,22 @@ module.exports = async (req, res) => {
     const limit = rowsPerPage !== "All" ? rowsPerPage : totalData;
     const offsetLimit = rowsPerPage !== "All" ? { offset, limit } : {};
 
-    await Widhraw.findAll({
+    await TrReward.findAll({
       ...offsetLimit,
       where,
-      include: [
-        {
-          attribute: ["id", "name", "email", "phone"],
-          model: User,
-        },
-        {
-          attribute: ["id", "name", "remark"],
-          model: WdStatus,
-        },
-      ],
+      include: [...includeParent],
     })
       .then((result) => {
         result = JSON.parse(JSON.stringify(result));
 
-        const data = result.map((wd) => {
-          wd.createdAt = moment(wd.createdAt)
-            .utc()
-            .add(7, "hours")
-            .format("YYYY-MM-DD HH:mm:ss");
-
-          wd.updatedAt = moment(wd.updatedAt)
+        const data = result.map((trRw) => {
+          trRw.date = moment(trRw.date)
             .utc()
             .add(7, "hours")
             .format("YYYY-MM-DD HH:mm:ss");
 
           return {
-            ...wd,
+            ...trRw,
           };
         });
 

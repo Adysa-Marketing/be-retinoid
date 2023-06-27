@@ -1,4 +1,5 @@
 const { User, Widhraw } = require("../../../../models");
+const { RemoveFile } = require("./asset");
 const logger = require("../../../../libs/logger");
 const db = require("../../../../models");
 
@@ -95,7 +96,7 @@ module.exports = async (req, res) => {
       );
     }
 
-    await widhraw.update({ payload, ...image }, { transaction });
+    await widhraw.update({ ...payload, ...image }, { transaction });
 
     transaction.commit();
     return res.json({

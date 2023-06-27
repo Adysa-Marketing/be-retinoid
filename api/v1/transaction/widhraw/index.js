@@ -28,7 +28,12 @@ router.put(
   ]),
   Update
 );
-router.put("/change-status", ChangeStatus);
+router.put(
+  "/change-status",
+  Asset.Directory,
+  Upload.fields([{ name: "image", maxCount: 1 }]),
+  ChangeStatus
+);
 router.delete("/delete", Delete);
 
 module.exports = router;
