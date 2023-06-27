@@ -29,6 +29,11 @@ module.exports = (sequelize, DataTypes) => {
         field: "downlineId",
       },
     });
+    Generation.belongsTo(models.CommissionLevel, {
+      foreignKey: {
+        field: "levelId",
+      },
+    });
   };
 
   return Generation;
