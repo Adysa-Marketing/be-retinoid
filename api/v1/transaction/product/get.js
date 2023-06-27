@@ -28,10 +28,10 @@ module.exports = async (req, res) => {
       });
 
     const id = req.params.id;
-    const queryMember = [4].includes(user.roleId) ? { userId: user.id } : {};
+    const queryAgen = [3].includes(user.roleId) ? { userId: user.id } : {};
 
     let trSale = await TrSale.findOne({
-      where: { id, ...queryMember },
+      where: { id, ...queryAgen },
       include: [
         {
           attributes: ["id", "name", "email", "phone"],

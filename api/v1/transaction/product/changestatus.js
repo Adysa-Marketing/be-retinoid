@@ -40,11 +40,11 @@ module.exports = async (req, res) => {
     logger.info({ source, payload });
 
     const id = source.id;
-    const queryMember = [4].includes(user.roleId) ? { userId: user.id } : {};
+    const queryAgen = [3].includes(user.roleId) ? { userId: user.id } : {};
 
     const trSalse = await TrSale.findOne({
       attributes: ["id", "statusId", "qty"],
-      where: { id, ...queryMember },
+      where: { id, ...queryAgen },
     });
 
     if (!trSalse)

@@ -51,7 +51,7 @@ module.exports = async (req, res) => {
         : {};
 
     const queryBank = source.bankId ? { bankId: source.bankId } : {};
-    const queryMember = [4].includes(user.roleId) ? { userId: user.id } : {};
+    const queryAgen = [3].includes(user.roleId) ? { userId: user.id } : {};
     const queryStatus = source.statusId ? { statusId: source.statusId } : {};
     const queryCategory = source.categoryId
       ? { categoryId: source.categoryId }
@@ -67,7 +67,7 @@ module.exports = async (req, res) => {
       ...keyword,
       ...dateRange,
       ...queryBank,
-      ...queryMember,
+      ...queryAgen,
       ...queryStatus,
       ...queryProduct,
       ...queryPaymentType,
