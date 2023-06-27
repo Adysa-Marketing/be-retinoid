@@ -1,5 +1,4 @@
 const router = require("express").Router();
-const Agen = require("./agen");
 const Asset = require("./asset");
 const ChangeStatus = require("./changestatus");
 const Create = require("./create");
@@ -7,7 +6,7 @@ const Delete = require("./delete");
 const Get = require("./get");
 const List = require("./list");
 const Update = require("./update");
-const Upload = require("../../../../libs/upload");
+const Upload = require("../../../../../libs/upload");
 
 router.get("/get/:id", Get);
 router.get("/list", List);
@@ -25,8 +24,5 @@ router.put(
 );
 router.put("/change-status", ChangeStatus);
 router.delete("/delete", Delete);
-
-// transaksi product milik agen/stokis
-router.use("/agen", Agen);
 
 module.exports = router;

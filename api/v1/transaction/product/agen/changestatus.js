@@ -1,15 +1,8 @@
-const {
-  AgenProduct,
-  Product,
-  TrSale,
-  Mutation,
-  User,
-} = require("../../../../models");
-const logger = require("../../../../libs/logger");
-const db = require("../../../../models");
+const { AgenProduct, ATrSale } = require("../../../../../models");
+const logger = require("../../../../../libs/logger");
+const db = require("../../../../../models");
 
 const sequelize = require("sequelize");
-const Op = sequelize.Op;
 const Validator = require("fastest-validator");
 const v = new Validator();
 
@@ -42,12 +35,12 @@ module.exports = async (req, res) => {
     const id = source.id;
     const queryAgen = [3].includes(user.roleId) ? { userId: user.id } : {};
 
-    const trSalse = await TrSale.findOne({
+    const aTrSalse = await ATrSale.findOne({
       attributes: ["id", "statusId", "qty"],
       where: { id, ...queryAgen },
     });
 
-    if (!trSalse)
+    if (!aTrSalse)
       return res.status(404).json({
         status: "error",
         message: "Mohon maaf data transaksi produk tidak ditemukan",
@@ -59,9 +52,9 @@ module.exports = async (req, res) => {
      */
     if (
       ([4].includes(user.roleId) && //member
-        ![1].includes(trSalse.statusId) && // tr.stat !== 1
+        ![1].includes(aTrSalse.statusId) && // tr.stat !== 1
         ![2].includes(source.statusId)) || // source.stat !== 2
-      [2, 3, 5].includes(trSalse.statusId) // (canceled, rejected, delivered)
+      [2, 3, 5].includes(aTrSalse.statusId) // (canceled, rejected, delivered)
     )
       return res.status(400).json({
         status: "error",
@@ -71,87 +64,36 @@ module.exports = async (req, res) => {
     /**
      * Status tidak boleh diubah delivered ketika status awal !== approved
      */
-    if (trSalse.status !== 4 && source.statusId == 5)
+    if (aTrSalse.status !== 4 && source.statusId == 5)
       return res.status(400).json({
         status: "error",
         message:
-          "Mohon maaf, Data Transaksi Produk harus di Approve oleh admin terlebih dahulu",
+          "Mohon maaf, Data Transaksi Produk harus di Approve terlebih dahulu",
       });
 
     // Status Approved
     if (source.statusId === 4) {
-      const product = await Product.findOne({
-        attributes: ["id", "name", "stock"],
+      const agenProduct = await AgenProduct.findOne({
+        attributes: ["id", "stock"],
         where: { id: source.productId },
       });
-      if (!product)
+      if (!agenProduct)
         return res.status(400).json({
           status: "error",
           message: "Mohon maaf, Data Produk tidak ditemukan",
         });
 
-      if (produk.stock < trSalse.qty)
+      if (produk.stock < aTrSalse.qty)
         return res.status(400).json({
           status: "error",
-          message: `Transaksi gagal, Mohon maaf jumlah pembelian melebihi stok yang tersedia. Stok tersedia saat ini adalah ${produk.stock} Produk`,
+          message: `Transaksi gagal, Mohon maaf jumlah pembelian melebihi stok yang tersedia. Stok tersedia saat ini adalah ${agenProduct.stock} Produk`,
         });
 
-      await product.update(
-        { qty: sequelize.col("qty") - trSalse.qty },
+      await agenProduct.update(
+        { qty: sequelize.col("qty") - aTrSalse.qty },
         { transaction }
       );
-      await trSalse.update(payload, { transaction });
-
-      const user = await User.findOne({
-        attributes: ["id", "name"],
-        where: { id: trSalse.userId },
-      });
-      await Mutation.create(
-        {
-          type: "Pembelian Produk",
-          amount: trSalse.amount,
-          description: `Transaksi Produk ${product.name} dari ${user.name} sebanyak ${trSalse.qty} produk dengan total ${trSalse.amount}`,
-          userId: user.id,
-          saleId: trSalse.id,
-          remark: "",
-        },
-        { transaction }
-      );
-
-      // Data Produk Agen
-      const agenProduct = await AgenProduct.findOne({
-        where: {
-          [Op.and]: [
-            {
-              userId: user.id,
-            },
-            {
-              productId: product.id,
-            },
-          ],
-        },
-      });
-
-      if (!agenProduct) {
-        await AgenProduct.create(
-          {
-            stock: trSalse.qty,
-            userId: user.id,
-            productId: product.id,
-          },
-          { transaction }
-        );
-      } else {
-        // update stock
-        await agenProduct.update(
-          {
-            stock: sequelize.col("stock") + trSalse.wty,
-          },
-          { transaction }
-        );
-      }
-
-      // proses notifikasi wa kalau transaksi di approve oleh admin
+      await aTrSalse.update(payload, { transaction });
 
       transaction.commit();
       return res.json({
@@ -160,7 +102,7 @@ module.exports = async (req, res) => {
       });
     }
 
-    await trSalse.update(payload, { transaction });
+    await aTrSalse.update(payload, { transaction });
     transaction.commit();
     return res.json({
       status: "success",
