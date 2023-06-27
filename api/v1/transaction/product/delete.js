@@ -1,15 +1,11 @@
-const { User, Widhraw } = require("../../../../models");
+const { TrSale } = require("../../../../models");
 const { RemoveFile } = require("./asset");
 const logger = require("../../../../libs/logger");
-const db = require("../../../../models");
-
-const sequelize = require("sequelize");
 const Validator = require("fastest-validator");
 const v = new Validator();
 
 module.exports = async (req, res) => {
   const user = req.user;
-  const transaction = await db.sequelize.transaction({ autocommit: false });
 
   try {
     const schema = {
@@ -26,42 +22,34 @@ module.exports = async (req, res) => {
     const id = req.body.id;
     const queryMember = [4].includes(user.roleId) ? { userId: user.id } : {};
 
-    const widhraw = await Widhraw.findOne({
-      attributes: ["id", "userId", "amount", "statudId", "imageKtp", "image"],
+    const trSale = await TrSale.findOne({
+      attributes: ["id", "userId", "statudId"],
       where: { id, ...queryMember },
     });
 
     logger.info(id);
-    if (!widhraw)
+    if (!trSale)
       return res.status(404).json({
         status: "error",
-        message: "Data Widhraw tidak ditemukan",
+        message: "Data Transaksi Produk tidak ditemukan",
       });
 
-    if (
-      ![1, 2, 3].includes(widhraw.statusId)
-    ) {
+    if (![1, 2, 3].includes(trSale.statusId)) {
       return res.status(400).json({
         status: "error",
-        message: "Mohon maaf, Data Widhraw tidak dapat dihapus",
+        message: "Mohon maaf, Data Transaksi Produk tidak dapat dihapus",
       });
     }
 
-    await RemoveFile(widhraw, true);
-    await User.update(
-      { wallet: sequelize.col("wallet") + widhraw.amount },
-      { transaction }
-    );
-    await widhraw.destroy({ transaction });
+    await RemoveFile(trSale, true);
+    await trSale.destroy();
 
-    transaction.commit();
     return res.json({
       status: "success",
-      message: "Data Widhraw berhasil dihapus",
+      message: "Data Transaksi Produk berhasil dihapus",
     });
   } catch (error) {
     console.log("[!] Error : ", error);
-    transaction.rollback();
     return res.status(500).json({
       status: "error",
       message: error.message,

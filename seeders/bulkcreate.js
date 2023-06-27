@@ -31,8 +31,9 @@ async function createTrStatus() {
   await TrStatus.bulkCreate([
     { name: "Pending" },
     { name: "Canceled" },
-    { name: "Approved" },
     { name: "Rejected" },
+    { name: "Approved" },
+    { name: "Delivered" },
   ]);
   console.log("[DONE CREATE TR-STATUS");
 }
