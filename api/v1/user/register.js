@@ -126,18 +126,18 @@ module.exports = async (req, res) => {
 
     // proses commission 5 level
     const productAmount = 500000;
-    const commissionLevel = await CommissionLevel.findAll();
+    const commissionLevel = await CommissionLevel.findOne({ where: { id: 1 } });
     const commission = parseInt(
-      (commissionLevel[0].percent * productAmount) / 100
+      (commissionLevel.percent * productAmount) / 100
     );
-    const message = `Selamat anda mendapatkan bonus senilai Rp. ${commission} dari downline ${commission[0].name} dengan kedalaman level 1`;
+    const message = `Selamat anda mendapatkan bonus senilai Rp. ${commission} dari downline ${commission.name} dengan kedalaman level 1`;
     await Commission.create(
       {
         userId: sponsor.userId,
         downlineId: userData.id,
         amount: commission,
         date: moment().format("YYYY-MM-DD HH:mm:ss"),
-        levelId: commissionLevel[0].id,
+        levelId: commissionLevel.id,
         remark: message,
       },
       { transaction }
@@ -148,8 +148,8 @@ module.exports = async (req, res) => {
       {
         userId: sponsor.userId,
         downlineId: userData.id,
-        levelId: commissionLevel[0].id,
-        remark: commissionLevel[0].name,
+        levelId: commissionLevel.id,
+        remark: commissionLevel.name,
       },
       { transaction }
     );
@@ -169,6 +169,7 @@ module.exports = async (req, res) => {
       productAmount, // 500.000
       2, // level
       userData.id, // id downline
+      userData.name, // name of downline
       transaction // db transactional
     );
     // proses commission
@@ -222,6 +223,7 @@ const calculateDownlineBonus = async (
   amount, // 500.000
   level, // commission level
   downlineId, // id downline
+  downlineName, // name of downline
   transaction // db transactional
 ) => {
   if (level > 5) {
@@ -244,12 +246,16 @@ const calculateDownlineBonus = async (
   }
   referral = JSON.parse(JSON.stringify(referral));
 
-  const userUplineId = referral.SponsorKey[0].userId;
-  const commissionLevel = await CommissionLevel.findAll();
-  const commission = (commissionLevel[level - 1].percent * amount) / 100;
-  const message = `Selamat anda mendapatkan bonus senilai Rp. ${commission} dari downline ${
-    commission[level - 1].name
-  } dengan kedalaman level ${level}`;
+  const userUplineId = referral.SponsorKey.userId;
+  const commissionLevel = await CommissionLevel.findOne({
+    where: { id: level },
+  });
+  const commission = (commissionLevel.percent * amount) / 100;
+  const message = `Selamat anda mendapatkan bonus senilai Rp. ${new Intl.NumberFormat(
+    "id-ID"
+  ).format(
+    commission
+  )} dari downline ${downlineName} dengan kedalaman level ${level}`;
 
   // create commission
   await Commission.create(
@@ -258,7 +264,7 @@ const calculateDownlineBonus = async (
       downlineId,
       amount: commission,
       date: moment().format("YYYY-MM-DD HH:mm:ss"),
-      levelId: commissionLevel[level - 1].id,
+      levelId: commissionLevel.id,
       remark: message,
     },
     { transaction }
@@ -269,14 +275,14 @@ const calculateDownlineBonus = async (
     {
       userId: sponsor.userId,
       downlineId: userData.id,
-      levelId: commissionLevel[level - 1].id,
-      remark: commissionLevel[level - 1].name,
+      levelId: commissionLevel.id,
+      remark: commissionLevel.name,
     },
     { transaction }
   );
 
   // update wallet
-  await User.upate(
+  await User.update(
     { wallet: sequelize.col("wallet") + commission },
     { where: { id: userUplineId }, transaction }
   );
@@ -318,7 +324,7 @@ const calculatePoint = async (userSponsorId) => {
     referral = JSON.parse(JSON.stringify(referral));
 
     // next uplineId
-    const userUplineId = referral.SponsorKey[0].userId;
+    const userUplineId = referral.SponsorKey.userId;
 
     await calculatePoint(userUplineId);
   } catch (error) {
