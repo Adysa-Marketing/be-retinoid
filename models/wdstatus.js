@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
 
   WdStatus.associate = (models) => {
     WdStatus.hasMany(models.Widhraw, {
-      foreinKey: "statusId",
+      foreignKey: "statusId",
     });
   };
 

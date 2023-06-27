@@ -139,6 +139,12 @@ module.exports = (sequelize, DataTypes) => {
     User.hasMany(models.TrStokis, {
       foreignKey: "userId",
     });
+    User.hasMany(models.Generation, {
+      foreignKey: "userId",
+    });
+    User.hasMany(models.Generation, {
+      foreignKey: "downlineId",
+    });
 
     // hasOne
     User.hasOne(models.Testimonial, {

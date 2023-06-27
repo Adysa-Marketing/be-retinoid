@@ -14,9 +14,9 @@ module.exports = (sequelize, DataTypes) => {
   );
 
   CommissionLevel.associate = (models) => {
-    CommissionLevel.hasMany(models.Commission, {
-      foreignKey: "levelId",
-    });
+    // CommissionLevel.hasMany(models.Commission, {
+    //   foreignKey: "levelId",
+    // });
   };
 
   return CommissionLevel;

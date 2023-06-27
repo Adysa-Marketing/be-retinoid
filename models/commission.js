@@ -23,18 +23,18 @@ module.exports = (sequelize, DataTypes) => {
   Commission.associate = (models) => {
     Commission.belongsTo(models.User, {
       as: "Upline",
-      foreinKey: {
+      foreignKey: {
         field: "userId",
       },
     });
     Commission.belongsTo(models.User, {
       as: "Downline",
-      foreinKey: {
+      foreignKey: {
         field: "downlineId",
       },
     });
     Commission.belongsTo(models.CommissionLevel, {
-      foreinKey: {
+      foreignKey: {
         field: "levelId",
       },
     });
