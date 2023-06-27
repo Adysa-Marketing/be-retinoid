@@ -5,6 +5,7 @@ const {
   SponsorKey,
   CommissionLevel,
   Commission,
+  Generation,
 } = require("../../../models");
 const logger = require("../../../libs/logger");
 const db = require("../../../models");
@@ -142,8 +143,19 @@ module.exports = async (req, res) => {
       { transaction }
     );
 
+    // create generation
+    await Generation.create(
+      {
+        userId: sponsor.userId,
+        downlineId: userData.id,
+        level: commissionLevel[0].id,
+        remark: commissionLevel[0].name,
+      },
+      { transaction }
+    );
+
     // update wallet
-    await User.upate(
+    await User.update(
       { wallet: sequelize.col("wallet") + commission },
       { where: { id: sponsor.userId }, transaction }
     );
@@ -248,6 +260,17 @@ const calculateDownlineBonus = async (
       date: moment().format("YYYY-MM-DD HH:mm:ss"),
       levelId: commissionLevel[level - 1].id,
       remark: message,
+    },
+    { transaction }
+  );
+
+  // create generation
+  await Generation.create(
+    {
+      userId: sponsor.userId,
+      downlineId: userData.id,
+      level: commissionLevel[level - 1].id,
+      remark: commissionLevel[level - 1].name,
     },
     { transaction }
   );
