@@ -121,7 +121,7 @@ module.exports = async (req, res) => {
     await RemoveFile(files, false);
     return res.status(500).json({
       status: "error",
-      messag: error.message,
+      message: error.message,
     });
   }
 };
