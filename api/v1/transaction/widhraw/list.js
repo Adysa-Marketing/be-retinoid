@@ -62,12 +62,12 @@ module.exports = async (req, res) => {
       where,
       include: [
         {
-          attribute: ["id", "name", "email", "phone"],
+          attributes: ["id", "name", "email", "phone"],
           model: User,
           where: { ...queryName },
         },
         {
-          attribute: ["id", "name", "remark"],
+          attributes: ["id", "name", "remark"],
           model: WdStatus,
         },
       ],
@@ -90,11 +90,11 @@ module.exports = async (req, res) => {
       where,
       include: [
         {
-          attribute: ["id", "name", "email", "phone"],
+          attributes: ["id", "name", "email", "phone"],
           model: User,
         },
         {
-          attribute: ["id", "name", "remark"],
+          attributes: ["id", "name", "remark"],
           model: WdStatus,
         },
       ],

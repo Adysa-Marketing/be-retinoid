@@ -34,26 +34,26 @@ module.exports = async (req, res) => {
       where: { id, ...queryMember },
       include: [
         {
-          attribute: ["id", "name", "email", "phone"],
+          attributes: ["id", "name", "email", "phone"],
           model: User,
         },
         {
-          attribute: ["id", "name"],
+          attributes: ["id", "name"],
           model: TrStatus,
         },
         {
-          attribute: ["id", "name"],
+          attributes: ["id", "name"],
           model: PaymentType,
         },
         {
-          attribute: ["id", "name"],
+          attributes: ["id", "name"],
           model: Bank,
         },
         {
-          attribute: ["id", "name", "amount", "image"],
+          attributes: ["id", "name", "amount", "image"],
           model: Product,
           include: {
-            attribute: ["id", "name"],
+            attributes: ["id", "name"],
             model: ProductCategory,
           },
         },

@@ -26,11 +26,11 @@ module.exports = async (req, res) => {
       where: { id, ...queryMember },
       include: [
         {
-          attribute: ["id", "name", "email", "phone"],
+          attributes: ["id", "name", "email", "phone"],
           model: User,
         },
         {
-          attribute: ["id", "name", "remark"],
+          attributes: ["id", "name", "remark"],
           model: WdStatus,
         },
       ],
