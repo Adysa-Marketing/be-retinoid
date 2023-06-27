@@ -1,4 +1,4 @@
-const { Product } = require("../../../../models");
+const { Product, ProductCategory } = require("../../../../models");
 const { RemoveFile } = require("./asset");
 const logger = require("../../../../libs/logger");
 const Validator = require("fastest-validator");
@@ -39,6 +39,13 @@ module.exports = async (req, res) => {
     };
 
     logger.info({ source, files, payload });
+
+    const productCategory = await ProductCategory.findByPk(source.categoryId);
+    if (!productCategory)
+      return res.status(500).json({
+        status: "error",
+        message: "Category produk tidak ditemukan",
+      });
 
     await Product.create(payload);
     return res.status(201).json({
