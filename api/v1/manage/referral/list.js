@@ -43,7 +43,8 @@ module.exports = async (req, res) => {
         where: { userId: user.id },
       });
     }
-    const queryMember = sponsorKey ? { userId: sponsorKey.userId } : {}; // upline roleId 4
+
+    const queryMember = [4].includes(user.roleId) ? { userId: user.id } : {}; // upline roleId 4
 
     const includeParent = [
       {
@@ -65,6 +66,7 @@ module.exports = async (req, res) => {
         model: SponsorKey,
         where: {
           ...queryMember,
+          ...keyword,
         },
         include: {
           attributes: [
@@ -75,7 +77,7 @@ module.exports = async (req, res) => {
             "phone",
             "totalDownline",
           ],
-          model: User,  //upline
+          model: User, //upline
         },
       },
     ];

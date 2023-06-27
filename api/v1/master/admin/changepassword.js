@@ -10,7 +10,7 @@ module.exports = async (req, res) => {
   try {
     const schema = {
       id: "number|empty:false",
-      password: "string|empty:false",
+      password: "string|empty:false|min:5",
       oldPassword: "string|optional",
     };
 
