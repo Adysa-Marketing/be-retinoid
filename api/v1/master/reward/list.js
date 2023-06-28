@@ -63,7 +63,7 @@ module.exports = async (req, res) => {
 
         // jika login role 3 dan 4. lakukan pengecekan apakah boleh ambil reward atau tidak berdasarkan point refferal
         if ([3, 4].includes(user.roleId)) {
-          await Refferal.findAll({
+          userRefferal = await Refferal.findAll({
             where: { sponsorId: user.sponsorId },
             include: {
               attributes: ["id", "name", "point"],

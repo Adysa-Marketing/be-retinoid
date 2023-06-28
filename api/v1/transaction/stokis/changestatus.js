@@ -56,7 +56,6 @@ module.exports = async (req, res) => {
 
     await trStokis.update(payload);
     logger.info({ source, payload });
-    transaction.commit();
     return res.json({
       status: "success",
       message: "Status Transaksi Stokis berhasil diubah",

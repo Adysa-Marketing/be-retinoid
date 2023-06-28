@@ -12,7 +12,7 @@ module.exports = async (req, res) => {
   try {
     const schema = {
       id: "number|empty:false",
-      status: "number|empty:false",
+      statusId: "number|empty:false",
     };
 
     const validate = v.compile(schema)(source);
@@ -24,18 +24,18 @@ module.exports = async (req, res) => {
 
     const id = source.id;
     const dateApproved =
-      source.status == 4
+      source.statusId == 4
         ? { dateApproved: moment().format("YYYY-MM-DD HH:mm:ss") }
         : {}; // ACTIVED
 
     const payload = {
-      status: source.status,
+      statusId: source.statusId,
       dateApproved,
     };
 
     logger.info({ source, payload });
     const agen = await Agen.findOne({
-      attributes: ["id", "name", "status", "userId"],
+      attributes: ["id", "name", "statusdId", "userId"],
       where: { id },
     });
 
@@ -46,7 +46,7 @@ module.exports = async (req, res) => {
       });
 
     await agen.update(payload, { transaction });
-    if (source.status == 4)
+    if (source.statusId == 4)
       // ACTIVED
       await User.update(
         { roleId: 3, isActive: true },
@@ -57,10 +57,10 @@ module.exports = async (req, res) => {
      * 2 == Disabled . set isActive == false
      * 3 == Rejected
      */
-    if ([2, 3].includes(source.status)) {
-      const isActive = source.status == 2 ? false : true;
+    if ([2, 3].includes(source.statusId)) {
+      const isActive = source.statusId == 2 ? false : true;
       await User.update(
-        { roleId: 2, isActive },
+        { roleId: 3, isActive },
         { where: { id: agen.userId }, transaction }
       );
     }

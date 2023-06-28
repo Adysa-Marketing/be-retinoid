@@ -5,6 +5,7 @@ const {
   TrStokis,
   Stokis,
   User,
+  Role,
 } = require("../../../../models");
 const logger = require("../../../../libs/logger");
 
@@ -33,20 +34,28 @@ module.exports = async (req, res) => {
       where: { id, ...queryMember },
       includes: [
         {
+          attributes: ["id", "name", "price", "discount", "description"],
           model: Stokis,
         },
         {
+          attributes: ["id", "name"],
           model: PaymentType,
         },
         {
+          attributes: ["id", "name"],
           model: PaymentStatus,
         },
         {
+          attributes: ["id", "name"],
           model: Bank,
         },
         {
-          attributes: ["id", "name", "username", "email", "phone"],
+          attributes: ["id", "name", "username", "email", "phone", "roleId"],
           model: User,
+          include: {
+            attributes: ["id", "name"],
+            model: Role,
+          },
         },
       ],
     });

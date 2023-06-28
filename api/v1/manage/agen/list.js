@@ -49,7 +49,7 @@ module.exports = async (req, res) => {
         }
       : {};
 
-    const queryStatus = source.status ? { status: source.status } : {};
+    const queryStatus = source.statusId ? { statusId: source.statusId } : {};
     const where = { ...keyword, ...queryStatus };
 
     logger.info({ source, where });

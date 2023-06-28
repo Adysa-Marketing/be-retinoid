@@ -68,16 +68,19 @@ module.exports = async (req, res) => {
 
     const includeParent = [
       {
-        attributes: ["id", "name", "price", "discount"],
+        attributes: ["id", "name", "price", "discount", "description"],
         model: Stokis,
       },
       {
+        attributes: ["id", "name"],
         model: PaymentType,
       },
       {
+        attributes: ["id", "name"],
         model: PaymentStatus,
       },
       {
+        attributes: ["id", "name"],
         model: Bank,
       },
       {

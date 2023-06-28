@@ -10,19 +10,6 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      status: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        defaultValue: 0,
-        validate: {
-          customValidator: (value) => {
-            const enums = [0, 1, 2]; //pending, active, disabled
-            if (!enums.includes(value)) {
-              throw new Error("not a valid option");
-            }
-          },
-        },
-      },
       dateApproved: DataTypes.DATE,
       remark: DataTypes.STRING,
     },
@@ -40,6 +27,11 @@ module.exports = (sequelize, DataTypes) => {
     Agen.belongsTo(models.Stokis, {
       foreignKey: {
         field: "stokisId",
+      },
+    });
+    Agen.belongsTo(models.AgenStatus, {
+      foreignKey: {
+        field: "statusId",
       },
     });
   };
