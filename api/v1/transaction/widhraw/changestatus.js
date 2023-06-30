@@ -77,6 +77,7 @@ module.exports = async (req, res) => {
       });
 
     /**
+     * jika status canceled oleh member
      * jika status canceled / rejected oleh admin
      * update wallet user
      */
