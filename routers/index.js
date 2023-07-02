@@ -3,6 +3,7 @@ const Auth = require("./auth");
 // const userRouter = require("./userRouter");
 // app.use("/api/v1/user", userRouter);
 
+const Dropdown = require("../api/v1/dropdown");
 const Manage = require("../api/v1/manage");
 const Master = require("../api/v1/master");
 const Network = require("../api/v1/network");
@@ -23,6 +24,7 @@ app.use(
 );
 
 // Routing API
+app.use("/dropdown", Dropdown);
 app.use("/manage", Manage);
 app.use("/master", Master);
 app.use("/network", Network);
