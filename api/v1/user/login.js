@@ -4,6 +4,8 @@ const Session = require("../../../libs/session");
 const { User, SponsorKey, Serial } = require("../../../models");
 
 const bcryptjs = require("bcryptjs");
+const Validator = require("fastest-validator");
+const v = new Validator();
 
 module.exports = async (req, res) => {
   const source = req.body;
@@ -22,6 +24,7 @@ module.exports = async (req, res) => {
       });
 
     const { username, password } = source;
+    console.log("payload : ", req.body);
     const attributes = {
       exclude: ["createdAt", "updatedAt"],
     };
@@ -30,21 +33,16 @@ module.exports = async (req, res) => {
       attributes,
       include: [
         {
+          attributes: ["id", "key"],
           model: SponsorKey,
         },
         {
+          attributes: ["id", "serial", "status"],
           model: Serial,
         },
       ],
       where: {
-        $or: [
-          {
-            username,
-          },
-          {
-            email: username,
-          },
-        ],
+        username,
         isActive: true,
       },
     });
@@ -74,7 +72,7 @@ module.exports = async (req, res) => {
         .json({ status: "error", message: "Username atau Password Salah" });
     }
   } catch (error) {
-    logger.error(err);
+    console.log("[!] Error : ", error);
     res.status(500).json({ status: "error", message: error.message });
   }
 };

@@ -3,12 +3,29 @@ const logger = require("../../../../libs/logger");
 const Sequelize = require("sequelize");
 const Op = Sequelize.Op;
 
+const Validator = require("fastest-validator");
+const v = new Validator();
+
 module.exports = async (req, res) => {
   try {
     const source = req.body;
     const user = req.user;
+    const schema = {
+      keyword: "string|optional",
+      levelId: "number|optional",
+      rowsPerPage: "number|empty:false",
+      currentPage: "number|empty:false",
+    };
+
+    const validate = v.compile(schema)(source);
+    if (validate.length)
+      return res.status(400).json({
+        status: "error",
+        message: validate,
+      });
+
     const id =
-      source.keyword.length > 3
+      source.keyword?.length > 3
         ? source.keyword.substr(3, source.keyword.length - 1)
         : 0;
     const keycode = !isNaN(id) ? { id } : {};
@@ -36,7 +53,7 @@ module.exports = async (req, res) => {
       : {};
 
     logger.info(source);
-    const queryLevel = req.query.level ? { levelId: req.query.level } : {};
+    const queryLevel = source.level ? { levelId: source.level } : {};
 
     const includeParent = [
       {
@@ -79,6 +96,7 @@ module.exports = async (req, res) => {
 
     Generation.findAll({
       ...offsetLimit,
+      attributes: ["id", "remark"],
       where,
       include: [...includeParent],
     })

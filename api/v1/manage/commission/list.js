@@ -2,11 +2,26 @@ const { Commission, User, CommissionLevel } = require("../../../../models");
 const logger = require("../../../../libs/logger");
 const moment = require("moment");
 const { Op } = require("sequelize");
+const Validator = require("fastest-validator");
+const v = new Validator();
 
 module.exports = async (req, res) => {
   try {
     const source = req.body;
     const user = req.user;
+
+    const schema = {
+      levelId: "number|optional",
+      rowsPerPage: "number|empty:false",
+      currentPage: "number|empty:false",
+    };
+
+    const validate = v.compile(schema)(source);
+    if (validate.length)
+      return res.status(400).json({
+        status: "error",
+        message: validate,
+      });
 
     const startDate = moment(source.startDate, "YYYY-MM-DD")
       .startOf("days")
@@ -83,6 +98,7 @@ module.exports = async (req, res) => {
 
     await Commission.findAll({
       ...offsetLimit,
+      attributes: ["id", "amount", "date"],
       where,
       include: [...includeParent],
     })

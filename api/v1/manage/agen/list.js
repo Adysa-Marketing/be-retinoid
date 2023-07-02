@@ -1,4 +1,4 @@
-const { Agen } = require("../../../../models");
+const { Agen, AgenStatus, Stokis } = require("../../../../models");
 const logger = require("../../../../libs/logger");
 const Sequelize = require("sequelize");
 const Op = Sequelize.Op;
@@ -10,8 +10,10 @@ module.exports = async (req, res) => {
     const source = req.body;
 
     const schema = {
-      status: "number|optional",
+      statusId: "number|optional",
       keyword: "string|optional",
+      rowsPerPage: "number|empty:false",
+      currentPage: "number|empty:false",
     };
 
     const validate = v.compile(schema)(source);
@@ -52,11 +54,22 @@ module.exports = async (req, res) => {
     const queryStatus = source.statusId ? { statusId: source.statusId } : {};
     const where = { ...keyword, ...queryStatus };
 
+    const includeParent = [
+      {
+        attributes: ["id", "name"],
+        model: AgenStatus,
+      },
+      {
+        attributes: ["id", "name"],
+        model: Stokis,
+      },
+    ];
+
     logger.info({ source, where });
 
     const rowsPerPage = source.rowsPerPage;
     const currentPage = source.currentPage;
-    const totalData = await Agen.count({ where });
+    const totalData = await Agen.count({ where, include: [...includeParent] });
 
     const totalPages =
       rowsPerPage !== "All"
@@ -73,6 +86,7 @@ module.exports = async (req, res) => {
     const data = await Agen.findAll({
       ...offsetLimit,
       where,
+      include: [...includeParent],
     });
 
     return res.json({

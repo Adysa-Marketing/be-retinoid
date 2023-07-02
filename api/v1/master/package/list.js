@@ -2,13 +2,28 @@ const { Package } = require("../../../../models");
 const logger = require("../../../../libs/logger");
 const Sequelize = require("sequelize");
 const Op = Sequelize.Op;
+const Validator = require("fastest-validator");
+const v = new Validator();
 
 module.exports = async (req, res) => {
   try {
     const source = req.body;
 
+    const schema = {
+      keyword: "string|optional",
+      rowsPerPage: "number|empty:false",
+      currentPage: "number|empty:false",
+    };
+
+    const validate = v.compile(schema)(source);
+    if (validate.length)
+      return res.status(400).json({
+        status: "error",
+        message: validate,
+      });
+
     const id =
-      source.keyword.length > 3
+      source.keyword?.length > 3
         ? source.keyword.substr(3, source.keyword.length - 1)
         : 0;
     const keycode = !isNaN(id) ? { id } : {};
@@ -57,7 +72,11 @@ module.exports = async (req, res) => {
     const limit = rowsPerPage !== "All" ? rowsPerPage : totalData;
     const offsetLimit = rowsPerPage !== "All" ? { offset, limit } : {};
 
-    const data = await Package.findAll({ ...offsetLimit, where });
+    const data = await Package.findAll({
+      ...offsetLimit,
+      attributes: ["id", "name", "type", "amount", "description", "image"],
+      where,
+    });
 
     return res.json({
       status: "success",

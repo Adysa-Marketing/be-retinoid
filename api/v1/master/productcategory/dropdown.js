@@ -2,7 +2,9 @@ const { ProductCategory } = require("../../../../models");
 
 module.exports = async (req, res) => {
   try {
-    const data = await ProductCategory.findAll();
+    const data = await ProductCategory.findAll({
+      attributes: ["id", "name"],
+    });
     return res.json({
       status: "success",
       data,

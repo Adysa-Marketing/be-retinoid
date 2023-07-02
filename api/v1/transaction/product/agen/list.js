@@ -7,11 +7,31 @@ const {
   TrStatus,
 } = require("../../../../../models");
 const logger = require("../../../../../libs/logger");
+const Validator = require("fastest-validator");
+const v = new Validator();
 
 module.exports = async (req, res) => {
-  const source = req.body;
-  const user = req.user;
   try {
+    const source = req.body;
+    const user = req.user;
+
+    const schema = {
+      keyword: "string|optional",
+      statusId: "number|optional",
+      categoryId: "number|optional",
+      paymentTypeId: "number|optional",
+      productId: "number|optional",
+      rowsPerPage: "number|empty:false",
+      currentPage: "number|empty:false",
+    };
+
+    const validate = v.compile(schema)(source);
+    if (validate.length)
+      return res.status(400).json({
+        status: "error",
+        message: validate,
+      });
+
     const id =
       source.keyword.length > 3
         ? source.keyword.substr(3, source.keyword.length - 1)
@@ -56,6 +76,9 @@ module.exports = async (req, res) => {
     const queryProduct = source.productId
       ? { productId: source.productId }
       : {};
+    const queryCategory = source.categoryId
+      ? { categoryId: source.categoryId }
+      : {};
 
     const where = {
       ...keyword,
@@ -78,6 +101,9 @@ module.exports = async (req, res) => {
       {
         attributes: ["id", "name", "amount", "image"],
         model: Product,
+        where: {
+          ...queryCategory,
+        },
       },
     ];
 
@@ -104,6 +130,7 @@ module.exports = async (req, res) => {
 
     await ATrSale.findAll({
       ...offsetLimit,
+      attributes: ["id", "qty", "amount", "image", "remark"],
       where,
       include: [...includeParent],
     })

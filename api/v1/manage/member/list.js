@@ -16,6 +16,9 @@ module.exports = async (req, res) => {
         enum: ["Male", "Female"],
         optional: true,
       },
+      keyword: "string|otional",
+      rowsPerPage: "number|empty:false",
+      currentPage: "number|empty:false",
     };
 
     const validate = v.compile(schema)(source);
@@ -26,7 +29,7 @@ module.exports = async (req, res) => {
       });
 
     const id =
-      source.keyword.length > 3
+      source.keyword?.length > 3
         ? source.keyword.substr(3, source.keyword.length - 1)
         : 0;
     const keycode = !isNaN(id) ? { id } : {};

@@ -3,13 +3,29 @@ const logger = require("../../../../libs/logger");
 const Sequelize = require("sequelize");
 const Op = Sequelize.Op;
 const moment = require("moment");
+const Validator = require("fastest-validator");
+const v = new Validator();
 
 module.exports = async (req, res) => {
   const source = req.body;
   const user = req.user;
   try {
+    const schema = {
+      keyword: "string|optional",
+      sponsorId: "number|optional",
+      rowsPerPage: "number|empty:false",
+      currentPage: "number|empty:false",
+    };
+
+    const validate = v.compile(schema)(source);
+    if (validate.length)
+      return res.status(400).json({
+        status: "error",
+        message: validate,
+      });
+
     const id =
-      source.keyword.length > 3
+      source.keyword?.length > 3
         ? source.keyword.substr(3, source.keyword.length - 1)
         : 0;
     const keycode = !isNaN(id) ? { id } : {};
@@ -46,8 +62,25 @@ module.exports = async (req, res) => {
     }
 
     const querySponsor = sponsorKey ? { sponsorId: sponsorKey.id } : {};
+    const startDate = moment(source.startDate, "YYYY-MM-DD")
+      .startOf("days")
+      .toDate();
+    const endDate = moment(source.endDate, "YYYY-MM-DD")
+      .startOf("days")
+      .toDate();
+
+    const dateRange =
+      source.startDate && source.endDate
+        ? {
+            date: {
+              [Op.gte]: startDate,
+              [Op.lte]: endDate,
+            },
+          }
+        : {};
 
     const where = {
+      ...dateRange,
       ...querySponsor,
     };
 
@@ -97,6 +130,7 @@ module.exports = async (req, res) => {
 
     await Refferal.findAll({
       ...offsetLimit,
+      attributes: ["id", "date"],
       where,
       include: [...includeParent],
     })

@@ -12,7 +12,7 @@ const IsRoot = require("../../../middleware/isRoot");
 const IsAdmin = require("../../../middleware/isAdmin");
 
 router.get("/get/:id", IsAdmin, Get);
-router.get("/list", IsAdmin, List);
+router.post("/list", IsAdmin, List);
 router.post(
   "/create",
   IsRoot,

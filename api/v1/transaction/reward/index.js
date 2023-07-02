@@ -9,7 +9,7 @@ const Update = require("./update");
 const Upload = require("../../../../libs/upload");
 
 router.get("/get/:id", Get);
-router.get("/list", List);
+router.post("/list", List);
 router.post(
   "/create",
   Asset.Directory,

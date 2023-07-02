@@ -9,7 +9,7 @@ const Upload = require("../../../../libs/upload");
 const IsAdmin = require("../../../middleware/isAdmin");
 
 router.get("/get/:id", Get);
-router.get("/list", List);
+router.post("/list", List);
 router.post(
   "/create",
   IsAdmin,

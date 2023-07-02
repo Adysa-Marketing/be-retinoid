@@ -2,22 +2,39 @@ const env = process.env.NODE_ENV;
 const config = require("../../../../config/core")[env];
 const { User, Widhraw, WdStatus } = require("../../../../models");
 const logger = require("../../../../libs/logger");
+const Validator = require("fastest-validator");
+const v = new Validator();
 
 module.exports = async (req, res) => {
-  const source = req.body;
-  const user = req.user;
   try {
+    const source = req.body;
+    const user = req.user;
+
+    const schema = {
+      keyword: "string|optional",
+      statusId: "number|optional",
+      rowsPerPage: "number|empty:false",
+      currentPage: "number|empty:false",
+    };
+
+    const validate = v.compile(schema)(source);
+    if (validate.length)
+      return res.status(400).json({
+        status: "error",
+        message: validate,
+      });
+
     const id =
-      req.body.keyword.length > 3
-        ? req.body.keyword.substr(3, req.body.keyword.length - 1)
+      source.keyword?.length > 3
+        ? source.keyword.substr(3, source.keyword.length - 1)
         : 0;
     const keycode = !isNaN(id) ? { id } : {};
 
-    const keyword = req.body.keyword
+    const keyword = source.keyword
       ? {
           [Op.or]: [
             {
-              id: !isNaN(req.body.keyword) ? parseInt(req.body.keyword) : 0,
+              id: !isNaN(source.keyword) ? parseInt(source.keyword) : 0,
             },
             {
               ...keycode,
@@ -54,23 +71,24 @@ module.exports = async (req, res) => {
       ...queryStatus,
     };
 
+    const includeParent = [
+      {
+        attributes: ["id", "name", "email", "phone"],
+        model: User,
+        where: { ...queryName },
+      },
+      {
+        attributes: ["id", "name", "remark"],
+        model: WdStatus,
+      },
+    ];
     logger.info(source);
 
     const rowsPerPage = source.rowsPerPage;
     const currentPage = source.currentPage;
     const totalData = await Widhraw.count({
       where,
-      include: [
-        {
-          attributes: ["id", "name", "email", "phone"],
-          model: User,
-          where: { ...queryName },
-        },
-        {
-          attributes: ["id", "name", "remark"],
-          model: WdStatus,
-        },
-      ],
+      include: [...includeParent],
     });
 
     const totalPages =
@@ -87,17 +105,18 @@ module.exports = async (req, res) => {
 
     await Widhraw.findAll({
       ...offsetLimit,
-      where,
-      include: [
-        {
-          attributes: ["id", "name", "email", "phone"],
-          model: User,
-        },
-        {
-          attributes: ["id", "name", "remark"],
-          model: WdStatus,
-        },
+      attributes: [
+        "id",
+        "amount",
+        "noRekening",
+        "bankName",
+        "accountName",
+        "image",
+        "imageKtp",
+        "remark",
       ],
+      where,
+      include: [...includeParent],
     })
       .then((result) => {
         result = JSON.parse(JSON.stringify(result));

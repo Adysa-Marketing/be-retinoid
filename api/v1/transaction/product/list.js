@@ -10,12 +10,34 @@ const {
 } = require("../../../../models");
 const logger = require("../../../../libs/logger");
 
+const Validator = require("fastest-validator");
+const v = new Validator();
+
 module.exports = async (req, res) => {
-  const source = req.body;
-  const user = req.user;
   try {
+    const source = req.body;
+    const user = req.user;
+
+    const schema = {
+      keyword: "string|optional",
+      bankId: "number|optional",
+      statusId: "number|optional",
+      categoryId: "number|optional",
+      paymentTypeId: "number|optional",
+      productId: "number|optional",
+      rowsPerPage: "number|empty:false",
+      currentPage: "number|empty:false",
+    };
+
+    const validate = v.compile(schema)(source);
+    if (validate.length)
+      return res.status(400).json({
+        status: "error",
+        message: validate,
+      });
+
     const id =
-      source.keyword.length > 3
+      source.keyword?.length > 3
         ? source.keyword.substr(3, source.keyword.length - 1)
         : 0;
     const keycode = !isNaN(id) ? { id } : {};
@@ -122,6 +144,16 @@ module.exports = async (req, res) => {
 
     await TrSale.findAll({
       ...offsetLimit,
+      attributes: [
+        "id",
+        "amount",
+        "qty",
+        "image",
+        "fromBank",
+        "accountName",
+        "date",
+        "remark",
+      ],
       where,
       include: [...includeParent],
     })

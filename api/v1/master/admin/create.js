@@ -87,12 +87,7 @@ module.exports = async (req, res) => {
     transaction.rollback();
     if (err.errors && err.errors.length > 0 && err.errors[0].path) {
       logger.err(err.errors);
-      if (err.errors[0].path == "email") {
-        return res.status(400).json({
-          status: "error",
-          message: "Email sudah terdaftar, silahkan gunakan email lain",
-        });
-      } else if (err.errors[0].path == "username") {
+      if (err.errors[0].path == "username") {
         return res.status(400).json({
           status: "error",
           message: "Username sudah terdaftar, silahkan gunakan username lain",

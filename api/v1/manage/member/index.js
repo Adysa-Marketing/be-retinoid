@@ -6,7 +6,7 @@ const List = require("./list");
 const IsAdmin = require("../../../middleware/isAdmin");
 
 router.get("/get/:id", IsAdmin, Get);
-router.get("/list", IsAdmin, List);
+router.post("/list", IsAdmin, List);
 router.put("/change-pass", IsAdmin, ChangePass);
 router.put("/change-status", IsAdmin, ChangeStat);
 

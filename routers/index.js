@@ -19,6 +19,13 @@ app.use(
       "/api/v1/user/register",
       "/api/v1/master/package/get/:id",
       "/api/v1/master/package/list",
+      "/api/v1/dropdown/role",
+      "/api/v1/dropdown/tr-status",
+      "/api/v1/dropdown/payment-type",
+      "/api/v1/dropdown/rw-status",
+      "/api/v1/dropdown/wd-status",
+      "/api/v1/dropdown/commission-level",
+      "/api/v1/dropdown/agen-status",
     ],
   })
 );

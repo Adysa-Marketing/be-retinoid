@@ -2,10 +2,25 @@ const { ProductCategory } = require("../../../../models");
 const logger = require("../../../../libs/logger");
 const Sequelize = require("sequelize");
 const Op = Sequelize.Op;
+const Validator = require("fastest-validator");
+const v = new Validator();
 
 module.exports = async (req, res) => {
   try {
     const source = req.body;
+    const schema = {
+      keyword: "string|optional",
+      rowsPerPage: "number|empty:false",
+      currentPage: "number|empty:false",
+    };
+
+    const validate = v.compile(schema)(source);
+    if (validate.length)
+      return res.status(400).json({
+        status: "error",
+        message: validate,
+      });
+
     const id =
       source.keyword.length > 3
         ? source.keyword.substr(3, source.keyword.length - 1)
@@ -54,6 +69,7 @@ module.exports = async (req, res) => {
 
     const data = await ProductCategory.findAll({
       ...offsetLimit,
+      attributes: ["id", "name", "remark"],
       where: { ...keyword },
     });
 

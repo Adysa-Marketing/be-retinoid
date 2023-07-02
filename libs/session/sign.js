@@ -27,14 +27,15 @@ module.exports = async (user, sessionBy) => {
 
   let tokens;
   if (oTokens.length > 1) {
-    tokens = await Promise.all(
-      oTokens.map(async (to) => {
-        const user = await redisClient.getAsync(
-          `${sessionBy ? sessionBy : config.sessionName}SessionByToken${to}`
-        );
-
-        if (user || to === token) return to;
-      })
+    tokens = (
+      await Promise.all(
+        oTokens.map(async (t) => {
+          const user = await redisClient.getAsync(
+            `${sessionBy ? sessionBy : config.sessionName}SessionByToken${t}`
+          );
+          if (user || t === token) return t;
+        })
+      )
     ).filter((token) => token);
   } else tokens = oTokens;
 
@@ -56,7 +57,7 @@ module.exports = async (user, sessionBy) => {
     );
   } else {
     redisClient.setex(
-      `${sessionBy ? sessionBy : config.sessionBy}SessionByToken${token}`,
+      `${sessionBy ? sessionBy : config.sessionName}SessionByToken${token}`,
       60 * 60 * expirationTime,
       JSON.stringify(user)
     );

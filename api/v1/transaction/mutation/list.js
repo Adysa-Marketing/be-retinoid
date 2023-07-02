@@ -2,12 +2,27 @@ const env = process.env.NODE_ENV;
 const config = require("../../../../config/core")[env];
 const { Mutation, User, TrSale } = require("../../../../models");
 const logger = require("../../../../libs/logger");
+const Validator = require("fastest-validator");
+const v = new Validator();
 
 module.exports = async (req, res) => {
-  const source = req.body;
   try {
+    const source = req.body;
+    const schema = {
+      keyword: "string|optional",
+      rowsPerPage: "number|empty:false",
+      currentPage: "number|empty:false",
+    };
+
+    const validate = v.compile(schema)(source);
+    if (validate.length)
+      return res.status(400).json({
+        status: "error",
+        message: validate,
+      });
+
     const id =
-      source.keyword.length > 3
+      source.keyword?.length > 3
         ? source.keyword.substr(3, source.keyword.length - 1)
         : 0;
     const keycode = !isNaN(id) ? { id } : {};
@@ -79,6 +94,7 @@ module.exports = async (req, res) => {
 
     await Mutation.findAll({
       ...offsetLimit,
+      attributes: ["id", "type", "amount", "description"],
       where,
       include: [...includeParent],
     })

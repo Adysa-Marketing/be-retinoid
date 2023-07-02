@@ -2,7 +2,9 @@ const { Bank } = require("../../../../models");
 
 module.exports = async (req, res) => {
   try {
-    const data = await Bank.findAll();
+    const data = await Bank.findAll({
+      attributes: ["id", "name"],
+    });
     return res.json({
       status: "success",
       data,
