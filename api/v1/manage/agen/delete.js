@@ -35,14 +35,14 @@ module.exports = async (req, res) => {
     );
     await agen.destroy({ transaction });
 
-    transaction.commit()
+    transaction.commit();
     return res.json({
       status: "success",
       message: "Data Agen berhasil dihapus",
     });
   } catch (error) {
     console.log("[!] Error : ", error);
-    transaction.rollback()
+    transaction.rollback();
     return res.status(500).json({
       status: "error",
       message: error.message,

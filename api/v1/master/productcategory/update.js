@@ -26,12 +26,10 @@ module.exports = async (req, res) => {
     logger.info({ source, payload });
     const productCategory = await ProductCategory.findByPk(id);
     if (!productCategory)
-      return res
-        .status(404)
-        .json({
-          status: "error",
-          message: "Data Kategori Produk tidak ditemukan",
-        });
+      return res.status(404).json({
+        status: "error",
+        message: "Data Kategori Produk tidak ditemukan",
+      });
 
     await productCategory.update(payload);
     return res.json({

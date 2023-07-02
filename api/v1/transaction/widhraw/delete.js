@@ -38,9 +38,7 @@ module.exports = async (req, res) => {
         message: "Data Widhraw tidak ditemukan",
       });
 
-    if (
-      ![1, 2, 3].includes(widhraw.statusId)
-    ) {
+    if (![1, 2, 3].includes(widhraw.statusId)) {
       return res.status(400).json({
         status: "error",
         message: "Mohon maaf, Data Widhraw tidak dapat dihapus",

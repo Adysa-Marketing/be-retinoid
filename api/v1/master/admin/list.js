@@ -16,7 +16,7 @@ module.exports = async (req, res) => {
         enum: ["Male", "Female"],
         optional: true,
       },
-      keyword: "string|optional"
+      keyword: "string|optional",
     };
 
     const validate = v.compile(schema)(source);

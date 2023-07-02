@@ -78,7 +78,7 @@ async function generateSubDistrict() {
           };
         });
 
-      console.log("district : ", subDistrict)
+      console.log("district : ", subDistrict);
       // create subdistrict
       await SubDistrict.bulkCreate(subDistrict, { transaction });
     })

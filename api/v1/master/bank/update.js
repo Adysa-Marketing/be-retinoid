@@ -10,7 +10,7 @@ module.exports = async (req, res) => {
       name: "string|optional",
       noRekening: "string|optional",
       accountName: "string|optional",
-      remark: "string|optional"
+      remark: "string|optional",
     };
 
     const validate = v.compile(schema)(source);

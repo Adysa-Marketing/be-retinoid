@@ -101,7 +101,10 @@ module.exports = async (req, res) => {
 
     // update widhraw
     await widhraw.update(payload, { transaction });
-    files && files.imageKtp  && files.imageKtp.length > 0 && (await RemoveFile(widhraw, true));
+    files &&
+      files.imageKtp &&
+      files.imageKtp.length > 0 &&
+      (await RemoveFile(widhraw, true));
 
     // update wallet
     await userData.update(

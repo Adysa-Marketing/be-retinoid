@@ -23,10 +23,7 @@ module.exports = async (req, res) => {
 
     const { username, password } = source;
     const attributes = {
-      exclude: [
-        "createdAt",
-        "updatedAt",
-      ],
+      exclude: ["createdAt", "updatedAt"],
     };
 
     const userData = await User.findOne({

@@ -52,7 +52,10 @@ module.exports = async (req, res) => {
     const limit = rowsPerPage !== "All" ? rowsPerPage : totalData;
     const offsetLimit = rowsPerPage !== "All" ? { offset, limit } : {};
 
-    const data = await ProductCategory.findAll({ ...offsetLimit, where: { ...keyword } });
+    const data = await ProductCategory.findAll({
+      ...offsetLimit,
+      where: { ...keyword },
+    });
 
     return res.json({
       status: "success",

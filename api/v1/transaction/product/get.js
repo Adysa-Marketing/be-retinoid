@@ -62,12 +62,10 @@ module.exports = async (req, res) => {
 
     logger.info(id);
     if (!trSale)
-      return res
-        .status(404)
-        .json({
-          status: "error",
-          message: "Data Transaksi Produk tidak ditemukan",
-        });
+      return res.status(404).json({
+        status: "error",
+        message: "Data Transaksi Produk tidak ditemukan",
+      });
 
     trSale.date = moment(trSale.date)
       .utc()

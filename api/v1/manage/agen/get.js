@@ -20,7 +20,15 @@ module.exports = async (req, res) => {
     const agen = await Agen.findOne({
       include: [
         {
-          attributes: ["id", "name", "username", "email", "phone", "image", "isActive"],
+          attributes: [
+            "id",
+            "name",
+            "username",
+            "email",
+            "phone",
+            "image",
+            "isActive",
+          ],
           model: User,
         },
       ],
