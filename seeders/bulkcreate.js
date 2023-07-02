@@ -86,15 +86,15 @@ async function createAgenStatus() {
 }
 
 async function bulkSync() {
-  Promise.all(
+  Promise.all([
     createAgenStatus(),
     createRole(),
     createTrStatus(),
     createPaymentType(),
     createRwStatus(),
     createWdStatus(),
-    createCommissionLevel()
-  )
+    createCommissionLevel(),
+  ])
     .then(async (response) => {
       console.log("[OK]", response);
       process.exit(0);
@@ -126,15 +126,16 @@ async function createUser() {
     const userData = await User.create(payload, { transaction });
     // create sponsorKey
     const userSponsor = await SponsorKey.create(
-      { userId: userData.userId, key: sponsorKey },
+      { userId: userData.id, key: sponsorKey },
       { transaction }
     );
     await userData.update({ sponsorId: userSponsor.id }, { transaction });
+    console.log("user : ", userData);
+    transaction.commit();
     console.log("[DONE CREATE USER]");
-    process.exit(0);
   } catch (err) {
+    transaction.rollback();
     console.log("Error : ", err);
-    process.exit(0);
   }
 }
 
@@ -149,5 +150,5 @@ async function createState() {
 }
 
 // createState()
-bulkSync();
-// createUser()
+// bulkSync();
+// createUser();
