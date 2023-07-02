@@ -10,6 +10,7 @@ const {
 const logger = require("../../../libs/logger");
 const db = require("../../../models");
 const sequelize = require("sequelize");
+const Op = sequelize.Op;
 
 const bcrypt = require("bcryptjs");
 const cryptoString = require("crypto-random-string");
@@ -30,7 +31,9 @@ module.exports = async (req, res) => {
       username: "string|empty:false",
       password: "string|empty:false|min:5",
       email: "email|empty:false",
-      phone: "string|optional|min:9|max:13",
+      phone: "string|empty:false|min:9|max:13",
+      serial: "string|empty:false",
+      referral: "string|empty:false",
       gender: {
         type: "string",
         enum: ["Male", "Female"],
@@ -57,17 +60,24 @@ module.exports = async (req, res) => {
       source;
 
     // check serial
-    const serial = await Serial.fineOne({
+    const serial = await Serial.findOne({
+      attributes: ["id", "status", "serialNumber"],
       where: {
-        serial: source.serial,
-        status: 0,
+        [Op.and]: [
+          {
+            status: 1,
+          },
+          {
+            serialNumber: source.serial,
+          },
+        ],
       },
     });
 
     if (!serial) {
       return res.status(500).json({
         status: "error",
-        message: "Kode Serial sudah pernah digunakan",
+        message: "Kode Serial salah / sudah pernah digunakan",
       });
     }
 
@@ -107,7 +117,7 @@ module.exports = async (req, res) => {
     const userData = await User.create(payload, { transaction });
     // create sponsorKey
     const userSponsor = await SponsorKey.create(
-      { userId: userData.userId, key: sponsorKey },
+      { userId: userData.id, key: sponsorKey },
       { transaction }
     );
     await userData.update({ sponsorId: userSponsor.id }, { transaction });
@@ -122,7 +132,7 @@ module.exports = async (req, res) => {
     );
 
     // update status serial
-    await serial.update({ status: 1 }, { transaction });
+    await serial.update({ status: 2 }, { transaction });
 
     // proses commission 5 level
     const productAmount = 500000;
@@ -130,7 +140,7 @@ module.exports = async (req, res) => {
     const commission = parseInt(
       (commissionLevel.percent * productAmount) / 100
     );
-    const message = `Selamat anda mendapatkan bonus senilai Rp. ${commission} dari downline ${commission.name} dengan kedalaman level 1`;
+    const message = `Selamat anda mendapatkan bonus senilai Rp. ${commission} dari downline ${userData.name} dengan kedalaman level 1`;
     await Commission.create(
       {
         userId: sponsor.userId,
@@ -142,7 +152,6 @@ module.exports = async (req, res) => {
       },
       { transaction }
     );
-
     // create generation
     await Generation.create(
       {
@@ -156,7 +165,7 @@ module.exports = async (req, res) => {
 
     // update wallet
     await User.update(
-      { wallet: sequelize.col("wallet") + commission },
+      { wallet: sequelize.literal(`wallet + ${commission}`) },
       { where: { id: sponsor.userId }, transaction }
     );
 
@@ -188,16 +197,11 @@ module.exports = async (req, res) => {
     console.log("[!] Error : ", err);
     transaction.rollback();
     if (err.errors && err.errors.length > 0 && err.errors[0].path) {
-      logger.err(err.errors);
+      logger.error(err.errors);
       if (err.errors[0].path == "username") {
         return res.status(400).json({
           status: "error",
           message: "Username sudah terdaftar, silahkan gunakan username lain",
-        });
-      } else {
-        return res.status(400).json({
-          status: "error",
-          message: "No HP sudah terdaftar, silahkan gunakan No HP lain",
         });
       }
     } else {
@@ -221,6 +225,7 @@ const calculateDownlineBonus = async (
   downlineName, // name of downline
   transaction // db transactional
 ) => {
+  console.log(`downline : ${downlineId}. level ${level}`);
   if (level > 5) {
     return;
   }
@@ -229,7 +234,7 @@ const calculateDownlineBonus = async (
     where: { userId: userSponsorId },
     include: [
       {
-        attributes: ["userId", "sponsorKey"],
+        attributes: ["userId", "key"],
         model: SponsorKey,
         required: true,
       },
@@ -237,8 +242,10 @@ const calculateDownlineBonus = async (
   });
   // jika tidak ada sponsorId langsung return
   if (!referral) {
+    console.log("tidk ada reffreal");
     return;
   }
+  console.log("masih ada refferal");
   referral = JSON.parse(JSON.stringify(referral));
 
   const userUplineId = referral.SponsorKey.userId;
@@ -256,7 +263,7 @@ const calculateDownlineBonus = async (
   await Commission.create(
     {
       userId: userUplineId,
-      downlineId,
+      downlineId: downlineId,
       amount: commission,
       date: moment().format("YYYY-MM-DD HH:mm:ss"),
       levelId: commissionLevel.id,
@@ -268,8 +275,8 @@ const calculateDownlineBonus = async (
   // create generation
   await Generation.create(
     {
-      userId: sponsor.userId,
-      downlineId: userData.id,
+      userId: userUplineId,
+      downlineId: downlineId,
       levelId: commissionLevel.id,
       remark: commissionLevel.name,
     },
@@ -278,7 +285,7 @@ const calculateDownlineBonus = async (
 
   // update wallet
   await User.update(
-    { wallet: sequelize.col("wallet") + commission },
+    { wallet: sequelize.literal(`wallet + ${commission}`) },
     { where: { id: userUplineId }, transaction }
   );
 
@@ -289,6 +296,7 @@ const calculateDownlineBonus = async (
     amount,
     level + 1,
     downlineId,
+    downlineName,
     transaction
   );
 };
@@ -296,17 +304,17 @@ const calculateDownlineBonus = async (
 const calculatePoint = async (userSponsorId) => {
   try {
     // menambahkan jumlah point kepada upline
-    const user = await User.findByPk({ userSponsorId });
+    const user = await User.findByPk(userSponsorId);
     if (!user) return;
 
-    await user.update({ point: sequelize.col("point") + 1 });
+    await user.update({ point: sequelize.literal(`point + 1`) });
 
     let referral = await Referral.findOne({
       attributes: ["userId", "sponsorId"],
       where: { userId: userSponsorId },
       include: [
         {
-          attributes: ["userId", "sponsorKey"],
+          attributes: ["userId", "key"],
           model: SponsorKey,
           required: true,
         },

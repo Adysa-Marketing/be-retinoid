@@ -9,7 +9,8 @@ const {
   TrStatus,
 } = require("../../../../models");
 const logger = require("../../../../libs/logger");
-
+const Sequelize = require("sequelize");
+const Op = Sequelize.Op;
 const Validator = require("fastest-validator");
 const v = new Validator();
 

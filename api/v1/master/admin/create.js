@@ -92,11 +92,6 @@ module.exports = async (req, res) => {
           status: "error",
           message: "Username sudah terdaftar, silahkan gunakan username lain",
         });
-      } else {
-        return res.status(400).json({
-          status: "error",
-          message: "No HP sudah terdaftar, silahkan gunakan No HP lain",
-        });
       }
     } else {
       return res.status(500).json({

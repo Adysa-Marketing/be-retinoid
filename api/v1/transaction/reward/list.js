@@ -2,6 +2,8 @@ const env = process.env.NODE_ENV;
 const config = require("../../../../config/core")[env];
 const { Reward, RwStatus, TrReward, User } = require("../../../../models");
 const logger = require("../../../../libs/logger");
+const Sequelize = require("sequelize");
+const Op = Sequelize.Op;
 const Validator = require("fastest-validator");
 const v = new Validator();
 

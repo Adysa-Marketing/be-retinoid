@@ -4,18 +4,18 @@ module.exports = (sequelize, DataTypes) => {
   const Serial = sequelize.define(
     "Serial",
     {
-      serial: {
+      serialNumber: {
         type: DataTypes.STRING,
         allowNull: false,
         unique: true,
       },
       status: {
         type: DataTypes.INTEGER,
-        defaultValue: 0,
+        defaultValue: 1,
         allowNull: false,
         validate: {
           customValidator: (value) => {
-            const enums = [0, 1]; //pending, actived // printed
+            const enums = [1, 2]; //pending, actived // printed
             if (!enums.includes(value)) {
               throw new Error("not a valid option");
             }
