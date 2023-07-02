@@ -29,7 +29,7 @@ module.exports = (sequelize, DataTypes) => {
     }
   );
 
-  Serial.associatte = (models) => {
+  Serial.associate = (models) => {
     Serial.hasOne(models.User, {
       foreignKey: "serialId",
     });

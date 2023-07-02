@@ -225,7 +225,6 @@ const calculateDownlineBonus = async (
   downlineName, // name of downline
   transaction // db transactional
 ) => {
-  console.log(`downline : ${downlineId}. level ${level}`);
   if (level > 5) {
     return;
   }
@@ -242,10 +241,8 @@ const calculateDownlineBonus = async (
   });
   // jika tidak ada sponsorId langsung return
   if (!referral) {
-    console.log("tidk ada reffreal");
     return;
   }
-  console.log("masih ada refferal");
   referral = JSON.parse(JSON.stringify(referral));
 
   const userUplineId = referral.SponsorKey.userId;

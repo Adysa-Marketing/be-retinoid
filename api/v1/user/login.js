@@ -37,13 +37,12 @@ module.exports = async (req, res) => {
           model: SponsorKey,
         },
         {
-          attributes: ["id", "serial", "status"],
+          attributes: ["id", "serialNumber", "status"],
           model: Serial,
         },
       ],
       where: {
         username,
-        isActive: true,
       },
     });
 
