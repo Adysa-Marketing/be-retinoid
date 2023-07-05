@@ -16,6 +16,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.BIGINT,
         allowNull: false,
       },
+      agenDiscount: {
+        type: DataTypes.BIGINT,
+        allowNull: false,
+      },
       description: {
         type: DataTypes.STRING,
         allowNull: false,

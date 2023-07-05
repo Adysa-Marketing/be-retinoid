@@ -19,7 +19,7 @@ module.exports = async (req, res) => {
     const id = req.body.id;
     const bank = await Bank.findByPk(id);
 
-    logger.info(id);
+    logger.info({ id });
 
     if (!bank)
       return res.status(404).json({

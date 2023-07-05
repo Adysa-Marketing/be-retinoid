@@ -19,8 +19,6 @@ module.exports = async (req, res) => {
         message: validate,
       });
 
-    logger.info({ source, payload });
-
     const stokis = await Stokis.findByPk(source.stokisId);
     if (!stokis)
       return res.status(404).json({
@@ -33,13 +31,21 @@ module.exports = async (req, res) => {
       where: { id: source.userId },
     });
 
+    if (!userData)
+      return res.status(404).json({
+        status: "error",
+        message: "Data User tidak ditemukan",
+      });
+
     const payloadAgen = {
       name: userData.name,
-      status: 0,
+      statusId: 1,
       userId: userData.id,
       stokisId: stokis.id,
       remark: source.remark,
     };
+
+    logger.info({ source, payloadAgen });
 
     await Agen.create(payloadAgen);
 

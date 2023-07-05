@@ -24,14 +24,14 @@ module.exports = async (req, res) => {
       });
 
     const id = req.body.id;
-    const queryMember = [4].includes(user.roleId) ? { userId: user.id } : {};
+    const queryMember = [3, 4].includes(user.roleId) ? { userId: user.id } : {};
 
     const widhraw = await Widhraw.findOne({
-      attributes: ["id", "userId", "amount", "statudId", "imageKtp", "image"],
+      attributes: ["id", "userId", "amount", "statusId", "imageKtp", "image"],
       where: { id, ...queryMember },
     });
 
-    logger.info(id);
+    logger.info({ id });
     if (!widhraw)
       return res.status(404).json({
         status: "error",
@@ -47,8 +47,8 @@ module.exports = async (req, res) => {
 
     await RemoveFile(widhraw, true);
     await User.update(
-      { wallet: sequelize.col("wallet") + widhraw.amount },
-      { transaction }
+      { wallet: sequelize.literal(`wallet + ${parseInt(widhraw.amount)}`) },
+      { where: { id: user.id }, transaction }
     );
     await widhraw.destroy({ transaction });
 

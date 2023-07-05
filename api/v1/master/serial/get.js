@@ -6,7 +6,7 @@ const v = new Validator();
 module.exports = async (req, res) => {
   try {
     const schema = {
-      id: "number|empty:false",
+      id: "string|empty:false",
     };
 
     const validate = v.compile(schema)(req.params);

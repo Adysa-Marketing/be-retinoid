@@ -9,8 +9,9 @@ module.exports = async (req, res) => {
   try {
     const schema = {
       name: "string|empty:false",
-      price: "number|empty:false",
-      discount: "number|empty:false",
+      price: "number|empty:false|min:1",
+      discount: "number|empty:false|min:1",
+      agenDiscount: "number|empty:false|min:1",
       description: "string|empty:false",
     };
 
@@ -25,6 +26,7 @@ module.exports = async (req, res) => {
       name: source.name,
       price: source.price,
       discount: source.discount,
+      agenDiscount: source.agenDiscount,
       description: source.description,
       remark: source.remark,
     };

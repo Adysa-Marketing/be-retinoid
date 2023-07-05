@@ -5,7 +5,7 @@ const Get = require("./get");
 const Update = require("./update");
 const Upload = require("../../../../libs/upload");
 
-router.get("/get/:id", Get);
+router.get("/get", Get);
 router.put("/change-pass", ChangePass);
 router.put(
   "/update",

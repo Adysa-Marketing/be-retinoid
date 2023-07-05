@@ -7,7 +7,7 @@ module.exports = async (req, res) => {
   const user = req.user;
   try {
     const schema = {
-      id: "number|empty:false",
+      id: "string|empty:false",
     };
 
     const validate = v.compile(schema)(req.params);
@@ -17,10 +17,12 @@ module.exports = async (req, res) => {
         message: validate,
       });
 
+    const id = req.params.id;
     const queryMember =
       user && [4].includes(user.roleId) ? { userId: user.id } : {};
 
     let commission = await Commission.findOne({
+      attributes: ["id", "amount", "date", "remark"],
       where: { id, ...queryMember },
       include: [
         {

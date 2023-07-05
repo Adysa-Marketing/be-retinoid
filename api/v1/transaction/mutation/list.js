@@ -6,12 +6,13 @@ const Sequelize = require("sequelize");
 const Op = Sequelize.Op;
 const Validator = require("fastest-validator");
 const v = new Validator();
+const moment = require("moment");
 
 module.exports = async (req, res) => {
   try {
     const source = req.body;
     const schema = {
-      keyword: "string|optional",
+      type: "string|optional",
       rowsPerPage: "number|empty:false",
       currentPage: "number|empty:false",
     };
@@ -23,24 +24,6 @@ module.exports = async (req, res) => {
         message: validate,
       });
 
-    const id =
-      source.keyword?.length > 3
-        ? source.keyword.substr(3, source.keyword.length - 1)
-        : 0;
-    const keycode = !isNaN(id) ? { id } : {};
-
-    const keyword = source.keyword
-      ? {
-          [Op.or]: [
-            {
-              id: !isNaN(source.keyword) ? parseInt(source.keyword) : 0,
-            },
-            {
-              ...keycode,
-            },
-          ],
-        }
-      : {};
     const startDate = moment(source.startDate, "YYYY-MM-DD")
       .startOf("days")
       .toDate();
@@ -58,28 +41,19 @@ module.exports = async (req, res) => {
           }
         : {};
 
+    const queryType = source.type ? { type: source.type } : {};
+
     const where = {
-      ...keyword,
       ...dateRange,
+      ...queryType,
     };
 
-    const includeParent = [
-      {
-        attributes: ["id", "name", "email", "phone"],
-        model: User,
-      },
-      {
-        attributes: ["id", "qty", "amount", "date"],
-        model: TrSale,
-      },
-    ];
     logger.info(source);
 
     const rowsPerPage = source.rowsPerPage;
     const currentPage = source.currentPage;
     const totalData = await Mutation.count({
       where,
-      include: [...includeParent],
     });
 
     const totalPages =
@@ -96,24 +70,18 @@ module.exports = async (req, res) => {
 
     await Mutation.findAll({
       ...offsetLimit,
-      attributes: ["id", "type", "amount", "description"],
+      attributes: ["id", "type", "amount", "remark", "createdAt"],
       where,
-      include: [...includeParent],
     })
       .then((result) => {
         result = JSON.parse(JSON.stringify(result));
-
-        const data = result.map((mt) => {
-          const code = mt.id.toString().padStart(config.maxFill, 0);
-          mt.date = moment(mt.date)
+        const data = result.map((mutation) => {
+          mutation.date = moment(mutation.createdAt)
             .utc()
             .add(7, "hours")
             .format("YYYY-MM-DD HH:mm:ss");
 
-          return {
-            ...mt,
-            kode: `MTT${code}`,
-          };
+          return mutation;
         });
 
         return res.json({

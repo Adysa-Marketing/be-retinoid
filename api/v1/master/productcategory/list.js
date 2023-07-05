@@ -71,6 +71,7 @@ module.exports = async (req, res) => {
       ...offsetLimit,
       attributes: ["id", "name", "remark"],
       where: { ...keyword },
+      order: [["id", "DESC"]],
     });
 
     return res.json({

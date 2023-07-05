@@ -6,7 +6,7 @@ const v = new Validator();
 module.exports = async (req, res) => {
   try {
     const schema = {
-      id: "number|empty:false",
+      id: "string|empty:false",
     };
 
     const validate = v.compile(schema)(req.params);
@@ -19,7 +19,7 @@ module.exports = async (req, res) => {
     const id = req.params.id;
     const bank = await Bank.findByPk(id);
 
-    logger.info(id);
+    logger.info({ id });
     if (!bank)
       return res.status(404).json({
         status: "error",

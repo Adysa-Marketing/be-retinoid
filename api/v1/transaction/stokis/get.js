@@ -1,7 +1,7 @@
 const {
   Bank,
-  PaymentStatus,
   PaymentType,
+  TrStatus,
   TrStokis,
   Stokis,
   User,
@@ -11,13 +11,14 @@ const logger = require("../../../../libs/logger");
 
 const Validator = require("fastest-validator");
 const v = new Validator();
+const moment = require("moment");
 
 module.exports = async (req, res) => {
   const user = req.user;
 
   try {
     const schema = {
-      id: "number|empty:false",
+      id: "string|empty:false",
     };
 
     const validate = v.compile(schema)(req.params);
@@ -27,12 +28,24 @@ module.exports = async (req, res) => {
         message: validate,
       });
 
-    const id = req.body.id;
+    const id = req.params.id;
     const queryMember = [4].includes(user.roleId) ? { userId: user.id } : {};
 
     const trStokis = await TrStokis.findOne({
+      attributes: [
+        "id",
+        "amount",
+        "kk",
+        "imageKtp",
+        "image",
+        "phoneNumber",
+        "fromBank",
+        "accountName",
+        "date",
+        "remark",
+      ],
       where: { id, ...queryMember },
-      includes: [
+      include: [
         {
           attributes: ["id", "name", "price", "discount", "description"],
           model: Stokis,
@@ -43,7 +56,7 @@ module.exports = async (req, res) => {
         },
         {
           attributes: ["id", "name"],
-          model: PaymentStatus,
+          model: TrStatus,
         },
         {
           attributes: ["id", "name"],
@@ -60,7 +73,7 @@ module.exports = async (req, res) => {
       ],
     });
 
-    logger.info(id);
+    logger.info({ id });
     if (!trStokis)
       return res.status(404).json({
         status: "error",

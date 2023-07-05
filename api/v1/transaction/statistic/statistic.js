@@ -5,7 +5,8 @@ const {
   Mutation,
   Package,
   Product,
-  Refferal,
+  ProductCategory,
+  Referral,
   Stokis,
   TrReward,
   TrSale,
@@ -152,7 +153,7 @@ module.exports.Agen = async (req, res) => {
       include: {
         model: User,
         where: {
-          role: 4,
+          roleId: 3,
           isActive: true,
         },
         required: true,
@@ -236,6 +237,9 @@ module.exports.TrSale = async (req, res) => {
         [Op.gte]: startDate,
         [Op.lte]: endDate,
       },
+      statusId: {
+        [Op.in]: [1, 3, 4, 5],
+      },
       ...queryAgen,
     };
 
@@ -259,17 +263,20 @@ module.exports.MonthlyIncome = async (req, res) => {
     const startDate = moment().startOf("months").toDate();
     const endDate = moment().endOf("months").toDate();
     const where = {
+      type: "Dana Masuk",
       createdAt: {
         [Op.gte]: startDate,
         [Op.lte]: endDate,
       },
     };
 
-    Mutation.findAll({ attributes: ["id", "amount"], where, raw: true })
+    Mutation.findAll({ attributes: ["amount"], where, raw: true })
       .then((mutation) => {
-        const amount = mutation.reduce((prev, curr) => {
-          return parseInt(prev.amount) + parseInt(curr.amount);
-        });
+        const amount = mutation.length
+          ? mutation.reduce((prev, curr) => {
+              return prev + parseInt(curr.amount);
+            }, 0)
+          : 0;
         return res.json({
           status: "success",
           amount,
@@ -295,18 +302,92 @@ module.exports.MonthlyIncome = async (req, res) => {
 module.exports.Income = async (req, res) => {
   try {
     Mutation.findAll({
-      attributes: ["id", "amount", "qty"],
-      where: {
-        statusId: {
-          [Op.in]: [4, 5],
-        },
-      },
-      raw: true,
+      attributes: ["amount"],
+      where: { type: "Dana Masuk" },
     })
       .then((mutation) => {
-        const amount = mutation.reduce((prev, curr) => {
-          return parseInt(prev.amount) + parseInt(curr.amount);
+        const amount = mutation.length
+          ? mutation.reduce((prev, curr) => {
+              return prev + parseInt(curr.amount);
+            }, 0)
+          : 0;
+        console.log("mut :", amount);
+        return res.json({
+          status: "success",
+          amount,
         });
+      })
+      .catch((error) => {
+        console.log("[!]Error : ", error);
+        return res.status(400).json({
+          status: "error",
+          message: error.message,
+        });
+      });
+  } catch (error) {
+    console.log("[!]Error : ", error);
+    return res.status(500).json({
+      status: "error",
+      message: error.message,
+    });
+  }
+};
+
+// amount monthly outcome
+module.exports.MonthlyOutcome = async (req, res) => {
+  try {
+    const startDate = moment().startOf("months").toDate();
+    const endDate = moment().endOf("months").toDate();
+    const where = {
+      type: "Dana Keluar",
+      createdAt: {
+        [Op.gte]: startDate,
+        [Op.lte]: endDate,
+      },
+    };
+
+    Mutation.findAll({ attributes: ["amount"], where, raw: true })
+      .then((mutation) => {
+        const amount = mutation.length
+          ? mutation.reduce((prev, curr) => {
+              return prev + parseInt(curr.amount);
+            }, 0)
+          : 0;
+        return res.json({
+          status: "success",
+          amount,
+        });
+      })
+      .catch((error) => {
+        console.log("[!]Error : ", error);
+        return res.status(400).json({
+          status: "error",
+          message: error.message,
+        });
+      });
+  } catch (error) {
+    console.log("[!]Error : ", error);
+    return res.status(500).json({
+      status: "error",
+      message: error.message,
+    });
+  }
+};
+
+// amount income
+module.exports.Outcome = async (req, res) => {
+  try {
+    Mutation.findAll({
+      attributes: ["amount"],
+      where: { type: "Dana Keluar" },
+    })
+      .then((mutation) => {
+        const amount = mutation.length
+          ? mutation.reduce((prev, curr) => {
+              return prev + parseInt(curr.amount);
+            }, 0)
+          : 0;
+        console.log("mut :", amount);
         return res.json({
           status: "success",
           amount,
@@ -368,14 +449,16 @@ module.exports.MonthlyIncomeTrStokis = async (req, res) => {
     };
 
     TrStokis.findAll({
-      attributes: ["id", "amount", "statusId"],
+      attributes: ["amount"],
       where,
       raw: true,
     })
       .then((trStokis) => {
-        const amount = trStokis.reduce((prev, curr) => {
-          return parseInt(prev.amount) + parseInt(curr.amount);
-        });
+        const amount = trStokis.length
+          ? trStokis.reduce((prev, curr) => {
+              return prev + parseInt(curr.amount);
+            }, 0)
+          : 0;
         return res.json({
           status: "success",
           amount,
@@ -405,14 +488,16 @@ module.exports.IncomeTrStokis = async (req, res) => {
     };
 
     TrStokis.findAll({
-      attributes: ["id", "amount", "statusId"],
+      attributes: ["amount"],
       where,
       raw: true,
     })
       .then((trStokis) => {
-        const amount = trStokis.reduce((prev, curr) => {
-          return parseInt(prev.amount) + parseInt(curr.amount);
-        });
+        const amount = trStokis.length
+          ? trStokis.reduce((prev, curr) => {
+              return prev + parseInt(curr.amount);
+            }, 0)
+          : 0;
         return res.json({
           status: "success",
           amount,
@@ -497,14 +582,16 @@ module.exports.MonthlySpendingWd = async (req, res) => {
       statusId: 5,
     };
     Widhraw.findAll({
-      attributes: ["id", "amount", "statusId"],
+      attributes: ["amount"],
       where,
       raw: true,
     })
       .then((wd) => {
-        const amount = wd.reduce((prev, curr) => {
-          return parseInt(prev.amount) + parseInt(curr.amount);
-        });
+        const amount = wd.length
+          ? wd.reduce((prev, curr) => {
+              return prev + parseInt(curr.amount);
+            }, 0)
+          : 0;
 
         return res.json({
           status: "success",
@@ -533,9 +620,12 @@ module.exports.MonthlySpendingWd = async (req, res) => {
 module.exports.ATrSale = async (req, res) => {
   try {
     const user = req.user;
-    const atrSale = await TrSale.count({
+    const atrSale = await ATrSale.count({
       where: {
         userId: user.id,
+        statusId: {
+          [Op.in]: [1, 3, 4, 5],
+        },
       },
     });
 
@@ -543,6 +633,86 @@ module.exports.ATrSale = async (req, res) => {
       status: "success",
       amount: atrSale,
     });
+  } catch (error) {
+    console.log("[!]Error : ", error);
+    return res.status(500).json({
+      status: "error",
+      message: error.message,
+    });
+  }
+};
+
+// amount monthly agen profit
+module.exports.MonthlyAgenProfit = async (req, res) => {
+  const user = req.user;
+  try {
+    const startDate = moment().startOf("months").toDate();
+    const endDate = moment().endOf("months").toDate();
+    const where = {
+      userId: user.id,
+
+      createdAt: {
+        [Op.gte]: startDate,
+        [Op.lte]: endDate,
+      },
+    };
+
+    ATrSale.findAll({ attributes: ["profit"], where, raw: true })
+      .then((sale) => {
+        const profit = sale.length
+          ? sale.reduce((prev, curr) => {
+              return prev + parseInt(curr.profit);
+            }, 0)
+          : 0;
+        return res.json({
+          status: "success",
+          profit,
+        });
+      })
+      .catch((error) => {
+        console.log("[!]Error : ", error);
+        return res.status(400).json({
+          status: "error",
+          message: error.message,
+        });
+      });
+  } catch (error) {
+    console.log("[!]Error : ", error);
+    return res.status(500).json({
+      status: "error",
+      message: error.message,
+    });
+  }
+};
+
+// amount Agen Profit
+module.exports.AgenProfit = async (req, res) => {
+  const user = req.user;
+  try {
+    ATrSale.findAll({
+      attributes: ["profit"],
+      where: {
+        userId: user.id,
+      },
+    })
+      .then((sale) => {
+        const profit = sale.length
+          ? sale.reduce((prev, curr) => {
+              return prev + parseInt(curr.profit);
+            }, 0)
+          : 0;
+        return res.json({
+          status: "success",
+          profit,
+        });
+      })
+      .catch((error) => {
+        console.log("[!]Error : ", error);
+        return res.status(400).json({
+          status: "error",
+          message: error.message,
+        });
+      });
   } catch (error) {
     console.log("[!]Error : ", error);
     return res.status(500).json({
@@ -564,7 +734,7 @@ module.exports.Bonus = async (req, res) => {
 
     return res.json({
       status: "success",
-      amount: data.wallet,
+      amount: parseInt(data.wallet),
     });
   } catch (error) {
     console.log("[!]Error : ", error);
@@ -589,11 +759,13 @@ module.exports.MonthlyBonus = async (req, res) => {
       },
     };
 
-    await Commission.findAll({ where, raw: true })
+    await Commission.findAll({ attributes: ["amount"], where, raw: true })
       .then((comm) => {
-        const amount = comm.reduce((prev, curr) => {
-          return parseInt(prev.amount) + parseInt(curr.amount);
-        });
+        const amount = comm.length
+          ? comm.reduce((prev, curr) => {
+              return prev + parseInt(curr.amount);
+            }, 0)
+          : 0;
 
         return res.json({
           message: "success",
@@ -621,6 +793,7 @@ module.exports.SuccessWidhraw = async (req, res) => {
   try {
     const user = req.user;
     Widhraw.findAll({
+      attributes: ["amount"],
       where: {
         userId: user.id,
         statusId: 5,
@@ -628,9 +801,11 @@ module.exports.SuccessWidhraw = async (req, res) => {
       raw: true,
     })
       .then((wd) => {
-        const amount = wd.reduce((prev, curr) => {
-          return parseInt(prev.amount) + parseInt(curr.amount);
-        });
+        const amount = wd.length
+          ? wd.reduce((prev, curr) => {
+              return prev + parseInt(curr.amount);
+            }, 0)
+          : 0;
 
         return res.json({
           status: "success",
@@ -654,10 +829,10 @@ module.exports.SuccessWidhraw = async (req, res) => {
 };
 
 // total reffreal
-module.exports.Refferals = async (req, res) => {
+module.exports.Referrals = async (req, res) => {
   try {
     const user = req.user;
-    const reffrals = await Refferal.count({
+    const reffrals = await Referral.count({
       where: {
         sponsorId: user.sponsorId,
       },

@@ -1,6 +1,7 @@
 const { User, Widhraw } = require("../../../../models");
 const logger = require("../../../../libs/logger");
 const db = require("../../../../models");
+const { RemoveFile } = require("./asset");
 
 const bcryptjs = require("bcryptjs");
 const sequelize = require("sequelize");
@@ -15,21 +16,29 @@ module.exports = async (req, res) => {
 
   try {
     const schema = {
-      id: "number|empty:false",
-      amount: "number|optional",
+      id: "string|empty:false",
+      amount: "string|optional",
       noRekening: "string|optional",
       bankName: "string|optional",
       accountName: "string|optional",
-      password: "string|optional",
+      password: "string|empty:false",
       remark: "string|optional",
     };
 
+    const RemoveImg = async (img, option) =>
+      files &&
+      files.imageKtp &&
+      files.imageKtp.length > 0 &&
+      (await RemoveFile(img, option));
+
     const validate = v.compile(schema)(source);
-    if (validate.length)
+    if (validate.length) {
+      RemoveImg(files, false);
       return res.status(400).json({
         status: "error",
         message: validate,
       });
+    }
 
     const id = source.id;
     const imageKtp =
@@ -40,7 +49,7 @@ module.exports = async (req, res) => {
 
     const payload = {
       userId: user.id,
-      amount: source.amount,
+      amount: parseInt(source.amount),
       statusId: 1,
       noRekening: source.noRekening,
       bankName: source.bankName,
@@ -49,26 +58,32 @@ module.exports = async (req, res) => {
       remark: source.remark,
     };
 
-    logger.info({ source, files, payload });
+    logger.info({ files, payload });
 
     const widhraw = await Widhraw.findOne({
-      attributes: ["id", "userId", "amount", "statudId"],
+      attributes: ["id", "userId", "amount", "statusId", "imageKtp"],
       where: { id, ...queryMember },
     });
 
-    if (![1].includes(widhraw.statusId))
+    if (![1].includes(widhraw.statusId)) {
+      RemoveImg(files, false);
       return res.status(400).json({
         status: "error",
         message: "Mohon maaf, Data widhraw sudah tidak dapat diubah",
       });
+    }
 
     const userData = await User.findOne({
       attributes: ["id", "wallet", "password"],
       where: { id: user.id },
     });
 
+    // kembalikan saldo user
+    const walletUser = parseInt(userData.wallet) + parseInt(widhraw.amount);
+
     // validate password
     if (!bcryptjs.compareSync(source.password, userData.password)) {
+      RemoveImg(files, false);
       return res.status(400).json({
         status: "error",
         message:
@@ -76,14 +91,9 @@ module.exports = async (req, res) => {
       });
     }
 
-    // kembalikan saldo user
-    await userData.update(
-      { wallet: sequelize.col("wallet") + widhraw.amount },
-      { transaction }
-    );
-
     // minimal widhraw
-    if (source.amount < 50000) {
+    if (parseInt(source.amount) < 50000) {
+      RemoveImg(files, false);
       return res.status(400).json({
         status: "error",
         message:
@@ -92,7 +102,8 @@ module.exports = async (req, res) => {
     }
 
     // check wallet
-    if (userData.wallet < source.amount) {
+    if (walletUser < parseInt(source.amount)) {
+      RemoveImg(files, false);
       return res.status(400).json({
         status: "error",
         message: "Maaf permintaan anda gagal, Saldo anda tidak mencukupi",
@@ -100,15 +111,12 @@ module.exports = async (req, res) => {
     }
 
     // update widhraw
+    RemoveImg(widhraw, true);
     await widhraw.update(payload, { transaction });
-    files &&
-      files.imageKtp &&
-      files.imageKtp.length > 0 &&
-      (await RemoveFile(widhraw, true));
 
     // update wallet
     await userData.update(
-      { wallet: sequelize.col("wallet") - source.amount },
+      { wallet: walletUser - parseInt(source.amount) },
       { transaction }
     );
 

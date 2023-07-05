@@ -17,7 +17,7 @@ module.exports = async (req, res) => {
   const user = req.user;
   try {
     const schema = {
-      id: "number|empty:false",
+      id: "string|empty:false",
     };
 
     const validate = v.compile(schema)(req.params);
@@ -31,6 +31,18 @@ module.exports = async (req, res) => {
     const queryAgen = [3].includes(user.roleId) ? { userId: user.id } : {};
 
     let trSale = await TrSale.findOne({
+      attributes: [
+        "id",
+        "amount",
+        "discount",
+        "paidAmount",
+        "qty",
+        "image",
+        "fromBank",
+        "accountName",
+        "date",
+        "remark",
+      ],
       where: { id, ...queryAgen },
       include: [
         {
@@ -60,7 +72,7 @@ module.exports = async (req, res) => {
       ],
     });
 
-    logger.info(id);
+    logger.info({ id });
     if (!trSale)
       return res.status(404).json({
         status: "error",

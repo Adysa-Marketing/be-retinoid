@@ -1,4 +1,4 @@
-const { User, SponsorKey, Refferal } = require("../../../../models");
+const { User, SponsorKey, Referral } = require("../../../../models");
 const logger = require("../../../../libs/logger");
 const Sequelize = require("sequelize");
 const Op = Sequelize.Op;
@@ -87,7 +87,6 @@ module.exports = async (req, res) => {
     const includeParent = [
       {
         attributes: ["id", "name", "username", "email", "phone", "point"],
-        as: "Downline",
         model: User, //downline
         where: {
           ...keyword,
@@ -101,7 +100,6 @@ module.exports = async (req, res) => {
         },
         include: {
           attributes: ["id", "name", "username", "email", "phone", "point"],
-          as: "Upline",
           model: User, //upline
         },
       },
@@ -111,7 +109,7 @@ module.exports = async (req, res) => {
 
     const rowsPerPage = source.rowsPerPage;
     const currentPage = source.currentPage;
-    const totalData = await Refferal.count({
+    const totalData = await Referral.count({
       where,
       include: [...includeParent],
     });
@@ -128,7 +126,7 @@ module.exports = async (req, res) => {
     const limit = rowsPerPage !== "All" ? rowsPerPage : totalData;
     const offsetLimit = rowsPerPage !== "All" ? { offset, limit } : {};
 
-    await Refferal.findAll({
+    Referral.findAll({
       ...offsetLimit,
       attributes: ["id", "date"],
       where,
@@ -142,6 +140,10 @@ module.exports = async (req, res) => {
             .utc()
             .add(7, "hours")
             .format("YYYY-MM-DD HH:mm:ss");
+
+          return {
+            ...ref,
+          };
         });
 
         return res.json({

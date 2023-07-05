@@ -1,4 +1,4 @@
-const { Agen } = require("../../../../models");
+const { Agen, User } = require("../../../../models");
 const logger = require("../../../../libs/logger");
 const db = require("../../../../models");
 const Validator = require("fastest-validator");
@@ -30,12 +30,12 @@ module.exports = async (req, res) => {
 
     const payload = {
       statusId: source.statusId,
-      dateApproved,
+      ...dateApproved,
     };
 
     logger.info({ source, payload });
     const agen = await Agen.findOne({
-      attributes: ["id", "name", "statusdId", "userId"],
+      attributes: ["id", "name", "statusId", "userId"],
       where: { id },
     });
 
@@ -46,19 +46,13 @@ module.exports = async (req, res) => {
       });
 
     await agen.update(payload, { transaction });
-    if (source.statusId == 4)
-      // ACTIVED
-      await User.update(
-        { roleId: 3, isActive: true },
-        { where: { id: agen.userId }, transaction }
-      );
-
     /**
      * 2 == Disabled . set isActive == false
-     * 3 == Rejected
+     * 3 == Actived
      */
-    if ([2, 3].includes(source.statusId)) {
+    if ([2, 4].includes(source.statusId)) {
       const isActive = source.statusId == 2 ? false : true;
+      console.log("isActive : ", agen);
       await User.update(
         { roleId: 3, isActive },
         { where: { id: agen.userId }, transaction }

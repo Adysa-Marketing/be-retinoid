@@ -31,6 +31,11 @@ module.exports = (sequelize, DataTypes) => {
         field: "userId",
       },
     });
+    Mutation.belongsTo(models.Widhraw, {
+      foreignKey: {
+        field: "widhrawId",
+      },
+    });
   };
 
   return Mutation;

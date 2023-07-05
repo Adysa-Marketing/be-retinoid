@@ -5,26 +5,35 @@ const Validator = require("fastest-validator");
 const v = new Validator();
 
 module.exports = async (req, res) => {
-  const source = req.user;
+  const source = req.body;
   const files = req.files;
   try {
     const schema = {
       name: "string|empty:false",
       type: {
         type: "string",
+        empty: false,
         enum: ["Bronze", "Silver", "Gold"],
       },
-      amount: "number|empty:false",
+      amount: "string|empty:false",
       description: "string|optional",
       remark: "string|optional",
     };
 
+    const RemoveImg = async (img, option) =>
+      files &&
+      files.image &&
+      files.image.length > 0 &&
+      (await RemoveFile(img, option));
+
     const validate = v.compile(schema)(source);
-    if (validate.length)
+    if (validate.length) {
+      RemoveImg(files, false);
       return res.status(400).json({
         status: "error",
         message: validate,
       });
+    }
 
     const image =
       files && files.image && files.image.length > 0

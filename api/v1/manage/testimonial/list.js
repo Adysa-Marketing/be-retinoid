@@ -33,7 +33,7 @@ module.exports = async (req, res) => {
             {
               [Op.and]: [
                 Sequelize.where(
-                  Sequelize.fn("lower", Sequelize.col("Refferal.User.name")),
+                  Sequelize.fn("lower", Sequelize.col("User.name")),
                   Op.like,
                   "%" + source.keyword.toString().toLowerCase() + "%"
                 ),
@@ -51,12 +51,12 @@ module.exports = async (req, res) => {
 
     const where = {
       ...keyword,
-      sponsorId: sponsorKey.id,
     };
     const includeParent = [
       {
         attributes: ["id", "name", "username", "email", "phone"],
         model: User,
+        where,
       },
     ];
 
@@ -64,8 +64,7 @@ module.exports = async (req, res) => {
 
     const rowsPerPage = source.rowsPerPage;
     const currentPage = source.currentPage;
-    const totalData = await Refferal.count({
-      where,
+    const totalData = await Testimonial.count({
       include: [...includeParent],
     });
 
@@ -84,7 +83,6 @@ module.exports = async (req, res) => {
     const testimoni = await Testimonial.findAll({
       ...offsetLimit,
       attributes: ["id", "rating", "testimonial"],
-      where,
       include: [...includeParent],
     });
 

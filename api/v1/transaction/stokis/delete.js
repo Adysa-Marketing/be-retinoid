@@ -24,11 +24,11 @@ module.exports = async (req, res) => {
     const queryMember = [4].includes(user.roleId) ? { userId: user.id } : {};
 
     const trStokis = await TrStokis.findOne({
-      attributes: ["id", "userId", "stokisId", "statusId"],
+      attributes: ["id", "userId", "stokisId", "statusId", "image", "imageKtp"],
       where: { id, ...queryMember },
     });
 
-    logger.info(id);
+    logger.info({ id });
     if (!trStokis)
       return res.status(404).json({
         status: "error",

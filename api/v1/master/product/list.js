@@ -1,4 +1,9 @@
-const { Product, ProductCategory } = require("../../../../models");
+const {
+  Product,
+  ProductCategory,
+  Agen,
+  Stokis,
+} = require("../../../../models");
 const logger = require("../../../../libs/logger");
 const Sequelize = require("sequelize");
 const Op = Sequelize.Op;
@@ -8,6 +13,8 @@ const v = new Validator();
 module.exports = async (req, res) => {
   try {
     const source = req.body;
+    const user = req.user;
+
     const schema = {
       keyword: "string|optional",
       categoryId: "number|optional",
@@ -82,21 +89,52 @@ module.exports = async (req, res) => {
     const limit = rowsPerPage !== "All" ? rowsPerPage : totalData;
     const offsetLimit = rowsPerPage !== "All" ? { offset, limit } : {};
 
-    const data = await Product.findAll({
+    Product.findAll({
       ...offsetLimit,
       attributes: ["id", "name", "amount", "description", "image", "stock"],
       where,
       include: {
         model: ProductCategory,
       },
-    });
+      order: [["id", "DESC"]],
+    })
+      .then(async (response) => {
+        response = JSON.parse(JSON.stringify(response));
 
-    return res.json({
-      status: "success",
-      data,
-      totalData,
-      totalPages,
-    });
+        const data = await Promise.all(
+          response.map(async (product) => {
+            let discount = 0;
+            // jika product category == bundle product. berikan diskon
+            if (
+              [1, 2].includes(product.ProductCategory.id) &&
+              [3].includes(user.roleId)
+            ) {
+              discount =
+                product.ProductCategory.id == 1
+                  ? parseInt(user.profit) * 2
+                  : parseInt(user.profit);
+            }
+
+            return {
+              discount,
+              ...product,
+            };
+          })
+        );
+        return res.json({
+          status: "success",
+          data,
+          totalData,
+          totalPages,
+        });
+      })
+      .catch((error) => {
+        console.log("[!] Error : ", error);
+        return res.status(400).json({
+          status: "error",
+          message: error.message,
+        });
+      });
   } catch (error) {
     console.log("[!] Error : ", error);
     return res.status(500).json({

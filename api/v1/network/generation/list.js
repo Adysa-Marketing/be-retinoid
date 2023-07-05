@@ -3,6 +3,7 @@ const logger = require("../../../../libs/logger");
 const Sequelize = require("sequelize");
 const Op = Sequelize.Op;
 
+const moment = require("moment");
 const Validator = require("fastest-validator");
 const v = new Validator();
 
@@ -36,9 +37,9 @@ module.exports = async (req, res) => {
             {
               [Op.and]: [
                 Sequelize.where(
-                  Sequelize.fn("lower", Sequelize.col("User.name")),
+                  Sequelize.fn("lower", Sequelize.col("Downline.name")),
                   Op.like,
-                  "%" + source.keycode.toString().toLowerCase() + "%"
+                  "%" + source.keyword.toString().toLowerCase() + "%"
                 ),
               ],
             },
@@ -52,10 +53,15 @@ module.exports = async (req, res) => {
         }
       : {};
 
-    logger.info(source);
-    const queryLevel = source.level ? { levelId: source.level } : {};
+    const queryLevel = source.levelId ? { levelId: source.levelId } : {};
+    const queryUpline = ![1].includes(user.roleId) ? { userId: user.id } : {};
 
     const includeParent = [
+      {
+        attributes: ["id", "name", "email", "phone", "isActive"],
+        as: "Upline",
+        model: User,
+      },
       {
         attributes: ["id", "name", "email", "phone", "isActive"],
         as: "Downline",
@@ -71,9 +77,11 @@ module.exports = async (req, res) => {
     ];
 
     const where = {
-      userId: user.id,
+      ...queryUpline,
       ...queryLevel,
     };
+
+    logger.info({ source, where });
 
     const rowsPerPage = source.rowsPerPage;
     const currentPage = source.currentPage;
@@ -120,7 +128,8 @@ module.exports = async (req, res) => {
         });
       })
       .catch((error) => {
-        return res.status(500).json({
+        console.log("[!] Error : ", error);
+        return res.status(400).json({
           status: "error",
           message: error.message,
         });

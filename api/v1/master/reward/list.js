@@ -1,4 +1,4 @@
-const { Reward, Refferal, User } = require("../../../../models");
+const { Reward, Referral, User, TrReward } = require("../../../../models");
 const logger = require("../../../../libs/logger");
 const Sequelize = require("sequelize");
 const Op = Sequelize.Op;
@@ -68,10 +68,11 @@ module.exports = async (req, res) => {
     const limit = rowsPerPage !== "All" ? rowsPerPage : totalData;
     const offsetLimit = rowsPerPage !== "All" ? { offset, limit } : {};
 
-    await Reward.findAll({
+    Reward.findAll({
       ...offsetLimit,
       attributes: ["id", "name", "description", "point", "image", "minFoot"],
       where: { ...keyword },
+      order: [["id", "ASC"]],
     })
       .then(async (result) => {
         result = JSON.parse(JSON.stringify(result));
@@ -79,36 +80,51 @@ module.exports = async (req, res) => {
 
         // jika login role 3 dan 4. lakukan pengecekan apakah boleh ambil reward atau tidak berdasarkan point refferal
         if ([3, 4].includes(user.roleId)) {
-          userRefferal = await Refferal.findAll({
+          userRefferal = await Referral.findAll({
             where: { sponsorId: user.sponsorId },
             include: {
               attributes: ["id", "name", "point"],
-              as: "Downline",
+              // as: "Downline",
               model: User,
             },
           });
         }
 
-        const data = result.map((rw) => {
-          const point = rw.point;
-          const minFoot = rw.minFoot;
-          let status = false; //status diperbolehkan amnbil reward
+        const data = await Promise.all(
+          result.map(async (rw) => {
+            const point = rw.point;
+            const minFoot = rw.minFoot;
+            let status = false; //status diperbolehkan amnbil reward
 
-          // jika ada reffreal. lakukan pengecekan apakah boleh ambil reward atau tidak berdasarkan point refferal
-          if (userRefferal) {
-            const checkPoint = userRefferal.filter(
-              (ref) => ref.Downline.point >= point
-            );
-            if (checkPoint.length >= minFoot) {
-              status = true;
+            // jika ada reffreal. lakukan pengecekan apakah boleh ambil reward atau tidak berdasarkan point refferal
+            if (userRefferal) {
+              const checkPoint = userRefferal.filter(
+                (ref) => ref.User.point >= point
+              );
+
+              // cek sudah pernah transaksi reward atau belum,
+              const checkOldTr = await TrReward.findOne({
+                attributes: ["id"],
+                where: {
+                  userId: user.id,
+                  rewardId: rw.id,
+                  statusId: {
+                    [Op.in]: [1, 4, 5], //pending, approved, delivered
+                  },
+                },
+              });
+
+              if (!checkOldTr && checkPoint.length >= minFoot) {
+                status = true;
+              }
             }
-          }
 
-          return {
-            ...rw,
-            status,
-          };
-        });
+            return {
+              ...rw,
+              status,
+            };
+          })
+        );
 
         return res.json({
           status: "success",
@@ -118,7 +134,8 @@ module.exports = async (req, res) => {
         });
       })
       .catch((error) => {
-        return res.status(500).json({
+        console.log("[!] Error : ", error);
+        return res.status(400).json({
           status: "error",
           message: error.message,
         });

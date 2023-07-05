@@ -10,13 +10,13 @@ module.exports = async (req, res) => {
     const source = req.body;
 
     const schema = {
-      isActive: "boolean|optional",
+      statusId: "number|optional",
       gender: {
         type: "string",
         enum: ["Male", "Female"],
         optional: true,
       },
-      keyword: "string|otional",
+      keyword: "string|optional",
       rowsPerPage: "number|empty:false",
       currentPage: "number|empty:false",
     };
@@ -74,7 +74,11 @@ module.exports = async (req, res) => {
         }
       : {};
 
-    const queryStatus = source.isActive ? { isActive: source.isActive } : {};
+    const queryStatus = source.statusId
+      ? source.statusId == 1
+        ? { isActive: true }
+        : { isActive: false }
+      : {};
     const queryGender = source.gender ? { gender: source.gender } : {};
     const where = { ...keyword, ...queryStatus, ...queryGender, roleId: 4 };
 

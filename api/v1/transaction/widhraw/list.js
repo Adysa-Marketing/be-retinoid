@@ -2,6 +2,7 @@ const env = process.env.NODE_ENV;
 const config = require("../../../../config/core")[env];
 const { User, Widhraw, WdStatus } = require("../../../../models");
 const logger = require("../../../../libs/logger");
+const moment = require("moment");
 const Sequelize = require("sequelize");
 const Op = Sequelize.Op;
 const Validator = require("fastest-validator");
@@ -62,9 +63,19 @@ module.exports = async (req, res) => {
           }
         : {};
 
-    const queryName = source.keyword ? { name: source.keyword } : {};
+    const queryName = source.name
+      ? {
+          [Op.and]: [
+            Sequelize.where(
+              Sequelize.fn("lower", Sequelize.col("User.name")),
+              Op.like,
+              "%" + source.name.toString().toLowerCase() + "%"
+            ),
+          ],
+        }
+      : {};
     const queryStatus = source.statusId ? { statusId: source.statusId } : {};
-    const queryMember = [4].includes(user.roleId) ? { userId: user.id } : {};
+    const queryMember = [3, 4].includes(user.roleId) ? { userId: user.id } : {};
 
     const where = {
       ...keyword,
@@ -84,7 +95,7 @@ module.exports = async (req, res) => {
         model: WdStatus,
       },
     ];
-    logger.info(source);
+    logger.info({ source, where });
 
     const rowsPerPage = source.rowsPerPage;
     const currentPage = source.currentPage;

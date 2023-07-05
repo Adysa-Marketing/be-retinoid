@@ -7,11 +7,16 @@ const v = new Validator();
 module.exports = async (req, res) => {
   const source = req.body;
   const user = req.user;
+  console.log("source", source);
 
   try {
     const schema = {
       id: "number|empty:false",
-      statusId: "number|empty:false",
+      statusId: {
+        type: "number",
+        empty: false,
+        enum: [1, 2, 3, 4, 5],
+      },
       remark: "string|optional",
     };
 
@@ -28,11 +33,12 @@ module.exports = async (req, res) => {
     };
 
     const id = source.id;
-    const queryMember = [4].includes(user.roleId) ? { userId: user.id } : {};
+    const queryMember = [4, 4].includes(user.roleId) ? { userId: user.id } : {};
 
     logger.info({ source, payload });
 
     const trReward = await TrReward.findOne({
+      attributes: ["id", "statusId", "rewardId"],
       where: { id, ...queryMember },
     });
 
@@ -46,9 +52,9 @@ module.exports = async (req, res) => {
      * Jika login sbg member dan status tr !== 1 (pending) dan source.status !==2 (canceled)
      */
     if (
-      [4].includes(user.roleId) && //member
-      ![1].includes(trReward.statusId) && // tr.stat !== 1
-      ![2].includes(source.statusId) // source.stat !== 2
+      [3, 4].includes(user.roleId) && //member
+      [1].includes(trReward.statusId) && // tr.stat !== 1
+      ![2].includes(parseInt(source.statusId)) // source.stat !== 2
     )
       return res.status(400).json({
         status: "error",

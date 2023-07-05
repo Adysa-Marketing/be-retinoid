@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const Generation = require("./generation");
 
-router.get("/generation", Generation);
+router.use("/generation", Generation);
 
 module.exports = router;

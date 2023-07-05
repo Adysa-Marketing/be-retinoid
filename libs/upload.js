@@ -2,7 +2,7 @@ const multer = require("multer");
 const cryptojs = require("crypto-js");
 const moment = require("moment");
 
-const extenions = [".png", ".jpg", ".jpeg"];
+const extensions = [".png", ".jpg", ".jpeg"];
 const mimetypes = ["image/png", "iamge/jpg", "image/jpeg"];
 
 const storage = multer.diskStorage({
@@ -10,9 +10,8 @@ const storage = multer.diskStorage({
     cb(null, req.tempDir);
   },
   filename: function (req, file, cb) {
-    const extension = extenions[mimetypes.indexOf(file.mimetype)];
+    const extension = extensions[mimetypes.indexOf(file.mimetype)];
     const filename = cryptojs.SHA256(file.originalname + moment()).toString();
-
     try {
       cb(null, filename + extension);
     } catch (err) {

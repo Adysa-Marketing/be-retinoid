@@ -11,6 +11,7 @@ module.exports = async (req, res) => {
       name: "string|optional",
       price: "number|optional",
       discount: "number|optional",
+      agenDiscount: "number|optional",
       description: "string|optional",
     };
 
@@ -25,6 +26,7 @@ module.exports = async (req, res) => {
       name: source.name,
       price: source.price,
       discount: source.discount,
+      agenDiscount: source.agenDiscount,
       description: source.description,
       remark: source.remark,
     };

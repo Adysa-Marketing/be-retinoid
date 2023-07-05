@@ -19,14 +19,13 @@ module.exports = async (req, res) => {
     const id = req.body.id;
     const testomoni = await Testimonial.findByPk(id);
 
-    logger.info(id);
+    logger.info({ id });
     if (!testomoni)
       return res.status(404).json({
         status: "error",
         message: "Data Testimonial tidak ditemukan",
       });
 
-    await RemoveFile(testomoni, true);
     await testomoni.destroy();
 
     return res.json({

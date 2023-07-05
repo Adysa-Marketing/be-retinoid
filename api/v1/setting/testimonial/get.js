@@ -4,7 +4,10 @@ module.exports = async (req, res) => {
   const user = req.user;
   try {
     // get own testimoni
-    const testimoni = await Testimonial.findOne({ where: { userId: user.id } });
+    const testimoni = await Testimonial.findOne({
+      attributes: ["id", "rating", "testimonial", "remark"],
+      where: { userId: user.id },
+    });
 
     if (!testimoni)
       return res.status(404).json({

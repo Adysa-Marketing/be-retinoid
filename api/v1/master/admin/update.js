@@ -6,15 +6,15 @@ const Validator = require("fastest-validator");
 const v = new Validator();
 
 module.exports = async (req, res) => {
-  const source = req.user;
+  const source = req.body;
   const files = req.files;
   try {
     const schema = {
-      id: "number|empty:false",
+      id: "string|empty:false",
       name: "string|optional",
       username: "string|optional",
       password: "string|optional|min:5",
-      email: "email|optional",
+      email: "string|optional",
       phone: "string|optional|min:9|max:13",
       gender: {
         type: "string",
@@ -24,33 +24,43 @@ module.exports = async (req, res) => {
       kk: "string|optional",
       address: "string|optional",
       noRekening: "string|optional",
-      countryId: "number|optional",
-      districtId: "number|optional",
-      subDistrictId: "number|optional",
+      countryId: "string|optional",
+      districtId: "string|optional",
+      subDistrictId: "string|optional",
       remark: "string|optional",
     };
 
+    const RemoveImg = async (img, option) =>
+      files &&
+      files.image &&
+      files.image.length > 0 &&
+      (await RemoveFile(img, option));
+
     const validate = v.compile(schema)(source);
-    if (validate.length)
+    if (validate.length) {
+      RemoveImg(files, false);
       return res.status(400).json({
         status: "error",
         message: validate,
       });
+    }
 
     const id = source.id;
     const password = source.password
-      ? bcrypt.hashSync(source.password, bcrypt.genSaltSync(2))
+      ? { password: bcrypt.hashSync(source.password, bcrypt.genSaltSync(2)) }
       : {};
     const image =
       files && files.image && files.image.length > 0
         ? { image: files.image[0].filename }
         : {};
 
+    const { countryId, provinceId, districtId, subDistrictId } = source;
+
     const payload = {
       name: source.name,
       username: source.username,
       email: source.email,
-      password,
+      ...password,
       phone: source.phone,
       kk: source.kk,
       address: source.address,
@@ -64,14 +74,16 @@ module.exports = async (req, res) => {
 
     logger.info({ source, files, payload });
 
-    const admin = await User.findByPk(id);
-    if (!admin)
+    const admin = await User.findOne({ where: { id, roleId: 2 } });
+    if (!admin) {
+      RemoveImg(files, false);
       return res.status(404).json({
         status: "error",
         message: "Data Admin tidak ditemukan",
       });
+    }
 
-    files && files.image && (await RemoveFile(admin, true));
+    RemoveImg(admin, true);
     await admin.update(payload);
 
     return res.status(200).json({
@@ -81,9 +93,18 @@ module.exports = async (req, res) => {
   } catch (error) {
     console.log("[!] Error : ", error);
     await RemoveFile(files, false);
-    return res.status(500).json({
-      status: "error",
-      message: error.message,
-    });
+    if (error.errors && error.errors.length > 0 && error.errors[0].path) {
+      if (error.errors[0].path == "username") {
+        return res.status(400).json({
+          status: "error",
+          message: "Username sudah terdaftar, silahkan gunakan username lain",
+        });
+      }
+    } else {
+      return res.status(500).json({
+        status: "error",
+        message: error.message,
+      });
+    }
   }
 };

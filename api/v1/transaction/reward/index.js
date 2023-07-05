@@ -19,7 +19,7 @@ router.post(
   ]),
   Create
 );
-router.put(
+router.post(
   "/update",
   Asset.Directory,
   Upload.fields([

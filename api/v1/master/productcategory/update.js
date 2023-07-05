@@ -7,6 +7,7 @@ module.exports = async (req, res) => {
   const source = req.body;
   try {
     const schema = {
+      id: "number|empty:false",
       name: "string|optional",
       remark: "string|optional",
     };
@@ -24,6 +25,7 @@ module.exports = async (req, res) => {
     };
 
     logger.info({ source, payload });
+    const id = source.id;
     const productCategory = await ProductCategory.findByPk(id);
     if (!productCategory)
       return res.status(404).json({

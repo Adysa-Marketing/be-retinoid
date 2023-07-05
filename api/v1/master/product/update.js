@@ -5,24 +5,32 @@ const Validator = require("fastest-validator");
 const v = new Validator();
 
 module.exports = async (req, res) => {
-  const source = req.user;
+  const source = req.body;
   const files = req.files;
   try {
     const schema = {
-      id: "number|empty:false",
+      id: "string|empty:false",
       name: "string|optional",
-      categoryId: "number|optional",
-      amount: "number|optional",
+      categoryId: "string|optional",
+      amount: "string|optional",
+      stock: "string|optional",
       description: "string|optional",
-      stock: "number|optional",
     };
 
+    const RemoveImg = async (img, option) =>
+      files &&
+      files.image &&
+      files.image.length > 0 &&
+      (await RemoveFile(img, option));
+
     const validate = v.compile(schema)(source);
-    if (validate.length)
+    if (validate.length) {
+      RemoveImg(files, false);
       return res.status(400).json({
         status: "error",
         message: validate,
       });
+    }
 
     const id = source.id;
     const image =
@@ -42,23 +50,27 @@ module.exports = async (req, res) => {
 
     logger.info({ source, files, payload });
 
-    const product = await Product.findOne({ id });
-    if (!product)
+    const product = await Product.findOne({ where: { id } });
+    if (!product) {
+      RemoveImg(files, false);
       return res.status(404).json({
         status: "error",
         message: "Data Product tidak ditemukan",
       });
+    }
 
     if (source.categoryId) {
       const productCategory = await ProductCategory.findByPk(source.categoryId);
-      if (!productCategory)
+      if (!productCategory) {
+        RemoveImg(files, false);
         return res.status(500).json({
           status: "error",
           message: "Category produk tidak ditemukan",
         });
+      }
     }
 
-    files && files.image && (await RemoveFile(product, true));
+    RemoveImg(product, true);
     await product.update(payload);
 
     return res.status(200).json({

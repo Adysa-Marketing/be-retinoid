@@ -2,9 +2,9 @@ const env = process.env.NODE_ENV;
 const config = require("../../../../config/core")[env];
 const {
   Bank,
-  PaymentStatus,
   PaymentType,
   Stokis,
+  TrStatus,
   TrStokis,
   User,
 } = require("../../../../models");
@@ -13,6 +13,7 @@ const Sequelize = require("sequelize");
 const Op = Sequelize.Op;
 const Validator = require("fastest-validator");
 const v = new Validator();
+const moment = require("moment");
 
 module.exports = async (req, res) => {
   try {
@@ -76,7 +77,7 @@ module.exports = async (req, res) => {
       ? { paymentTypeId: source.paymentTypeId }
       : {};
     const queryBank = source.bankId ? { bankId: source.bankId } : {};
-    const queryMember = [4].includes(user.roleId) ? { userId: user.id } : {};
+    const queryMember = [3, 4].includes(user.roleId) ? { userId: user.id } : {};
 
     const where = {
       ...keyword,
@@ -89,7 +90,7 @@ module.exports = async (req, res) => {
 
     const includeParent = [
       {
-        attributes: ["id", "name", "price", "discount", "description"],
+        attributes: ["id", "name", "price", "discount"],
         model: Stokis,
       },
       {
@@ -98,7 +99,7 @@ module.exports = async (req, res) => {
       },
       {
         attributes: ["id", "name"],
-        model: PaymentStatus,
+        model: TrStatus,
       },
       {
         attributes: ["id", "name"],
@@ -133,18 +134,7 @@ module.exports = async (req, res) => {
 
     await TrStokis.findAll({
       ...offsetLimit,
-      attributes: [
-        "id",
-        "amount",
-        "kk",
-        "imageKtp",
-        "image",
-        "phoneNumber",
-        "fromBank",
-        "accountName",
-        "date",
-        "remark",
-      ],
+      attributes: ["id", "amount", "date", "remark"],
       where,
       include: [...includeParent],
     })

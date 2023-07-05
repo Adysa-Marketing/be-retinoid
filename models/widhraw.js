@@ -43,6 +43,10 @@ module.exports = (sequelize, DataTypes) => {
         field: "statusId",
       },
     });
+
+    Widhraw.hasOne(models.Mutation, {
+      foreignKey: "widhrawId",
+    });
   };
 
   return Widhraw;

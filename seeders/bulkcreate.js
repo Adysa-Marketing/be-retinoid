@@ -3,10 +3,11 @@ require("dotenv").config({ path: "../.env" });
 const {
   AgenStatus,
   CommissionLevel,
-  Country,
   PaymentType,
+  ProductCategory,
   Role,
   RwStatus,
+  Stokis,
   TrStatus,
   User,
   WdStatus,
@@ -16,6 +17,48 @@ const db = require("../models");
 
 const bcrypt = require("bcryptjs");
 const cryptoString = require("crypto-random-string");
+
+async function createAgenStatus() {
+  await AgenStatus.bulkCreate([
+    { name: "Pending" },
+    { name: "Disabled" },
+    { name: "Rejected" },
+    { name: "Approved" },
+  ]);
+  console.log("[DONE CREATE AGEN-STATUS]");
+}
+
+async function createCommissionLevel() {
+  await CommissionLevel.bulkCreate([
+    { name: "Level 1", percent: 16 },
+    { name: "Level 2", percent: 10 },
+    { name: "Level 3", percent: 6 },
+    { name: "Level 4", percent: 3 },
+    { name: "Level 5", percent: 2 },
+  ]);
+  console.log("[DONE CREATE COMMISSION-LEVEL]");
+}
+
+async function createPaymentType() {
+  await PaymentType.bulkCreate([{ name: "CASH" }, { name: "TRANSFER" }]);
+  console.log("[DONE CREATE PAYMENT-TYPE");
+}
+
+async function createProductCategory() {
+  await ProductCategory.bulkCreate([
+    {
+      name: "Bundle Paket",
+      remark:
+        "Pembelian Produk bundle akan bendapatkan potongan harga 20 - 40rb / produk untuk agen stokis",
+    },
+    {
+      name: "Bundle Produk",
+      remark:
+        "Pembelian Produk bundle akan bendapatkan potongan harga 10 - 20rb / produk untuk agen stokis",
+    },
+  ]);
+  console.log("[DONE CREATE PRODUCT-CATEGORY");
+}
 
 async function createRole() {
   await Role.bulkCreate([
@@ -27,6 +70,28 @@ async function createRole() {
   console.log("[DONE CREATE ROLE]");
 }
 
+async function createStokis() {
+  await Stokis.bulkCreate([
+    {
+      name: "Agen Stokis Regular",
+      price: 10000000,
+      discount: 9600000,
+      agenDiscount: 20000,
+      description:
+        "Dengan mendaftar sebagai agen stokis Regular, anda akan mendapatkan 40 product + 20 pin serial register. (harga per product: 240rb, dan pembelian kedepan harga sama 240rb. profit stokis 10rb/product)",
+    },
+    {
+      name: "Agen Stokis Premiun",
+      price: 20000000,
+      discount: 18500000,
+      agenDiscount: 40000,
+      description:
+        "Dengan mendaftar sebagai agen stokis Premium, anda akan mendapatkan 60 product + 40 pin serial register. (harga per product: 230rb, dan pembelian kedepan harga sama 230rb. profit stokis 20rb/product)",
+    },
+  ]);
+  console.log("[DONE CREATE STOKIS]");
+}
+
 async function createTrStatus() {
   await TrStatus.bulkCreate([
     { name: "Pending" },
@@ -36,10 +101,6 @@ async function createTrStatus() {
     { name: "Delivered" },
   ]);
   console.log("[DONE CREATE TR-STATUS");
-}
-
-async function createPaymentType() {
-  await PaymentType.bulkCreate([{ name: "CASH" }, { name: "TRANSFER" }]);
 }
 
 async function createRwStatus() {
@@ -64,36 +125,17 @@ async function createWdStatus() {
   console.log("[DONE CREATE WD-STATUS]");
 }
 
-async function createCommissionLevel() {
-  await CommissionLevel.bulkCreate([
-    { name: "Level 1", percent: 16 },
-    { name: "Level 2", percent: 10 },
-    { name: "Level 3", percent: 6 },
-    { name: "Level 4", percent: 3 },
-    { name: "Level 5", percent: 2 },
-  ]);
-  console.log("[DONE CREATE COMMISSION-LEVEL]");
-}
-
-async function createAgenStatus() {
-  await AgenStatus.bulkCreate([
-    { name: "Pending" },
-    { name: "Disabled" },
-    { name: "Rejected" },
-    { name: "Actived" },
-  ]);
-  console.log("[DONE CREATE AGEN-STATUS]");
-}
-
 async function bulkSync() {
   Promise.all([
     createAgenStatus(),
-    createRole(),
-    createTrStatus(),
+    createCommissionLevel(),
     createPaymentType(),
+    createProductCategory(),
+    createRole(),
+    createStokis(),
+    createTrStatus(),
     createRwStatus(),
     createWdStatus(),
-    createCommissionLevel(),
   ])
     .then(async (response) => {
       console.log("[OK]", response);
@@ -113,7 +155,7 @@ async function createUser() {
   try {
     const payload = {
       name: "Super Admin",
-      username: "Super Admin",
+      username: "superadmin",
       email: "superadmin@gmail.com",
       password,
       phone: "085325224829",
@@ -139,16 +181,5 @@ async function createUser() {
   }
 }
 
-async function createState() {
-  Country.create({ kode: "ID", name: "INDONESIA" })
-    .then((response) => {
-      process.exit(0);
-    })
-    .catch((err) => {
-      process.exit(0);
-    });
-}
-
-// createState()
 // bulkSync();
 // createUser();

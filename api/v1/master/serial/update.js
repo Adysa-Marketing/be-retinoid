@@ -27,7 +27,7 @@ module.exports = async (req, res) => {
     };
     logger.info({ source, payload });
 
-    const serialNumber = await Serial.findOne({ where: { id, status: 0 } });
+    const serialNumber = await Serial.findOne({ where: { id, status: 1 } });
     if (!serialNumber) {
       return res.status(404).json({
         status: "Error",

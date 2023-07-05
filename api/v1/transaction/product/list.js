@@ -13,6 +13,7 @@ const Sequelize = require("sequelize");
 const Op = Sequelize.Op;
 const Validator = require("fastest-validator");
 const v = new Validator();
+const moment = require("moment");
 
 module.exports = async (req, res) => {
   try {
@@ -148,6 +149,8 @@ module.exports = async (req, res) => {
       attributes: [
         "id",
         "amount",
+        "discount",
+        "paidAmount",
         "qty",
         "image",
         "fromBank",
@@ -157,6 +160,7 @@ module.exports = async (req, res) => {
       ],
       where,
       include: [...includeParent],
+      order: [["id", "DESC"]],
     })
       .then((result) => {
         result = JSON.parse(JSON.stringify(result));

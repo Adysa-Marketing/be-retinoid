@@ -2,6 +2,7 @@ const env = process.env.NODE_ENV;
 const config = require("../../../../config/core")[env];
 const { Reward, RwStatus, TrReward, User } = require("../../../../models");
 const logger = require("../../../../libs/logger");
+const moment = require("moment");
 const Sequelize = require("sequelize");
 const Op = Sequelize.Op;
 const Validator = require("fastest-validator");
@@ -15,7 +16,7 @@ module.exports = async (req, res) => {
     const schema = {
       keyword: "string|optional",
       statusId: "number|optional",
-      rewardId: "nummber|optional",
+      rewardId: "number|optional",
       rowsPerPage: "number|empty:false",
       currentPage: "number|empty:false",
     };
@@ -65,7 +66,7 @@ module.exports = async (req, res) => {
     const queryName = source.keyword ? { name: source.keyword } : {};
     const queryStatus = source.statusId ? { statusId: source.statusId } : {};
     const queryReward = source.rewardId ? { rewardId: source.rewardId } : {};
-    const queryMember = [4].includes(user.roleId) ? { userId: user.id } : {};
+    const queryMember = [3, 4].includes(user.roleId) ? { userId: user.id } : {};
 
     const where = {
       ...keyword,
@@ -82,9 +83,11 @@ module.exports = async (req, res) => {
         where: { ...queryName },
       },
       {
+        attributes: ["id", "name", "remark"],
         model: RwStatus,
       },
       {
+        attributes: ["id", "name"],
         model: Reward,
       },
     ];

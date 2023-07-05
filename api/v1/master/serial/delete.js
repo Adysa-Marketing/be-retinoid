@@ -17,7 +17,7 @@ module.exports = async (req, res) => {
       });
 
     const id = req.body.id;
-    const serial = await Serial.findByPk(id);
+    const serial = await Serial.findOne({ where: { id, status: 1 } });
     if (!serial) {
       return res.status(404).json({
         status: "error",
@@ -25,7 +25,7 @@ module.exports = async (req, res) => {
       });
     }
 
-    logger.info({ source });
+    logger.info({ id });
     await serial.destroy();
     return res.json({
       status: "success",

@@ -23,11 +23,11 @@ module.exports = async (req, res) => {
     const queryAgen = [3].includes(user.roleId) ? { userId: user.id } : {};
 
     const trSale = await TrSale.findOne({
-      attributes: ["id", "userId", "statudId"],
+      attributes: ["id", "userId", "statusId", "image"],
       where: { id, ...queryAgen },
     });
 
-    logger.info(id);
+    logger.info({ id });
     if (!trSale)
       return res.status(404).json({
         status: "error",

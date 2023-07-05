@@ -82,7 +82,10 @@ module.exports = async (req, res) => {
 
     const rowsPerPage = source.rowsPerPage;
     const currentPage = source.currentPage;
-    const totalData = await Commission.count({ where, include: [...include] });
+    const totalData = await Commission.count({
+      where,
+      include: [...includeParent],
+    });
 
     const totalPages =
       rowsPerPage !== "All"
@@ -98,7 +101,7 @@ module.exports = async (req, res) => {
 
     await Commission.findAll({
       ...offsetLimit,
-      attributes: ["id", "amount", "date"],
+      attributes: ["id", "amount", "date", "remark"],
       where,
       include: [...includeParent],
     })

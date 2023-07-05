@@ -9,37 +9,33 @@ const {
   UserBank,
   SponsorKey,
   Agen,
+  AgenStatus,
   Testimonial,
   Stokis,
 } = require("../../../../models");
 
-const logger = require("../../../../libs/logger");
-const Validator = require("fastest-validator");
-const v = new Validator();
-
 module.exports = async (req, res) => {
   try {
-    const schema = {
-      id: "number|empty:false",
-    };
-
-    const validate = v.compile(schema)(req.params);
-    if (validate.length)
-      return res.status(400).json({
-        status: "error",
-        message: validate,
-      });
-
-    logger.info(req.params);
-    const id = req.params;
+    const id = req.user.id;
     const user = await User.findOne({
-      attributes: {
-        exclud: ["password"],
-      },
+      attributes: [
+        "id",
+        "name",
+        "username",
+        "email",
+        "phone",
+        "gender",
+        "kk",
+        "image",
+        "point",
+        "wallet",
+        "verCode",
+        "address",
+        "isActive",
+      ],
       where: {
         id,
       },
-      raw: true,
       include: [
         {
           attributes: ["id", "name"],
@@ -78,12 +74,18 @@ module.exports = async (req, res) => {
           model: Serial,
         },
         {
-          attributes: ["id", "name", "status"],
+          attributes: ["id", "name"],
           model: Agen,
-          include: {
-            attributes: ["id", "name"],
-            model: Stokis,
-          },
+          include: [
+            {
+              attributes: ["id", "name", "remark"],
+              model: AgenStatus,
+            },
+            {
+              attributes: ["id", "name"],
+              model: Stokis,
+            },
+          ],
         },
       ],
     });
@@ -96,7 +98,7 @@ module.exports = async (req, res) => {
 
     return res.json({
       status: "success",
-      data: User,
+      data: user,
     });
   } catch (error) {
     console.log("[!] Error : ", error);

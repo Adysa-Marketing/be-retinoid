@@ -78,6 +78,7 @@ module.exports = async (req, res) => {
       ...offsetLimit,
       attributes: ["id", "serialNumber", "status"],
       where,
+      order: [["id", "DESC"]],
     });
 
     return res.json({

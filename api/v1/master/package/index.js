@@ -17,7 +17,7 @@ router.post(
   Upload.fields([{ name: "image", maxCount: 1 }]),
   Create
 );
-router.put(
+router.post(
   "/update",
   IsAdmin,
   Asset.Directory,

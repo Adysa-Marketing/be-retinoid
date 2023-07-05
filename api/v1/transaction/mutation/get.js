@@ -1,8 +1,7 @@
-const { User, Role, Agen } = require("../../../../models");
-const logger = require("../../../../libs/logger");
+const { Mutation, Widhraw, TrSale } = require("../../../../models");
+const moment = require("moment");
 const Validator = require("fastest-validator");
 const v = new Validator();
-const moment = require("moment");
 
 module.exports = async (req, res) => {
   try {
@@ -18,42 +17,51 @@ module.exports = async (req, res) => {
       });
 
     const id = req.params.id;
-    const agen = await Agen.findOne({
-      attributes: ["id", "name", "dateApproved"],
+
+    let mutation = await Mutation.findOne({
+      attributes: [
+        "id",
+        "amount",
+        "type",
+        "description",
+        "remark",
+        "createdAt",
+      ],
+      where: { id },
       include: [
         {
           attributes: [
             "id",
-            "name",
-            "username",
-            "email",
-            "phone",
+            "amount",
+            "noRekening",
+            "bankName",
+            "accountName",
             "image",
-            "isActive",
           ],
-          include: {
-            attributes: ["id", "name"],
-            model: Role,
-          },
-          model: User,
+          model: Widhraw,
+        },
+        {
+          attributes: ["id", "qty", "amount", "paidAmount", "discount"],
+          model: TrSale,
         },
       ],
     });
 
-    logger.info({ id });
-    if (!agen)
-      return res
-        .status(404)
-        .json({ status: "error", message: "Data Agen tidak ditemukan" });
+    if (!mutation)
+      return res.status(404).json({
+        status: "error",
+        message: "Data Mutasi tidak ditemukan",
+      });
 
-    agen.dateApproved = moment(agen.dateApproved)
+    mutation = JSON.parse(JSON.stringify(mutation));
+    mutation.date = moment(mutation.createdAt)
       .utc()
       .add(7, "hours")
       .format("YYYY-MM-DD HH:mm:ss");
 
     return res.json({
       status: "success",
-      data: agen,
+      data: mutation,
     });
   } catch (error) {
     console.log("[!] Error : ", error);

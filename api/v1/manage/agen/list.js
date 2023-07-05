@@ -4,6 +4,7 @@ const Sequelize = require("sequelize");
 const Op = Sequelize.Op;
 const Validator = require("fastest-validator");
 const v = new Validator();
+const moment = require("moment");
 
 module.exports = async (req, res) => {
   try {
@@ -85,9 +86,15 @@ module.exports = async (req, res) => {
 
     const data = await Agen.findAll({
       ...offsetLimit,
+      attributes: ["id", "name", "dateApproved"],
       where,
       include: [...includeParent],
     });
+
+    data.dateApproved = moment(data.dateApproved)
+      .utc()
+      .add(7, "hours")
+      .format("YYYY-MM-DD HH:mm:ss");
 
     return res.json({
       status: "success",

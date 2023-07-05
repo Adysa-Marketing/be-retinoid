@@ -1,10 +1,11 @@
 const env = process.env.NODE_ENV;
 const config = require("../../../../config/core")[env];
 const fs = require("fs");
+const path = require("path");
 
 const Directory = (req, res, next) => {
-  const dir = `${config.tempdir}/trx/widhraw`;
-  req.tempdir = dir;
+  const dir = `${config.tempDir}/trx/widhraw`;
+  req.tempDir = dir;
   try {
     if (fs.existsSync(dir)) {
       next();
@@ -28,12 +29,12 @@ const RemoveFile = (files, status) => {
     const tempDir = `${config.tempDir}/trx/widhraw/`;
     const image = status
       ? files.image
-      : files && files.image.length > 0
+      : files && files.image?.length > 0
       ? files.image[0].filename
       : null;
     const imageKtp = status
       ? files.imageKtp
-      : files && files.imageKtp.length > 0
+      : files && files.imageKtp?.length > 0
       ? files.imageKtp[0].filename
       : null;
 

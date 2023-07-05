@@ -1,0 +1,16 @@
+version: '2.0'
+services:
+  be_retinoid:
+    container_name: ber_retinoid
+    build: ./
+    restart: always
+    env_file: ./.env
+    ports:
+      - $PORT:$PORT
+    environment:
+      - PORT=$PORT
+      - NODE_ENV=$NODE_ENV
+    volumes:
+      - .:/app
+      - /home/mabrur/cdn.mabrur.tours/images:/app/images
+      - /app/node_modules

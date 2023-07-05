@@ -4,9 +4,12 @@ const logger = require("../../../../libs/logger");
 module.exports = async (req, res) => {
   const user = req.user;
   try {
-    const bank = await UserBank.findOne({ where: { userId: user.id } });
+    const bank = await UserBank.findOne({
+      attributes: ["id", "name", "noRekening", "accountName", "remark"],
+      where: { userId: user.id },
+    });
 
-    logger.info(id);
+    logger.info({ id: user.id });
     if (!bank)
       return res.status(404).json({
         status: "error",

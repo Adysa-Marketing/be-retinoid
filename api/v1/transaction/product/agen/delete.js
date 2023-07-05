@@ -22,11 +22,11 @@ module.exports = async (req, res) => {
     const id = req.body.id;
 
     const aTrSale = await ATrSale.findOne({
-      attributes: ["id", "userId", "statudId"],
+      attributes: ["id", "userId", "statusId", "image"],
       where: { id, userId: user.id },
     });
 
-    logger.info(id);
+    logger.info({ id });
     if (!aTrSale)
       return res.status(404).json({
         status: "error",

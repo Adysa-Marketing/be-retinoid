@@ -6,7 +6,7 @@ const v = new Validator();
 module.exports = async (req, res) => {
   try {
     const schema = {
-      id: "number|empty:false",
+      id: "string|empty:false",
     };
 
     const validate = v.compile(schema)(req.params);
@@ -47,7 +47,7 @@ module.exports = async (req, res) => {
       where: { id, roleId: 2 },
     });
 
-    logger.info(id);
+    logger.info({ id });
     if (!admin)
       return res
         .status(404)

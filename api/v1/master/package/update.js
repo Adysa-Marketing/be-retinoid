@@ -5,35 +5,42 @@ const Validator = require("fastest-validator");
 const v = new Validator();
 
 module.exports = async (req, res) => {
-  const source = req.user;
+  const source = req.body;
   const files = req.files;
   try {
     const schema = {
-      id: "number|empty:false",
+      id: "string|empty:false",
       name: "string|optional",
       type: {
         type: "string",
         enum: ["Bronze", "Silver", "Gold"],
         optional: true,
       },
-      amount: "number|optional",
+      amount: "string|optional",
       description: "string|optional",
       remark: "string|optional",
     };
 
+    const RemoveImg = async (img, option) =>
+      files &&
+      files.image &&
+      files.image.length > 0 &&
+      (await RemoveFile(img, option));
+
     const validate = v.compile(schema)(source);
-    if (validate.length)
+    if (validate.length) {
+      RemoveImg(files, false);
       return res.status(400).json({
         status: "error",
         message: validate,
       });
+    }
 
     const id = source.id;
     const image =
       files && files.image && files.image.length > 0
         ? { image: files.image[0].filename }
         : {};
-
     const payload = {
       name: source.name,
       type: source.type,
@@ -45,17 +52,16 @@ module.exports = async (req, res) => {
 
     logger.info({ source, files, payload });
 
-    const package = await Package.findOne({ id });
-    if (!package)
+    const package = await Package.findOne({ where: { id } });
+    if (!package) {
+      RemoveImg(files, false);
       return res.status(404).json({
         status: "error",
         message: "Data Paket tidak ditemukan",
       });
+    }
 
-    files &&
-      files.image &&
-      files.image.length > 0 &&
-      (await RemoveFile(package, true));
+    RemoveImg(package, true);
     await package.update(payload);
 
     return res.status(200).json({

@@ -6,23 +6,32 @@ const Validator = require("fastest-validator");
 const v = new Validator();
 
 module.exports = async (req, res) => {
-  const source = req.user;
+  const source = req.body;
   const files = req.files;
   try {
     const schema = {
-      id: "number|optional",
+      id: "string|optional",
       name: "string|optional",
       description: "string|optional",
-      point: "number|optional",
-      minFoot: "number|optional",
+      point: "string|optional",
+      minFoot: "string|optional",
+      amount: "string|optional",
     };
 
+    const RemoveImg = async (img, option) =>
+      files &&
+      files.image &&
+      files.image.length > 0 &&
+      (await RemoveFile(img, option));
+
     const validate = v.compile(schema)(source);
-    if (validate.length)
+    if (validate.length) {
+      await RemoveImg(files, false);
       return res.status(400).json({
         status: "error",
         message: validate,
       });
+    }
 
     const id = source.id;
     const image =
@@ -35,6 +44,7 @@ module.exports = async (req, res) => {
       description: source.description,
       point: source.point,
       minFoot: source.minFoot,
+      amount: source.amount,
       ...image,
       remark: source.remark,
     };
@@ -42,13 +52,15 @@ module.exports = async (req, res) => {
     logger.info({ source, files, payload });
 
     const reward = await Reward.findByPk(id);
-    if (!reward)
+    if (!reward) {
+      RemoveImg(files, false);
       return res.status(404).json({
         status: "error",
         message: "Data Reward tidak ditemukan",
       });
+    }
 
-    files && files.image && (await RemoveFile(reward, true));
+    RemoveImg(reward, true);
     await reward.update(payload);
 
     return res.status(200).json({

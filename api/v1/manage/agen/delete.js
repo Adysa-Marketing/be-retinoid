@@ -22,11 +22,17 @@ module.exports = async (req, res) => {
     const id = req.body.id;
     const agen = await Agen.findByPk(id);
 
-    logger.info(id);
+    logger.info({ id });
     if (!agen)
       return res.status(404).json({
         status: "error",
         message: "Data Agen tidak ditemukan",
+      });
+
+    if ([4].includes(agen.statusId))
+      return res.status(404).json({
+        status: "error",
+        message: "Gagal menghapus data. Agen berstatus Approved",
       });
 
     await User.update(

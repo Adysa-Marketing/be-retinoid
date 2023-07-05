@@ -24,6 +24,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
+      amount: {
+        type: DataTypes.BIGINT,
+        allowNull: false,
+      },
       remark: DataTypes.STRING,
     },
     {

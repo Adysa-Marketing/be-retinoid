@@ -11,7 +11,11 @@ module.exports = async (req, res) => {
   try {
     const schema = {
       id: "number|empty:false",
-      statusId: "number|empty:false",
+      statusId: {
+        type: "number",
+        empty: false,
+        enum: [1, 2, 3, 4, 5],
+      },
       remark: "string|optional",
     };
 
@@ -46,13 +50,24 @@ module.exports = async (req, res) => {
 
     if (
       [4].includes(user.roleId) && // member
-      trStokis.status !== 1 && // Pending
+      [1].includes(trStokis.statusId) && // Pending
       ![2].includes(source.statusId) // status 2 == canceled
     )
       return res.status(400).json({
         status: "error",
         message: "Mohon maaf, Anda tidak diizinkana mengubah status data ini!",
       });
+
+    /**
+     * jika trStokis.statusId == Canceled / Rejected
+     */
+    if ([2, 3, 4].includes(trStokis.statusId)) {
+      RemoveImg(files, false);
+      return res.status(404).json({
+        status: "error",
+        message: "Mohon maaf, status widhraw sudah tidak dapat dirubah",
+      });
+    }
 
     await trStokis.update(payload);
     logger.info({ source, payload });

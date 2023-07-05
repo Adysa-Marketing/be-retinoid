@@ -1,10 +1,11 @@
 const env = process.env.NODE_ENV;
 const config = require("../../../../config/core")[env];
 const fs = require("fs");
+const path = require("path");
 
 const Directory = (req, res, next) => {
-  const dir = `${config.tempdir}/trx/reward`;
-  req.tempdir = dir;
+  const dir = `${config.tempDir}/trx/reward`;
+  req.tempDir = dir;
   try {
     if (fs.existsSync(dir)) {
       next();
@@ -28,7 +29,7 @@ const RemoveFile = (files, status) => {
     const tempDir = `${config.tempDir}/trx/reward/`;
     const imageKtp = status
       ? files.imageKtp
-      : files && files.imageKtp.length > 0
+      : files && files.imageKtp?.length > 0
       ? files.imageKtp[0].filename
       : null;
 

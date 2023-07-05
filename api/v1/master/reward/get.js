@@ -6,7 +6,7 @@ const v = new Validator();
 module.exports = async (req, res) => {
   try {
     const schema = {
-      id: "number|empty:false",
+      id: "string|empty:false",
     };
 
     const validate = v.compile(schema)(req.params);
@@ -24,7 +24,7 @@ module.exports = async (req, res) => {
         status: "error",
         message: "Data Reward tidak ditemukan",
       });
-    logger.info(id);
+    logger.info({ id });
     return res.json({ status: "success", data });
   } catch (error) {
     console.log("[!] Error : ", error);

@@ -9,7 +9,7 @@ module.exports = async (req, res) => {
     const serial = cryptoString({ length: 10, type: "numeric" });
     const payload = {
       serialNumber: source.serialNumber ? source.serialNumber : serial,
-      status: 0,
+      status: 1,
       remark: source.remark ? source.remark : null,
     };
     logger.info({ source, payload });

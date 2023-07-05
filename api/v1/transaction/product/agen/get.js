@@ -14,7 +14,7 @@ module.exports = async (req, res) => {
   const user = req.user;
   try {
     const schema = {
-      id: "number|empty:false",
+      id: "string|empty:false",
     };
 
     const validate = v.compile(schema)(req.params);
@@ -27,6 +27,7 @@ module.exports = async (req, res) => {
     const id = req.params.id;
 
     let aTrSale = await ATrSale.findOne({
+      attributes: ["id", "name", "qty", "amoung", "profit", "image", "remark"],
       where: { id, userId: user.id },
       include: [
         {
@@ -48,7 +49,7 @@ module.exports = async (req, res) => {
       ],
     });
 
-    logger.info(id);
+    logger.info({ id });
     if (!aTrSale)
       return res.status(404).json({
         status: "error",

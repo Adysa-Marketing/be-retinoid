@@ -1,5 +1,6 @@
-const { TrReward, Reward, Refferal, User } = require("../../../../models");
+const { TrReward, Reward, Referral, User } = require("../../../../models");
 const logger = require("../../../../libs/logger");
+const { RemoveFile } = require("./asset");
 
 const moment = require("moment");
 const Sequelize = require("sequelize");
@@ -15,17 +16,24 @@ module.exports = async (req, res) => {
   try {
     const schema = {
       date: "string|optional",
-      userId: "number|optional",
-      rewardId: "number|empty:false",
+      rewardId: "string|empty:false",
       remark: "string|optional",
     };
 
+    const RemoveImg = async (img, option) =>
+      files &&
+      files.imageKtp &&
+      files.imageKtp.length > 0 &&
+      (await RemoveFile(img, option));
+
     const validate = v.compile(schema)(source);
-    if (validate.length)
+    if (validate.length) {
+      RemoveImg(files, false);
       return res.status(400).json({
         status: "error",
         message: validate,
       });
+    }
 
     const imageKtp =
       files && files.imageKtp && files.imageKtp.length > 0
@@ -35,20 +43,25 @@ module.exports = async (req, res) => {
     const payload = {
       ...imageKtp,
       date: moment().format("YYYY-DD-MM HH:mm:ss"),
-      userId: source.userId ? source.userId : user.id,
-      rewardId: source.rewardId,
+      userId: user.id,
+      rewardId: parseInt(source.rewardId),
       statusId: 1,
       remark: source.remark,
     };
 
     logger.info({ source, payload });
 
-    const reward = await Reward.findOne({ where: { id: source.rewardId } });
-    if (!reward)
+    const reward = await Reward.findOne({
+      attributes: ["id", "point", "minFoot"],
+      where: { id: source.rewardId },
+    });
+    if (!reward) {
+      RemoveImg(files, false);
       return res.status(404).json({
         status: "error",
         message: "Data Reward tidak ditemukan",
       });
+    }
 
     const checkTrReward = await TrReward.findOne({
       where: {
@@ -60,48 +73,51 @@ module.exports = async (req, res) => {
       },
     });
 
-    if (checkTrReward)
+    if (checkTrReward) {
+      RemoveImg(files, false);
       return res.status(400).json({
         status: "error",
         message:
           "Mohon maaf permintaan anda tidak dapat di proses. Anda sudah pernah melakukan transaksi untuk item reward ini",
       });
+    }
 
     // cek apakah user memenuhi kriteria untuk meminta reward atau tidak
-    const reffreal = await Refferal.findAll({
+    const referral = await Referral.findAll({
       where: { sponsorId: user.sponsorId },
       include: {
         attributes: ["id", "name", "point"],
-        as: "Downline",
         model: User,
       },
     });
 
-    if (!reffreal)
+    if (!referral) {
+      RemoveImg(files, false);
       return res.status(400).json({
         status: "error",
         message:
           "Mohon maaf, Anda tidak memenuhi kriteria untuk melakukan transaksi ini",
       });
+    }
 
-    // jika ada reffreal. lakukan pengecekan apakah boleh ambil reward atau tidak berdasarkan point refferal
-    const checkPoint = reffreal.filter(
-      (ref) => ref.Downline.point >= reward.point
-    );
-    if (!checkPoint.length >= reward.minFoot)
+    // jika ada referral. lakukan pengecekan apakah boleh ambil reward atau tidak berdasarkan point referral
+    const checkPoint = referral.filter((ref) => ref.User.point >= reward.point);
+    if (checkPoint.length >= reward.minFoot) {
+      // buat transaksi
+      await TrReward.create(payload);
+      return res.status(201).json({
+        status: "success",
+        message:
+          "Permintaan anda berhasil diproses, silahkan menunggu admin untuk melakukan pengecekan",
+      });
+    } else {
+      RemoveImg(files, false);
       return res.status(400).json({
         status: "error",
         message:
           "Mohon maaf, Anda tidak memenuhi kriteria untuk melakukan transaksi ini",
       });
-
-    // buat transaksi
-    await TrReward.create(payload);
-    return res.stus(201).json({
-      status: "success",
-      message:
-        "Permintaan anda berhasil diproses, silahkan menunggu admin untuk melakukan pengecekan",
-    });
+    }
   } catch (error) {
     console.log("[!] Error : ", error);
     await RemoveFile(files, false);

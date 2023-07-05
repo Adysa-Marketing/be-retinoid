@@ -1,6 +1,8 @@
-const { TrReward, Reward } = require("../../../../models");
+const { TrReward, Reward, Referral, User } = require("../../../../models");
 const logger = require("../../../../libs/logger");
-
+const { RemoveFile } = require("./asset");
+const Sequelize = require("sequelize");
+const Op = Sequelize.Op;
 const Validator = require("fastest-validator");
 const v = new Validator();
 
@@ -11,19 +13,25 @@ module.exports = async (req, res) => {
 
   try {
     const schema = {
-      id: "number|empty:false",
-      date: "string|optional",
-      userId: "number|optional",
-      rewardId: "number|optional",
+      id: "string|empty:false",
+      rewardId: "string|empty:false",
       remark: "string|optional",
     };
 
+    const RemoveImg = async (img, option) =>
+      files &&
+      files.imageKtp &&
+      files.imageKtp.length > 0 &&
+      (await RemoveFile(img, option));
+
     const validate = v.compile(schema)(source);
-    if (validate.length)
+    if (validate.length) {
+      RemoveImg(files, false);
       return res.status(400).json({
         status: "error",
         message: validate,
       });
+    }
 
     const imageKtp =
       files && files.imageKtp && files.imageKtp.length > 0
@@ -32,68 +40,119 @@ module.exports = async (req, res) => {
 
     const payload = {
       ...imageKtp,
-      date: source.date,
-      userId: source.userId ? source.userId : user.id,
+      userId: user.id,
       rewardId: source.rewardId,
-      statusId: source.statusId,
       remark: source.remark,
     };
 
     logger.info({ source, payload });
 
-    const reward = await Reward.findOne({ where: { id: source.rewardId } });
-    if (!reward)
-      return res.status(404).json({
-        status: "error",
-        message: "Data Reward tidak ditemukan",
-      });
-
-    const queryMember = [4].includes(user.roleId) ? { userId: user.id } : {};
+    const queryMember = [3, 4].includes(user.roleId) ? { userId: user.id } : {};
     const trReward = await TrReward.findOne({
+      attributes: ["id", "statusId", "rewardId", "imageKtp"],
       where: {
-        id: source.id,
+        id: parseInt(source.id),
         ...queryMember,
       },
     });
 
-    if (!trReward)
+    if (!trReward) {
+      RemoveImg(files, false);
       return res.status(404).json({
         status: "error",
         message: "Mohon maaf, Data Transaksi Reward tidak ditemukan",
       });
+    }
+
+    const reward = await Reward.findOne({ where: { id: source.rewardId } });
+    if (!reward) {
+      RemoveImg(files, false);
+      return res.status(404).json({
+        status: "error",
+        message: "Data Reward tidak ditemukan",
+      });
+    }
 
     /**
-     * Jika login sbg member dan status tr !== 1 (pending) dan source.status !==2 (canceled)
+     * Jika login sbg member dan status tr !== 1 (pending)
      */
-    if (
-      [4].includes(user.roleId) && //member
-      ![1].includes(trReward.statusId) && // tr.stat !== 1
-      ![2].includes(source.statusId) // source.stat !== 2
-    )
+    if (![1].includes(trReward.statusId)) {
+      RemoveImg(files, false);
       return res.status(400).json({
         status: "error",
         message: "Mohon maaf, Data Transaksi Reward tidak dapat diubah",
       });
+    }
 
     /**
-     * Tr tidak dapat dirubah ketika status awal nya (canceled, rejected, delivered)
+     * Ketika item reward berubah, cek apakah user sudah pernah ambil reward baru atau belum
      */
-    if ([2, 3, 5].includes(trReward.statusId))
-      return res.status(400).json({
-        status: "error",
-        message: "Mohon maaf, Data Transaksi Reward sudah tidak dapat diubah",
+    if (trReward.rewardId !== parseInt(source.rewardId)) {
+      const checkTrReward = await TrReward.findOne({
+        where: {
+          userId: source.userId ? source.userId : user.id,
+          rewardId: source.rewardId,
+          statusId: {
+            [Op.in]: [1, 4, 5],
+          },
+        },
       });
 
-    files &&
-      files.imageKtp &&
-      files.imageKtp.length > 0 &&
-      (await RemoveFile(trReward, true));
+      if (checkTrReward) {
+        RemoveImg(files, false);
+        return res.status(400).json({
+          status: "error",
+          message:
+            "Mohon maaf permintaan anda tidak dapat di proses. Anda sudah pernah melakukan transaksi untuk item reward ini",
+        });
+      }
+      // cek apakah user memenuhi kriteria untuk meminta reward atau tidak
+      const referral = await Referral.findAll({
+        where: { sponsorId: user.sponsorId },
+        include: {
+          attributes: ["id", "name", "point"],
+          model: User,
+        },
+      });
+
+      if (!referral) {
+        RemoveImg(files, false);
+        return res.status(400).json({
+          status: "error",
+          message:
+            "Mohon maaf, Anda tidak memenuhi kriteria untuk melakukan transaksi ini",
+        });
+      }
+
+      // jika ada referral. lakukan pengecekan apakah boleh ambil reward atau tidak berdasarkan point referral
+      const checkPoint = referral.filter(
+        (ref) => ref.User.point >= reward.point
+      );
+      if (checkPoint.length >= reward.minFoot) {
+        // buat transaksi
+        await trReward.update(payload);
+        return res.status(200).json({
+          status: "success",
+          message:
+            "Data transaksi Reward berhasil diperbarui, silahkan menunggu admin untuk melakukan pengecekan",
+        });
+      } else {
+        RemoveImg(files, false);
+        return res.status(400).json({
+          status: "error",
+          message:
+            "Mohon maaf, Anda tidak memenuhi kriteria untuk melakukan transaksi ini",
+        });
+      }
+    }
+
+    await RemoveImg(trReward, true);
 
     await trReward.update(payload);
-    return res.stus(201).json({
+    return res.status(200).json({
       status: "success",
       message:
-        "Permintaan transaksi anda berhasil diperbarui, silahkan menunggu admin untuk melakukan pengecekan",
+        "Data transaksi Reward berhasil diperbarui, silahkan menunggu admin untuk melakukan pengecekan",
     });
   } catch (error) {
     console.log("[!] Error : ", error);

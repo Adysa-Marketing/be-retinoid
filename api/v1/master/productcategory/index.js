@@ -11,7 +11,7 @@ router.get("/get/:id", Get);
 router.get("/dropdown", Dropdown);
 router.post("/list", List);
 router.post("/create", IsAdmin, Create);
-router.put("/update", IsAdmin, Update);
+router.post("/update", IsAdmin, Update);
 router.delete("/delete", IsAdmin, Delete);
 
 module.exports = router;

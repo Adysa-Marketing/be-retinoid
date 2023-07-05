@@ -1,7 +1,7 @@
 const logger = require("../../../libs/logger");
 const Session = require("../../../libs/session");
 
-const { User, SponsorKey, Serial } = require("../../../models");
+const { User, SponsorKey, Serial, Agen, Stokis } = require("../../../models");
 
 const bcryptjs = require("bcryptjs");
 const Validator = require("fastest-validator");
@@ -60,6 +60,18 @@ module.exports = async (req, res) => {
 
     if (bcryptjs.compareSync(password, userData.password)) {
       let user = JSON.parse(JSON.stringify(userData));
+      if ([3].includes(userData.roleId)) {
+        let dataAgen = await Agen.findOne({
+          attributes: ["id", "name"],
+          where: { userId: userData.id },
+          include: {
+            attributes: ["id", "agenDiscount"],
+            model: Stokis,
+          },
+        });
+        dataAgen = JSON.parse(JSON.stringify(dataAgen));
+        user.profit = dataAgen.Stoki.agenDiscount;
+      }
       delete user.password;
 
       const token = await Session.sign(user);

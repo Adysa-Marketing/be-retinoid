@@ -28,7 +28,14 @@ module.exports = async (req, res) => {
   try {
     const schema = {
       name: "string|empty:false",
-      username: "string|empty:false",
+      username: {
+        type: "string",
+        pattern: /^[^\s]*$/,
+        messages: {
+          pattern: "Username tidak boleh menggunakan spasi",
+        },
+        empty: false,
+      },
       password: "string|empty:false|min:5",
       email: "email|empty:false",
       phone: "string|empty:false|min:9|max:13",
@@ -140,7 +147,11 @@ module.exports = async (req, res) => {
     const commission = parseInt(
       (commissionLevel.percent * productAmount) / 100
     );
-    const message = `Selamat anda mendapatkan bonus senilai Rp. ${commission} dari downline ${userData.name} dengan kedalaman level 1`;
+    const message = `Selamat anda mendapatkan bonus senilai Rp.${new Intl.NumberFormat(
+      "id-ID"
+    ).format(commission)} dari downline ${
+      userData.name
+    } dengan kedalaman level 1`;
     await Commission.create(
       {
         userId: sponsor.userId,
@@ -250,7 +261,7 @@ const calculateDownlineBonus = async (
     where: { id: level },
   });
   const commission = (commissionLevel.percent * amount) / 100;
-  const message = `Selamat anda mendapatkan bonus senilai Rp. ${new Intl.NumberFormat(
+  const message = `Selamat anda mendapatkan bonus senilai Rp.${new Intl.NumberFormat(
     "id-ID"
   ).format(
     commission

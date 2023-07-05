@@ -11,9 +11,8 @@ module.exports = async (req, res) => {
 
   try {
     const schema = {
-      id: "number|empty:false",
       name: "string|optional",
-      email: "email|optional",
+      email: "string|optional",
       phone: "string|optional|min:9|max:13",
       gender: {
         type: "string",
@@ -22,9 +21,9 @@ module.exports = async (req, res) => {
       },
       kk: "string|optional",
       address: "string|optional",
-      countryId: "number|optional",
-      districtId: "number|optional",
-      subDistrictId: "number|optional",
+      countryId: "string|optional",
+      districtId: "string|optional",
+      subDistrictId: "string|optional",
       remark: "string|optional",
     };
 
@@ -35,9 +34,8 @@ module.exports = async (req, res) => {
         message: validate,
       });
 
-    const id = source.id;
-    const { countryId, provinceId, districtId, subDistrictId, referral } =
-      source;
+    const id = req.user.id;
+    const { countryId, provinceId, districtId, subDistrictId } = source;
     const image =
       files && files.image && files.image.length > 0
         ? { image: files.image[0].filename }
@@ -61,11 +59,13 @@ module.exports = async (req, res) => {
     logger.info({ source, payload });
 
     const user = await User.findOne({ attributes: ["id", "name", "image"] });
-    if (!user)
+    if (!user) {
+      await RemoveFile(files, false);
       return res.status(404).json({
         status: "error",
         message: "Data User tidak ditemukan",
       });
+    }
 
     files &&
       files.image &&
@@ -79,7 +79,7 @@ module.exports = async (req, res) => {
     });
   } catch (err) {
     console.log("[!] Error : ", err);
-    await RemoveFile(files, true);
+    await RemoveFile(files, false);
     if (err.errors && err.errors.length > 0 && err.errors[0].path) {
       logger.err(err.errors);
       if (err.errors[0].path == "email") {

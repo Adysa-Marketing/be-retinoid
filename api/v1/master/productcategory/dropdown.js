@@ -4,6 +4,7 @@ module.exports = async (req, res) => {
   try {
     const data = await ProductCategory.findAll({
       attributes: ["id", "name"],
+      order: [["id", "ASC"]],
     });
     return res.json({
       status: "success",

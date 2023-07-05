@@ -6,7 +6,7 @@ const v = new Validator();
 module.exports = async (req, res) => {
   try {
     const schema = {
-      id: "number|empty:false",
+      id: "string|empty:false",
     };
 
     const validate = v.compile(schema)(req.params);
@@ -25,7 +25,7 @@ module.exports = async (req, res) => {
       });
     }
 
-    logger.info({ source });
+    logger.info({ id });
     return res.json({
       status: "success",
       data: stokis,

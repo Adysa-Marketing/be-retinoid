@@ -7,6 +7,7 @@ module.exports = async (req, res) => {
   const source = req.body;
   try {
     const schema = {
+      id: "number|empty:false",
       name: "string|optional",
       noRekening: "string|optional",
       accountName: "string|optional",
@@ -27,6 +28,7 @@ module.exports = async (req, res) => {
       remark: source.remark,
     };
 
+    const id = source.id;
     logger.info({ source, payload });
     const bank = await Bank.findByPk(id);
     if (!bank)

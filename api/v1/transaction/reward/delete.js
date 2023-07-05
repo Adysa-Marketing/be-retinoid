@@ -29,8 +29,8 @@ module.exports = async (req, res) => {
       where: { id, ...queryMember },
     });
 
-    logger.info(id);
-    if (!widhraw)
+    logger.info({ id });
+    if (!trReward)
       return res.status(404).json({
         status: "error",
         message: "Data Transaksi Reward tidak ditemukan",

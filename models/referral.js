@@ -5,7 +5,7 @@ module.exports = (sequelize, DataTypes) => {
   const Referral = sequelize.define(
     "Referral",
     {
-      referralData: {
+      date: {
         type: DataTypes.DATE,
         defaultValue: moment().format("YYYY-MM-DD HH:mm:ss"),
       },

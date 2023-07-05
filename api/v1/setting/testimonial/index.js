@@ -5,6 +5,6 @@ const Update = require("./update");
 
 router.get("/get", Get);
 router.post("/create", Create);
-router.put("/update", Update);
+router.post("/update", Update);
 
 module.exports = router;

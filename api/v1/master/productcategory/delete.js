@@ -19,7 +19,7 @@ module.exports = async (req, res) => {
     const id = req.body.id;
     const productCategory = await ProductCategory.findByPk(id);
 
-    logger.info(id);
+    logger.info({ id });
 
     if (!productCategory)
       return res.status(404).json({

@@ -9,7 +9,7 @@ module.exports = async (req, res) => {
   const user = req.user;
   try {
     const schema = {
-      id: "number|empty:false",
+      id: "string|empty:false",
     };
 
     const validate = v.compile(schema)(req.params);
@@ -20,9 +20,18 @@ module.exports = async (req, res) => {
       });
 
     const id = req.params.id;
-    const queryMember = [4].includes(user.roleId) ? { userId: user.id } : {};
+    const queryMember = [3, 4].includes(user.roleId) ? { userId: user.id } : {};
 
     let widhraw = await Widhraw.findOne({
+      attributes: [
+        "id",
+        "amount",
+        "noRekening",
+        "bankName",
+        "accountName",
+        "image",
+        "imageKtp",
+      ],
       where: { id, ...queryMember },
       include: [
         {
@@ -36,7 +45,7 @@ module.exports = async (req, res) => {
       ],
     });
 
-    logger.info(id);
+    logger.info({ id });
     if (!widhraw)
       return res
         .status(404)

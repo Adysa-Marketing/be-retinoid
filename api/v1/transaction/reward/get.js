@@ -9,7 +9,7 @@ module.exports = async (req, res) => {
   const user = req.user;
   try {
     const schema = {
-      id: "number|empty:false",
+      id: "string|empty:false",
     };
 
     const validate = v.compile(schema)(req.params);
@@ -23,6 +23,7 @@ module.exports = async (req, res) => {
     const queryMember = [4].includes(user.roleId) ? { userId: user.id } : {};
 
     let trReward = await TrReward.findOne({
+      attributes: ["id", "imageKtp", "date", "remark"],
       where: { id, ...queryMember },
       include: [
         {
@@ -30,19 +31,29 @@ module.exports = async (req, res) => {
           model: User,
         },
         {
+          attributes: ["id", "name", "remark"],
           model: RwStatus,
         },
         {
+          attributes: [
+            "id",
+            "name",
+            "description",
+            "point",
+            "minFoot",
+            "image",
+            "amount",
+          ],
           model: Reward,
         },
       ],
     });
 
-    logger.info(id);
+    logger.info({ id });
     if (!trReward)
       return res
         .status(404)
-        .json({ status: "error", message: "Data Widhraw tidak ditemukan" });
+        .json({ status: "error", message: "Data Reward tidak ditemukan" });
 
     trReward.date = moment(trReward.date)
       .utc()

@@ -4,11 +4,19 @@ module.exports = (sequelize, DataTypes) => {
   const ATrSale = sequelize.define(
     "ATrSale",
     {
+      name: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
       qty: {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
       amount: {
+        type: DataTypes.BIGINT,
+        allowNull: false,
+      },
+      profit: {
         type: DataTypes.BIGINT,
         allowNull: false,
       },

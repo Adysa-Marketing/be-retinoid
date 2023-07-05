@@ -18,9 +18,12 @@ module.exports = async (req, res) => {
       });
 
     const id = req.body.id;
-    const admin = await User.findByPk(id);
+    const admin = await User.findOne({
+      attributes: ["id"],
+      where: { id, roleId: 2 },
+    });
 
-    logger.info(id);
+    logger.info({ id });
     if (!admin)
       return res.status(404).json({
         status: "error",

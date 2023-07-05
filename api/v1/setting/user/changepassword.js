@@ -8,7 +8,6 @@ module.exports = async (req, res) => {
   const source = req.body;
   try {
     const schema = {
-      id: "number|empty:false",
       password: "string|empty:false|min:5",
       oldPassword: "string|empty:false",
     };
@@ -20,7 +19,7 @@ module.exports = async (req, res) => {
         message: validate,
       });
 
-    const id = source.id;
+    const id = req.user.id;
     const password = bcrypt.hashSync(source.password, bcrypt.genSaltSync(2));
 
     logger.info(source);
@@ -32,13 +31,6 @@ module.exports = async (req, res) => {
       return res.status(404).json({
         status: "error",
         message: "Data User tidak ditemukan",
-      });
-
-    // validate old password
-    if (!source.oldPassword)
-      return res.status(400).json({
-        status: "error",
-        message: "Tolong inputkan password lama anda",
       });
 
     if (!bcrypt.compareSync(source.oldPassword, user.password)) {

@@ -5,13 +5,14 @@ const {
   Referral,
 } = require("../../../../models");
 const logger = require("../../../../libs/logger");
+const moment = require("moment");
 const Validator = require("fastest-validator");
 const v = new Validator();
 
 module.exports = async (req, res) => {
   try {
     const schema = {
-      id: "number|empty:false",
+      id: "string|empty:false",
     };
 
     const validate = v.compile(schema)(req.params);
@@ -22,7 +23,7 @@ module.exports = async (req, res) => {
       });
 
     const id = req.params.id;
-    const user = await User.findOne({
+    let user = await User.findOne({
       attributes: [
         "id",
         "name",
@@ -37,11 +38,16 @@ module.exports = async (req, res) => {
         "wallet",
       ],
       include: [
-        { model: Testimonial },
-        { model: SponsorKey },
         {
+          attributes: ["id", "rating", "testimonial", "remark"],
+          model: Testimonial,
+        },
+        { attributes: ["id", "key"], model: SponsorKey },
+        {
+          attributes: ["id", "date"],
           model: Referral,
           include: {
+            attributes: ["id", "key"],
             model: SponsorKey,
             include: {
               attributes: ["id", "name"],
@@ -53,11 +59,18 @@ module.exports = async (req, res) => {
       where: { id, roleId: 4 },
     });
 
-    logger.info(id);
+    logger.info({ id });
     if (!user)
       return res
         .status(404)
         .json({ status: "error", message: "Data User tidak ditemukan" });
+
+    user = JSON.parse(JSON.stringify(user));
+
+    user.Referral.date = moment(user.Referral.date)
+      .utc()
+      .add(7, "hours")
+      .format("YYYY-MM-DD HH:mm:ss");
 
     return res.json({
       status: "success",

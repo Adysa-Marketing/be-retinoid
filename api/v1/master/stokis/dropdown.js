@@ -2,7 +2,9 @@ const { Stokis } = require("../../../../models");
 
 module.exports = async (req, res) => {
   try {
-    const data = await Stokis.findAll();
+    const data = await Stokis.findAll({
+      attributes: ["id", "name"],
+    });
     return res.json({
       status: "success",
       data,

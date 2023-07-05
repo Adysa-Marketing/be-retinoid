@@ -16,10 +16,17 @@ module.exports = async (req, res) => {
   try {
     const schema = {
       name: "string|empty:false",
-      username: "string|empty:false",
+      username: {
+        type: "string",
+        pattern: /^[^\s]*$/,
+        messages: {
+          stringPattern: "Username tidak boleh menggunakan spasi",
+        },
+        empty: false,
+      },
       password: "string|empty:false|min:5",
-      email: "email|empty:false",
-      phone: "string|optional|min:9|max:13",
+      email: "string|empty:false",
+      phone: "string|empty:false|min:9|max:13",
       gender: {
         type: "string",
         enum: ["Male", "Female"],
@@ -28,18 +35,23 @@ module.exports = async (req, res) => {
       kk: "string|optional",
       address: "string|optional",
       noRekening: "string|optional",
-      countryId: "number|optional",
-      districtId: "number|optional",
-      subDistrictId: "number|optional",
+      countryId: "string|optional",
+      districtId: "string|optional",
+      subDistrictId: "string|optional",
       remark: "string|optional",
     };
 
     const validate = v.compile(schema)(source);
-    if (validate.length)
+    if (validate.length) {
+      files &&
+        files.image &&
+        files.image.length > 0 &&
+        (await RemoveFile(files, false));
       return res.status(400).json({
         status: "error",
         message: validate,
       });
+    }
 
     const password = bcrypt.hashSync(source.password, bcrypt.genSaltSync(2));
     const sponsorKey = cryptoString({ length: 10, type: "base64" });
@@ -71,7 +83,7 @@ module.exports = async (req, res) => {
     const userData = await User.create(payload, { transaction });
     // create sponsorKey
     const userSponsor = await SponsorKey.create(
-      { userId: userData.userId, key: sponsorKey },
+      { userId: userData.id, key: sponsorKey },
       { transaction }
     );
     await userData.update({ sponsorId: userSponsor.id }, { transaction });

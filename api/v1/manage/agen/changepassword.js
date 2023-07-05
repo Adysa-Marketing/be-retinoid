@@ -6,12 +6,10 @@ const v = new Validator();
 
 module.exports = async (req, res) => {
   const source = req.body;
-  const user = req.user;
   try {
     const schema = {
       id: "number|empty:false",
       password: "string|empty:false|min:5",
-      oldPassword: "string|optional",
     };
 
     const validate = v.compile(schema)(source);
@@ -41,22 +39,6 @@ module.exports = async (req, res) => {
         status: "error",
         message: "Account tidak ditemukan",
       });
-
-    if (user && [3].includes(user.roleId)) {
-      // validate old password
-      if (!source.oldPassword)
-        return res.status(400).json({
-          status: "error",
-          message: "Tolong inputkan password lama anda",
-        });
-
-      if (!bcrypt.compareSync(source.oldPassword, account.password)) {
-        return res.status(400).json({
-          status: "error",
-          message: "Password lama yang anda masukkan salah",
-        });
-      }
-    }
 
     await account.update({ password });
     return res.json({

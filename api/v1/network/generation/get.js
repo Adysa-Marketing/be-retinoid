@@ -5,9 +5,10 @@ const Validator = require("fastest-validator");
 const v = new Validator();
 
 module.exports = async (req, res) => {
+  const user = req.user;
   try {
     const schema = {
-      id: "number|empty:false",
+      id: "string|empty:false",
     };
 
     const validate = v.compile(schema)(req.params);
@@ -18,24 +19,24 @@ module.exports = async (req, res) => {
       });
 
     const id = req.params.id;
-    logger.info(id);
+    logger.info({ id });
+    const queryUpline = ![1].includes(user.roleId) ? { userId: user.id } : {};
 
     const generation = await Generation.findOne({
+      attributes: ["id", "remark"],
       where: {
         id,
+        ...queryUpline,
       },
       include: [
         {
           attributes: ["id", "name", "email", "phone", "isActive"],
-          as: "Downline",
+          as: "Upline",
           model: User,
-          where: {
-            ...keyword,
-          },
         },
         {
-          attributes: ["id", "name", "email", "phone"],
-          as: "Upline",
+          attributes: ["id", "name", "email", "phone", "isActive"],
+          as: "Downline",
           model: User,
         },
         {

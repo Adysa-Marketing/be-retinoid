@@ -57,7 +57,6 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.BOOLEAN,
         defaultValue: true,
       },
-      noRekening: DataTypes.STRING,
       remark: DataTypes.STRING,
     },
     {

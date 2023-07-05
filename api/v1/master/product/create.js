@@ -5,23 +5,31 @@ const Validator = require("fastest-validator");
 const v = new Validator();
 
 module.exports = async (req, res) => {
-  const source = req.user;
+  const source = req.body;
   const files = req.files;
   try {
     const schema = {
       name: "string|empty:false",
-      categoryId: "number|empty:false",
-      amount: "number|empty:false",
+      categoryId: "string|empty:false",
+      amount: "string|empty:false",
+      stock: "string|empty:false",
       description: "string|optional",
-      stock: "number|empty:false",
     };
 
+    const RemoveImg = async (img, option) =>
+      files &&
+      files.image &&
+      files.image.length > 0 &&
+      (await RemoveFile(img, option));
+
     const validate = v.compile(schema)(source);
-    if (validate.length)
+    if (validate.length) {
+      RemoveImg(files, false);
       return res.status(400).json({
         status: "error",
         message: validate,
       });
+    }
 
     const image =
       files && files.image && files.image.length > 0
@@ -41,11 +49,13 @@ module.exports = async (req, res) => {
     logger.info({ source, files, payload });
 
     const productCategory = await ProductCategory.findByPk(source.categoryId);
-    if (!productCategory)
+    if (!productCategory) {
+      RemoveImg(files, false);
       return res.status(500).json({
         status: "error",
         message: "Category produk tidak ditemukan",
       });
+    }
 
     await Product.create(payload);
     return res.status(201).json({

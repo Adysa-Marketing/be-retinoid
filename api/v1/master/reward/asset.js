@@ -1,10 +1,11 @@
 const env = process.env.NODE_ENV;
 const config = require("../../../../config/core")[env];
 const fs = require("fs");
+const path = require("path");
 
 const Directory = (req, res, next) => {
-  const dir = `${config.tempdir}/reward`;
-  req.tempdir = dir;
+  const dir = `${config.tempDir}/reward`;
+  req.tempDir = dir;
   try {
     if (fs.existsSync(dir)) {
       next();
@@ -23,13 +24,13 @@ const Directory = (req, res, next) => {
   }
 };
 
-const RemoveFile = (rows, status) => {
+const RemoveFile = (files, status) => {
   return new Promise(async (resolve, reject) => {
     const tempDir = `${config.tempDir}/reward/`;
     const image = status
-      ? rows.image
-      : rows && rows.image.length > 0
-      ? rows.image[0].filename
+      ? files.image
+      : files && files.image?.length > 0
+      ? files.image[0].filename
       : null;
 
     image &&

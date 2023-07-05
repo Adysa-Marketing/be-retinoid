@@ -11,6 +11,7 @@ const Sequelize = require("sequelize");
 const Op = Sequelize.Op;
 const Validator = require("fastest-validator");
 const v = new Validator();
+const moment = require("moment");
 
 module.exports = async (req, res) => {
   try {
@@ -101,7 +102,7 @@ module.exports = async (req, res) => {
         model: PaymentType,
       },
       {
-        attributes: ["id", "name", "amount", "image"],
+        attributes: ["id", "name", "amount"],
         model: Product,
         where: {
           ...queryCategory,
@@ -132,7 +133,7 @@ module.exports = async (req, res) => {
 
     await ATrSale.findAll({
       ...offsetLimit,
-      attributes: ["id", "qty", "amount", "image", "remark"],
+      attributes: ["id", "name", "qty", "amount", "profit", "remark"],
       where,
       include: [...includeParent],
     })
@@ -148,7 +149,7 @@ module.exports = async (req, res) => {
             .format("YYYY-MM-DD HH:mm:ss");
 
           return {
-            ...trS,
+            ...aTrS,
             kode: `ATS${code}`,
           };
         });

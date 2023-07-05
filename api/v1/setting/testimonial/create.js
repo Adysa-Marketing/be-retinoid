@@ -28,6 +28,14 @@ module.exports = async (req, res) => {
     };
 
     logger.info({ source, payload });
+    const testimoni = await Testimonial.findOne({ where: { userId: user.id } });
+    if (testimoni) {
+      return res.status(400).json({
+        status: "error",
+        message: "Anda sudah memiliki testimoni",
+      });
+    }
+
     await Testimonial.create(payload);
     return res.status(201).json({
       status: "success",

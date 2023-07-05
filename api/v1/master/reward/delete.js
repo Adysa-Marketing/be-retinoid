@@ -21,7 +21,7 @@ module.exports = async (req, res) => {
     const id = req.body.id;
     const reward = await Reward.findByPk(id);
 
-    logger.info(id);
+    logger.info({ id });
     if (!reward)
       return res.status(404).json({
         status: "error",

@@ -14,6 +14,14 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.BIGINT,
         allowNull: false,
       },
+      discount: {
+        type: DataTypes.BIGINT,
+        allowNull: false,
+      },
+      paidAmount: {
+        type: DataTypes.BIGINT,
+        allowNull: false,
+      },
       image: DataTypes.STRING,
       fromBank: DataTypes.STRING,
       accountName: DataTypes.STRING,
@@ -53,7 +61,7 @@ module.exports = (sequelize, DataTypes) => {
       },
     });
 
-    TrSale.hasMany(models.Mutation, {
+    TrSale.hasOne(models.Mutation, {
       foreignKey: "saleId",
     });
   };

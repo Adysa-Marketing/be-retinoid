@@ -21,7 +21,11 @@ module.exports = async (req, res) => {
   try {
     const schema = {
       id: "number|empty:false",
-      statusId: "number|empty:false",
+      statusId: {
+        type: "number",
+        empty: false,
+        enum: [1, 2, 3, 4, 5],
+      },
       remark: "string|optional",
     };
 
@@ -43,7 +47,16 @@ module.exports = async (req, res) => {
     const queryAgen = [3].includes(user.roleId) ? { userId: user.id } : {};
 
     const trSalse = await TrSale.findOne({
-      attributes: ["id", "statusId", "qty"],
+      attributes: [
+        "id",
+        "statusId",
+        "productId",
+        "qty",
+        "userId",
+        "amount",
+        "discount",
+        "paidAmount",
+      ],
       where: { id, ...queryAgen },
     });
 
@@ -58,8 +71,8 @@ module.exports = async (req, res) => {
      * Tr tidak dapat dirubah ketika status awal nya (canceled, rejected, delivered)
      */
     if (
-      ([4].includes(user.roleId) && //member
-        ![1].includes(trSalse.statusId) && // tr.stat !== 1
+      ([3].includes(user.roleId) && //agen
+        [1].includes(trSalse.statusId) && // tr.stat == 1
         ![2].includes(source.statusId)) || // source.stat !== 2
       [2, 3, 5].includes(trSalse.statusId) // (canceled, rejected, delivered)
     )
@@ -71,7 +84,7 @@ module.exports = async (req, res) => {
     /**
      * Status tidak boleh diubah delivered ketika status awal !== approved
      */
-    if (trSalse.status !== 4 && source.statusId == 5)
+    if (trSalse.statusId !== 4 && source.statusId == 5)
       return res.status(400).json({
         status: "error",
         message:
@@ -79,25 +92,20 @@ module.exports = async (req, res) => {
       });
 
     // Status Approved
-    if (source.statusId === 4) {
+    if (source.statusId === 4 && trSalse.statusId === 1) {
       const product = await Product.findOne({
         attributes: ["id", "name", "stock"],
-        where: { id: source.productId },
+        where: { id: trSalse.productId },
       });
+
       if (!product)
         return res.status(400).json({
           status: "error",
           message: "Mohon maaf, Data Produk tidak ditemukan",
         });
 
-      if (produk.stock < trSalse.qty)
-        return res.status(400).json({
-          status: "error",
-          message: `Transaksi gagal, Mohon maaf jumlah pembelian melebihi stok yang tersedia. Stok tersedia saat ini adalah ${produk.stock} Produk`,
-        });
-
       await product.update(
-        { qty: sequelize.col("qty") - trSalse.qty },
+        { qty: sequelize.literal(`qty - ${trSalse.qty}`) },
         { transaction }
       );
       await trSalse.update(payload, { transaction });
@@ -106,12 +114,19 @@ module.exports = async (req, res) => {
         attributes: ["id", "name"],
         where: { id: trSalse.userId },
       });
+
       await Mutation.create(
         {
-          type: "Pembelian Produk",
-          amount: trSalse.amount,
-          description: `Transaksi Produk ${product.name} dari ${user.name} sebanyak ${trSalse.qty} produk dengan total ${trSalse.amount}`,
-          userId: user.id,
+          type: "Dana Masuk",
+          amount: trSalse.paidAmount,
+          description: `Transaksi Produk ${product.name} dari ${
+            user.name
+          } sebanyak ${
+            trSalse.qty
+          } produk dengan total Rp.${new Intl.NumberFormat("id-ID").format(
+            trSalse.amount
+          )}`,
+          userId: trSalse.userId,
           saleId: trSalse.id,
           remark: "",
         },
@@ -123,7 +138,7 @@ module.exports = async (req, res) => {
         where: {
           [Op.and]: [
             {
-              userId: user.id,
+              userId: trSalse.userId,
             },
             {
               productId: product.id,
@@ -136,8 +151,8 @@ module.exports = async (req, res) => {
         await AgenProduct.create(
           {
             stock: trSalse.qty,
-            userId: user.id,
-            productId: product.id,
+            userId: trSalse.userId,
+            productId: trSalse.productId,
           },
           { transaction }
         );
@@ -145,7 +160,7 @@ module.exports = async (req, res) => {
         // update stock
         await agenProduct.update(
           {
-            stock: sequelize.col("stock") + trSalse.wty,
+            stock: sequelize.literal(`stock + ${trSalse.qty}`),
           },
           { transaction }
         );
@@ -156,7 +171,7 @@ module.exports = async (req, res) => {
       transaction.commit();
       return res.json({
         status: "success",
-        message: "Data transaksi produk berhasil di approve",
+        message: "Status transaksi produk berhasil di approve",
       });
     }
 
