@@ -1,5 +1,6 @@
 const router = require("express").Router();
 const Admin = require("./admin");
+const Article = require("./article");
 const Bank = require("./bank");
 const Package = require("./package");
 const Product = require("./product");
@@ -9,6 +10,7 @@ const Serial = require("./serial");
 const Stokis = require("./stokis");
 
 router.use("/admin", Admin);
+router.use("/article", Article);
 router.use("/bank", Bank);
 router.use("/package", Package);
 router.use("/product", Product);

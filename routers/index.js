@@ -17,6 +17,8 @@ app.use(
     path: [
       "/api/v1/user/login",
       "/api/v1/user/register",
+      "/api/v1/master/article/list",
+      "/api/v1/master/article/detail/:slug",
       "/api/v1/master/package/get/:id",
       "/api/v1/master/package/list",
       "/api/v1/dropdown/role",
