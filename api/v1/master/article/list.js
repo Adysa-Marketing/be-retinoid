@@ -52,6 +52,7 @@ module.exports = async (req, res) => {
 
     const where = {
       ...keyword,
+      isActive: true,
     };
 
     logger.info({ source, where });

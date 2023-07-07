@@ -18,6 +18,23 @@ module.exports = async (req, res) => {
       });
 
     const slug = req.params.slug;
+    const checkArticle = await Article.findOne({
+      attributes: ["id"],
+      where: { slug },
+    });
+
+    logger.info({ slug });
+    if (!checkArticle)
+      return res.status(404).json({
+        status: "error",
+        message: "Data Artikel tidak ditemukan",
+      });
+
+    await Article.update(
+      { view: sequelize.literal(`view + 1`) },
+      { where: { id: checkArticle.id } }
+    );
+
     const article = await Article.findOne({
       attributes: [
         "id",
@@ -32,15 +49,6 @@ module.exports = async (req, res) => {
       ],
       where: { slug },
     });
-
-    logger.info({ slug });
-    if (!article)
-      return res.status(404).json({
-        status: "error",
-        message: "Data Artikel tidak ditemukan",
-      });
-
-    await article.update({ view: sequelize.literal(`view + 1`) });
 
     return res.json({
       status: "success",

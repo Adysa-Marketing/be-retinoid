@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const Asset = require("./asset");
 const Create = require("./create");
+const ChangeStatus = require("./changeStatus");
 const Delete = require("./delete");
 const Detail = require("./detail");
 const Get = require("./get");
@@ -26,6 +27,7 @@ router.post(
   Upload.fields([{ name: "image", maxCount: 1 }]),
   Update
 );
+router.put("/change-status", IsAdmin, ChangeStatus);
 router.delete("/delete", IsAdmin, Delete);
 
 module.exports = router;

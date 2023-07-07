@@ -25,7 +25,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         defaultValue: false,
       },
-      view: DataTypes.BIGINT,
+      view: { type: DataTypes.BIGINT, defaultValue: 0 },
       description: {
         type: DataTypes.TEXT,
         allowNull: false,

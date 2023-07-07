@@ -1,4 +1,4 @@
-const { Atricle } = require("../../../../models");
+const { Article } = require("../../../../models");
 const { RemoveFile } = require("./asset");
 const logger = require("../../../../libs/logger");
 const slugify = require("slugify");
@@ -37,13 +37,13 @@ module.exports = async (req, res) => {
         ? { image: files.image[0].filename }
         : {};
 
-    const slug = slugify(source.name, {
+    const slug = slugify(source.title, {
       replacement: "-",
       lower: true,
     });
 
     const payload = {
-      name: source.name,
+      title: source.title,
       slug,
       author: user.name,
       isActive: source.isActive == "true" ? true : false,
@@ -54,10 +54,10 @@ module.exports = async (req, res) => {
 
     logger.info({ source, files, payload });
 
-    await Atricle.create(payload);
+    await Article.create(payload);
     return res.status(201).json({
       status: "success",
-      message: "Atrikel berhasil dibuat",
+      message: "Artikel berhasil dibuat",
     });
   } catch (error) {
     console.log("[!] Error : ", error);

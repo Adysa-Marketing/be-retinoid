@@ -1,6 +1,7 @@
-const { Atricle } = require("../../../../models");
+const { Article } = require("../../../../models");
 const { RemoveFile } = require("./asset");
 const logger = require("../../../../libs/logger");
+const slugify = require("slugify");
 const Validator = require("fastest-validator");
 const v = new Validator();
 
@@ -37,16 +38,20 @@ module.exports = async (req, res) => {
         ? { image: files.image[0].filename }
         : {};
 
-    const slug = slugify(source.name, {
+    const slug = slugify(source.title, {
       replacement: "-",
       lower: true,
     });
 
+    const isActive = source.isActive
+      ? source.isActive == "true"
+        ? { isActive: true }
+        : { isActive: false }
+      : {};
     const payload = {
-      name: source.name,
+      title: source.title,
       slug,
-      author: user.name,
-      isActive: source.isActive == "true" ? true : false,
+      ...isActive,
       description: source.description,
       ...image,
       remark: source.remark,
@@ -54,7 +59,7 @@ module.exports = async (req, res) => {
 
     logger.info({ source, files, payload });
 
-    const atricle = await Atricle.findOne({ where: { id } });
+    const atricle = await Article.findOne({ where: { id } });
     if (!atricle) {
       RemoveImg(files, false);
       return res.status(404).json({
