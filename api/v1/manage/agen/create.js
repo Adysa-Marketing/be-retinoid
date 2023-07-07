@@ -1,5 +1,6 @@
 const { User, Agen, Stokis } = require("../../../../models");
 const logger = require("../../../../libs/logger");
+const { Op } = require("sequelize");
 const Validator = require("fastest-validator");
 const v = new Validator();
 
@@ -35,6 +36,22 @@ module.exports = async (req, res) => {
       return res.status(404).json({
         status: "error",
         message: "Data User tidak ditemukan",
+      });
+
+    const agen = await Agen.findOne({
+      attributes: ["id", "name"],
+      where: {
+        [Op.and]: {
+          userId: source.userId,
+          stokisId: source.stokisId,
+        },
+      },
+    });
+
+    if (agen)
+      return res.status(400).json({
+        status: "error",
+        message: "Data Agen sudah tersedia",
       });
 
     const payloadAgen = {

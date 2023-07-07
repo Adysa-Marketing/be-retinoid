@@ -50,6 +50,7 @@ module.exports = async (req, res) => {
     const payload = {
       userId: user.id,
       amount: parseInt(source.amount),
+      paidAmount: parseInt(source.amount) - 10000,
       statusId: 1,
       noRekening: source.noRekening,
       bankName: source.bankName,
@@ -64,6 +65,14 @@ module.exports = async (req, res) => {
       attributes: ["id", "userId", "amount", "statusId", "imageKtp"],
       where: { id, ...queryMember },
     });
+
+    if (!widhraw) {
+      RemoveImg(files, false);
+      return res.status(404).json({
+        status: "error",
+        message: "Mohon maaf, Data widhraw sudah tidak ditemukan",
+      });
+    }
 
     if (![1].includes(widhraw.statusId)) {
       RemoveImg(files, false);

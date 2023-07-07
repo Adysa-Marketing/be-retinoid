@@ -4,6 +4,7 @@ const Sequelize = require("sequelize");
 const Op = Sequelize.Op;
 const Validator = require("fastest-validator");
 const v = new Validator();
+const moment = require("moment");
 
 module.exports = async (req, res) => {
   try {
@@ -11,6 +12,7 @@ module.exports = async (req, res) => {
     const schema = {
       keyword: "string|optional",
       statusId: "number|optional",
+      remark: "string|optional",
       rowsPerPage: "number|empty:false",
       currentPage: "number|empty:false",
     };
@@ -50,10 +52,31 @@ module.exports = async (req, res) => {
         }
       : {};
 
+    const startDate = moment(source.startDate, "YYYY-MM-DD")
+      .startOf("days")
+      .toDate();
+    const endDate = moment(source.endDate, "YYYY-MM-DD")
+      .startOf("days")
+      .toDate();
+
+    const dateRange =
+      source.startDate && source.endDate
+        ? {
+            createdAt: {
+              [Op.gte]: startDate,
+              [Op.lte]: endDate,
+            },
+          }
+        : {};
+
     const queryStatus = source.statusId ? { status: source.statusId } : {};
+    const queryRemark = source.remark ? { remark: source.remark } : {};
+
     const where = {
       ...keyword,
       ...queryStatus,
+      ...queryRemark,
+      ...dateRange,
     };
 
     logger.info({ source, where });
@@ -76,7 +99,7 @@ module.exports = async (req, res) => {
 
     const data = await Serial.findAll({
       ...offsetLimit,
-      attributes: ["id", "serialNumber", "status"],
+      attributes: ["id", "serialNumber", "status", "remark"],
       where,
       order: [["id", "DESC"]],
     });

@@ -1,4 +1,4 @@
-const { Package, ProductCategory } = require("../../../../models");
+const { Package } = require("../../../../models");
 const logger = require("../../../../libs/logger");
 const Validator = require("fastest-validator");
 const v = new Validator();

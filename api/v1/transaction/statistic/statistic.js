@@ -35,7 +35,7 @@ module.exports.ChartSales = (req, res) => {
         : "YYYY";
 
     TrSale.findAll({
-      attributes: ["id", "qty", "amount", "date", "createdAt"],
+      attributes: ["id", "qty", "amount", "date", "productId", "createdAt"],
       include: {
         attributes: ["id", "name", "categoryId"],
         model: Product,
@@ -55,7 +55,7 @@ module.exports.ChartSales = (req, res) => {
       .then(async (sales) => {
         sales = JSON.parse(JSON.stringify(sales));
         sales = sales.map((item) => {
-          const month = moment(item.date)
+          const month = moment(item.createdAt)
             .utc()
             .add(7, "hours")
             .format(formatDate);
@@ -69,8 +69,14 @@ module.exports.ChartSales = (req, res) => {
           .monthsShort()
           .map((item) => moment().month(item).format("MMMM"));
 
-        const data = sales.map((item) => {
-          let product = _.groupBy(item, "month");
+        const dataProduct = await Product.findAll({
+          attributes: ["id", "name"],
+        });
+
+        const data = dataProduct.map((item) => {
+          let product = sales.filter((product) => product.productId == item.id);
+          product = _.groupBy(product, "month");
+
           const dataProduct = labels.map((lb) => {
             const key = moment(lb, "MMMM").format("YYYYMM");
             const label = product[key];
@@ -79,10 +85,12 @@ module.exports.ChartSales = (req, res) => {
           });
 
           return {
-            name: product.name,
+            name: item.name,
             dataProduct,
           };
         });
+
+        console.log("data : ", data);
 
         const color = [
           "primary",
@@ -311,7 +319,6 @@ module.exports.Income = async (req, res) => {
               return prev + parseInt(curr.amount);
             }, 0)
           : 0;
-        console.log("mut :", amount);
         return res.json({
           status: "success",
           amount,
@@ -387,7 +394,6 @@ module.exports.Outcome = async (req, res) => {
               return prev + parseInt(curr.amount);
             }, 0)
           : 0;
-        console.log("mut :", amount);
         return res.json({
           status: "success",
           amount,
@@ -582,14 +588,14 @@ module.exports.MonthlySpendingWd = async (req, res) => {
       statusId: 5,
     };
     Widhraw.findAll({
-      attributes: ["amount"],
+      attributes: ["paidAmount"],
       where,
       raw: true,
     })
       .then((wd) => {
         const amount = wd.length
           ? wd.reduce((prev, curr) => {
-              return prev + parseInt(curr.amount);
+              return prev + parseInt(curr.paidAmount);
             }, 0)
           : 0;
 
@@ -752,7 +758,7 @@ module.exports.MonthlyBonus = async (req, res) => {
     const startDate = moment().startOf("months").toDate();
     const endDate = moment().endOf("months").toDate();
     const where = {
-      id: user.id,
+      userId: user.id,
       createdAt: {
         [Op.gte]: startDate,
         [Op.lte]: endDate,
@@ -793,7 +799,7 @@ module.exports.SuccessWidhraw = async (req, res) => {
   try {
     const user = req.user;
     Widhraw.findAll({
-      attributes: ["amount"],
+      attributes: ["paidAmount"],
       where: {
         userId: user.id,
         statusId: 5,
@@ -803,7 +809,7 @@ module.exports.SuccessWidhraw = async (req, res) => {
       .then((wd) => {
         const amount = wd.length
           ? wd.reduce((prev, curr) => {
-              return prev + parseInt(curr.amount);
+              return prev + parseInt(curr.paidAmount);
             }, 0)
           : 0;
 

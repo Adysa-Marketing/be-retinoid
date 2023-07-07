@@ -121,6 +121,7 @@ module.exports = async (req, res) => {
       attributes: [
         "id",
         "amount",
+        "paidAmount",
         "noRekening",
         "bankName",
         "accountName",

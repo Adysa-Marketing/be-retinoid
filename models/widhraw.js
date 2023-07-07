@@ -8,6 +8,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.BIGINT,
         allowNull: false,
       },
+      paidAmount: {
+        type: DataTypes.BIGINT,
+        allowNull: false,
+      },
       noRekening: {
         type: DataTypes.STRING,
         allowNull: false,

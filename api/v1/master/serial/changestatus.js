@@ -11,7 +11,7 @@ module.exports = async (req, res) => {
       status: {
         type: "number",
         optional: true,
-        enum: [1, 2, 3],
+        enum: [1, 2],
       },
     };
 

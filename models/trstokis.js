@@ -59,6 +59,10 @@ module.exports = (sequelize, DataTypes) => {
         field: "statusId",
       },
     });
+
+    TrStokis.hasOne(models.Mutation, {
+      foreignKey: "trStokisId",
+    });
   };
 
   return TrStokis;

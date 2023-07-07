@@ -1,5 +1,6 @@
-const { TrStokis } = require("../../../../models");
+const { TrStokis, Stokis, Mutation, User } = require("../../../../models");
 const logger = require("../../../../libs/logger");
+const db = require("../../../../models");
 
 const Validator = require("fastest-validator");
 const v = new Validator();
@@ -7,6 +8,7 @@ const v = new Validator();
 module.exports = async (req, res) => {
   const source = req.body;
   const user = req.user;
+  const transaction = await db.sequelize.transaction({ autocommit: false });
 
   try {
     const schema = {
@@ -35,7 +37,7 @@ module.exports = async (req, res) => {
     const queryMember = [4].includes(user.roleId) ? { userId: user.id } : {};
 
     const trStokis = await TrStokis.findOne({
-      attributes: ["id", "userId", "stokisId", "statusId"],
+      attributes: ["id", "userId", "stokisId", "statusId", "amount"],
       where: {
         id,
         ...queryMember,
@@ -62,14 +64,49 @@ module.exports = async (req, res) => {
      * jika trStokis.statusId == Canceled / Rejected
      */
     if ([2, 3, 4].includes(trStokis.statusId)) {
-      RemoveImg(files, false);
       return res.status(404).json({
         status: "error",
-        message: "Mohon maaf, status widhraw sudah tidak dapat dirubah",
+        message: "Mohon maaf, status transaksi sudah tidak dapat dirubah",
       });
     }
 
-    await trStokis.update(payload);
+    if ([4].includes(source.statusId)) {
+      const stokis = await Stokis.findOne({
+        attributes: ["id", "name", "price"],
+        where: { id: trStokis.stokisId },
+      });
+
+      if (!stokis)
+        return res.status(404).json({
+          status: "error",
+          message: "Data Stokis tidak ditemukan",
+        });
+
+      const user = await User.findOne({
+        attributes: ["id", "name"],
+        where: { id: trStokis.userId },
+      });
+
+      const mutation = await Mutation.create(
+        {
+          type: "Dana Masuk",
+          category: "Stokis",
+          amount: trStokis.amount,
+          description: `Pendaftaran ${stokis.name} oleh member ${
+            user.name
+          } dengan total Rp.${new Intl.NumberFormat("id-ID").format(
+            trStokis.amount
+          )}`,
+          userId: trStokis.userId,
+          trStokisId: trStokis.id,
+          remark: "",
+        },
+        { transaction }
+      );
+    }
+
+    await trStokis.update(payload, { transaction });
+    transaction.commit();
     logger.info({ source, payload });
     return res.json({
       status: "success",
@@ -77,6 +114,7 @@ module.exports = async (req, res) => {
     });
   } catch (error) {
     console.log("[!] Error : ", error);
+    transaction.rollback();
     return res.status(500).json({
       status: "error",
       message: error.message,

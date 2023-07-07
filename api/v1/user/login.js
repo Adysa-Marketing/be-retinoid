@@ -24,7 +24,6 @@ module.exports = async (req, res) => {
       });
 
     const { username, password } = source;
-    console.log("payload : ", req.body);
     const attributes = {
       exclude: ["createdAt", "updatedAt"],
     };
@@ -70,7 +69,7 @@ module.exports = async (req, res) => {
           },
         });
         dataAgen = JSON.parse(JSON.stringify(dataAgen));
-        user.profit = dataAgen.Stoki.agenDiscount;
+        user.profit = dataAgen?.Stoki?.agenDiscount;
       }
       delete user.password;
 

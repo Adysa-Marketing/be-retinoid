@@ -47,6 +47,7 @@ module.exports = async (req, res) => {
     const payload = {
       userId: user.id,
       amount: parseInt(source.amount),
+      paidAmount: parseInt(source.amount) - 10000,
       statusId: 1,
       noRekening: source.noRekening,
       bankName: source.bankName,

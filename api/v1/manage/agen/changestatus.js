@@ -12,7 +12,11 @@ module.exports = async (req, res) => {
   try {
     const schema = {
       id: "number|empty:false",
-      statusId: "number|empty:false",
+      statusId: {
+        type: "number",
+        empty: false,
+        enum: [1, 2, 3, 4],
+      },
     };
 
     const validate = v.compile(schema)(source);
@@ -52,7 +56,6 @@ module.exports = async (req, res) => {
      */
     if ([2, 4].includes(source.statusId)) {
       const isActive = source.statusId == 2 ? false : true;
-      console.log("isActive : ", agen);
       await User.update(
         { roleId: 3, isActive },
         { where: { id: agen.userId }, transaction }

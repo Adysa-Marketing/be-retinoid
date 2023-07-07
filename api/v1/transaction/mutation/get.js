@@ -23,6 +23,7 @@ module.exports = async (req, res) => {
         "id",
         "amount",
         "type",
+        "category",
         "description",
         "remark",
         "createdAt",

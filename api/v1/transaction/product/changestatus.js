@@ -99,13 +99,19 @@ module.exports = async (req, res) => {
       });
 
       if (!product)
-        return res.status(400).json({
+        return res.status(404).json({
           status: "error",
           message: "Mohon maaf, Data Produk tidak ditemukan",
         });
 
+      if (product.stock < trSalse.qty)
+        return res.status(400).json({
+          status: "error",
+          message: `Transaksi gagal, Mohon maaf jumlah pembelian melebihi stok yang tersedia. Stok tersedia saat ini adalah ${produk.stock} Produk`,
+        });
+
       await product.update(
-        { qty: sequelize.literal(`qty - ${trSalse.qty}`) },
+        { stock: sequelize.literal(`stock - ${trSalse.qty}`) },
         { transaction }
       );
       await trSalse.update(payload, { transaction });
@@ -118,6 +124,7 @@ module.exports = async (req, res) => {
       await Mutation.create(
         {
           type: "Dana Masuk",
+          category: "Product",
           amount: trSalse.paidAmount,
           description: `Transaksi Produk ${product.name} dari ${
             user.name

@@ -27,7 +27,7 @@ const Directory = (req, res, next) => {
 const RemoveFile = (files, status) => {
   return new Promise(async (resolve, reject) => {
     const tempDir = `${config.tempDir}/package/`;
-    // console.log("files :", files);
+    
     const image = status
       ? files.image
       : files && files.image?.length > 0

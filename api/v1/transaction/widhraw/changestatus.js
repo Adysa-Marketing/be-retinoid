@@ -56,7 +56,7 @@ module.exports = async (req, res) => {
     logger.info({ source, payload });
 
     const widhraw = await Widhraw.findOne({
-      attributes: ["id", "userId", "amount", "statusId", "image"],
+      attributes: ["id", "userId", "amount", "paidAmount", "statusId", "image"],
       where: { id, ...queryMember },
     });
 
@@ -128,11 +128,12 @@ module.exports = async (req, res) => {
       await Mutation.create(
         {
           type: "Dana Keluar",
-          amount: widhraw.amount,
+          category: "Widhraw",
+          amount: widhraw.paidAmount,
           description: `Pembayaran widhraw kepada ${
             userData.name
           } senilai Rp.${new Intl.NumberFormat("id-ID").format(
-            widhraw.amount
+            widhraw.paidAmount
           )}`,
           userId: userData.id,
           widhrawId: widhraw.id,

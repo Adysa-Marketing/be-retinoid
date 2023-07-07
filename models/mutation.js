@@ -8,6 +8,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      category: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
       amount: {
         type: DataTypes.BIGINT,
         allowNull: false,
@@ -34,6 +38,11 @@ module.exports = (sequelize, DataTypes) => {
     Mutation.belongsTo(models.Widhraw, {
       foreignKey: {
         field: "widhrawId",
+      },
+    });
+    Mutation.belongsTo(models.TrStokis, {
+      foreignKey: {
+        field: "trStokisId",
       },
     });
   };

@@ -13,6 +13,7 @@ module.exports = async (req, res) => {
     const source = req.body;
     const schema = {
       type: "string|optional",
+      category: "string|optional",
       rowsPerPage: "number|empty:false",
       currentPage: "number|empty:false",
     };
@@ -42,10 +43,12 @@ module.exports = async (req, res) => {
         : {};
 
     const queryType = source.type ? { type: source.type } : {};
+    const queryCategory = source.category ? { category: source.category } : {};
 
     const where = {
       ...dateRange,
       ...queryType,
+      ...queryCategory,
     };
 
     logger.info(source);
@@ -70,7 +73,7 @@ module.exports = async (req, res) => {
 
     await Mutation.findAll({
       ...offsetLimit,
-      attributes: ["id", "type", "amount", "remark", "createdAt"],
+      attributes: ["id", "type", "category", "amount", "remark", "createdAt"],
       where,
     })
       .then((result) => {
