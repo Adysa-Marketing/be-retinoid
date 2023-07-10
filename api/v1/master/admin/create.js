@@ -25,6 +25,7 @@ module.exports = async (req, res) => {
         empty: false,
       },
       password: "string|empty:false|min:5",
+      repeatPassword: "string|empty:false|min:5",
       email: "string|empty:false",
       phone: "string|empty:false|min:9|max:13",
       gender: {
@@ -52,7 +53,12 @@ module.exports = async (req, res) => {
         message: validate,
       });
     }
-
+    if (source.password !== source.repeatPassword) {
+      return res.status(400).json({
+        status: "error",
+        message: "Comfirm password salah",
+      });
+    }
     const password = bcrypt.hashSync(source.password, bcrypt.genSaltSync(2));
     const sponsorKey = cryptoString({ length: 10, type: "base64" });
     const { countryId, provinceId, districtId, subDistrictId } = source;

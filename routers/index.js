@@ -28,6 +28,10 @@ app.use(
       "/api/v1/dropdown/wd-status",
       "/api/v1/dropdown/commission-level",
       "/api/v1/dropdown/agen-status",
+      "/api/v1/dropdown/country",
+      "/api/v1/dropdown/province",
+      "/api/v1/dropdown/district",
+      "/api/v1/dropdown/sub-district",
     ],
   })
 );
