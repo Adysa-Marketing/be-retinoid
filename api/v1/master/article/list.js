@@ -11,7 +11,12 @@ module.exports = async (req, res) => {
 
     const schema = {
       keyword: "string|optional",
-      rowsPerPage: "number|empty:false",
+      statusId: "number|optional",
+      type: "string|optional",
+      rowsPerPage: [
+        { type: "string", empty: "false" },
+        { type: "number", empty: "false" },
+      ],
       currentPage: "number|empty:false",
     };
 
@@ -50,9 +55,16 @@ module.exports = async (req, res) => {
         }
       : {};
 
+    const queryType = source.type !== "All" ? { isActive: true } : {};
+    const queryStatus = source.statusId
+      ? source.statusId == 1
+        ? { isActive: true }
+        : { isActive: false }
+      : {};
     const where = {
       ...keyword,
-      isActive: true,
+      ...queryType,
+      ...queryStatus,
     };
 
     logger.info({ source, where });
@@ -75,9 +87,18 @@ module.exports = async (req, res) => {
 
     const data = await Article.findAll({
       ...offsetLimit,
-      attributes: ["id", "title", "image", "author", "view"],
+      attributes: [
+        "id",
+        "title",
+        "slug",
+        "image",
+        "author",
+        "view",
+        "excerpt",
+        "isActive",
+      ],
       where,
-      order: [["id", "ASC"]],
+      order: [["id", "DESC"]],
     });
 
     return res.json({

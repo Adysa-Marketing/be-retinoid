@@ -32,6 +32,7 @@ app.use(
       "/api/v1/dropdown/province",
       "/api/v1/dropdown/district",
       "/api/v1/dropdown/sub-district",
+      "/api/v1/master/article/list",
     ],
   })
 );

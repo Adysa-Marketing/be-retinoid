@@ -16,7 +16,10 @@ module.exports = async (req, res) => {
     const schema = {
       keyword: "string|optional",
       statusId: "number|optional",
-      rowsPerPage: "number|empty:false",
+      rowsPerPage: [
+        { type: "string", empty: "false" },
+        { type: "number", empty: "false" },
+      ],
       currentPage: "number|empty:false",
     };
 

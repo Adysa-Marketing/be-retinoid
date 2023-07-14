@@ -10,7 +10,10 @@ module.exports = async (req, res) => {
     const source = req.body;
     const schema = {
       keyword: "string|optional",
-      rowsPerPage: "number|empty:false",
+      rowsPerPage: [
+        { type: "string", empty: "false" },
+        { type: "number", empty: "false" },
+      ],
       currentPage: "number|empty:false",
     };
 
@@ -49,7 +52,7 @@ module.exports = async (req, res) => {
         }
       : {};
 
-    logger.info(source);
+    logger.info({ source });
 
     const rowsPerPage = source.rowsPerPage;
     const currentPage = source.currentPage;
@@ -69,7 +72,14 @@ module.exports = async (req, res) => {
 
     const data = await Stokis.findAll({
       ...offsetLimit,
-      attributes: ["id", "name", "price", "discount", "description"],
+      attributes: [
+        "id",
+        "name",
+        "price",
+        "discount",
+        "agenDiscount",
+        "description",
+      ],
       where: { ...keyword },
     });
 

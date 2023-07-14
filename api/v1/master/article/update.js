@@ -12,6 +12,7 @@ module.exports = async (req, res) => {
     const schema = {
       id: "string|empty:false",
       title: "string|optional",
+      excerpt: "string|optional",
       isActive: "string|optional",
       description: "string|optional",
       remark: "string|optional",
@@ -51,6 +52,7 @@ module.exports = async (req, res) => {
     const payload = {
       title: source.title,
       slug,
+      excerpt: source.excerpt,
       ...isActive,
       description: source.description,
       ...image,

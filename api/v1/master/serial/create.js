@@ -36,7 +36,7 @@ module.exports = async (req, res) => {
     await Serial.bulkCreate(payloadData);
     return res.status(201).json({
       status: "success",
-      data: `${source.amount} Data Serial berhasil dibuat`,
+      message: `${source.amount} Data Serial berhasil dibuat`,
     });
   } catch (error) {
     console.log("[!]Error : ", error);

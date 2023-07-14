@@ -25,7 +25,10 @@ module.exports = async (req, res) => {
       statusId: "number|optional",
       bankId: "number|optional",
       paymentTypeId: "number|optional",
-      rowsPerPage: "number|empty:false",
+      rowsPerPage: [
+        { type: "string", empty: "false" },
+        { type: "number", empty: "false" },
+      ],
       currentPage: "number|empty:false",
     };
 

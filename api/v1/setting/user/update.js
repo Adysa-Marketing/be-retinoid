@@ -81,7 +81,7 @@ module.exports = async (req, res) => {
     console.log("[!] Error : ", err);
     await RemoveFile(files, false);
     if (err.errors && err.errors.length > 0 && err.errors[0].path) {
-      logger.err(err.errors);
+      logger.error(err.errors);
       if (err.errors[0].path == "email") {
         return res.status(400).json({
           status: "error",

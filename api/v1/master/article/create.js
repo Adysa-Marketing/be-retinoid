@@ -13,6 +13,7 @@ module.exports = async (req, res) => {
     const schema = {
       title: "string|empty:false",
       isActive: "string|empty:false",
+      excerpt: "string|empty:false",
       description: "string|empty:false",
       remark: "string|optional",
     };
@@ -45,8 +46,9 @@ module.exports = async (req, res) => {
     const payload = {
       title: source.title,
       slug,
+      excerpt: source.excerpt,
       author: user.name,
-      isActive: source.isActive == "true" ? true : false,
+      isActive: source.isActive == 1 ? true : false,
       description: source.description,
       ...image,
       remark: source.remark,

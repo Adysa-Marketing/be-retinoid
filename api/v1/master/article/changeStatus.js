@@ -8,7 +8,7 @@ module.exports = async (req, res) => {
   try {
     const schema = {
       id: "number|empty:false",
-      isActive: "boolean|empty:false",
+      statusId: "number|empty:false",
     };
 
     const validate = v.compile(schema)(source);
@@ -19,7 +19,7 @@ module.exports = async (req, res) => {
       });
 
     const id = source.id;
-    const isActive = source.isActive;
+    const isActive = source.statusId == 1 ? true : false;
 
     logger.info(source);
     const serial = await Article.findByPk(id);

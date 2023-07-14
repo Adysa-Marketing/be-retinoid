@@ -3,7 +3,7 @@ const config = require("../../config/redis")[env];
 const crypto = require("crypto-js");
 
 const { redisClient } = require("./redisClient");
-const expirationTime = 30;
+const expirationTime = 120;
 
 module.exports = async (user, sessionBy) => {
   const strings = JSON.stringify(user);

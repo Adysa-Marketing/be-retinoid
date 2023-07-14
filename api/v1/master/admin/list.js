@@ -17,7 +17,10 @@ module.exports = async (req, res) => {
         optional: true,
       },
       keyword: "string|optional",
-      rowsPerPage: "number|empty:false",
+      rowsPerPage: [
+        { type: "string", empty: "false" },
+        { type: "number", empty: "false" },
+      ],
       currentPage: "number|empty:false",
     };
 
@@ -96,6 +99,7 @@ module.exports = async (req, res) => {
         "isActive",
       ],
       where,
+      order: [["id", "DESC"]],
     });
 
     return res.json({

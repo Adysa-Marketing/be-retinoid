@@ -24,7 +24,10 @@ module.exports = async (req, res) => {
       categoryId: "number|optional",
       paymentTypeId: "number|optional",
       productId: "number|optional",
-      rowsPerPage: "number|empty:false",
+      rowsPerPage: [
+        { type: "string", empty: "false" },
+        { type: "number", empty: "false" },
+      ],
       currentPage: "number|empty:false",
     };
 

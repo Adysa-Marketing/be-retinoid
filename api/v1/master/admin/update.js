@@ -2,6 +2,7 @@ const { User } = require("../../../../models");
 const { RemoveFile } = require("./asset");
 const logger = require("../../../../libs/logger");
 
+const bcrypt = require("bcryptjs");
 const Validator = require("fastest-validator");
 const v = new Validator();
 
@@ -23,7 +24,6 @@ module.exports = async (req, res) => {
       },
       kk: "string|optional",
       address: "string|optional",
-      noRekening: "string|optional",
       countryId: "string|optional",
       districtId: "string|optional",
       subDistrictId: "string|optional",
@@ -64,12 +64,13 @@ module.exports = async (req, res) => {
       phone: source.phone,
       kk: source.kk,
       address: source.address,
-      noRekening: source.noRekening,
+      gender: source.gender,
       countryId: countryId ? countryId : 1,
       provinceId: provinceId ? provinceId : null,
       districtId: districtId ? districtId : null,
       subDistrictId: subDistrictId ? subDistrictId : null,
       ...image,
+      remark: source.remark,
     };
 
     logger.info({ source, files, payload });

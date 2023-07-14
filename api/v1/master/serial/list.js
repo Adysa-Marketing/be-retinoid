@@ -12,8 +12,10 @@ module.exports = async (req, res) => {
     const schema = {
       keyword: "string|optional",
       statusId: "number|optional",
-      remark: "string|optional",
-      rowsPerPage: "number|empty:false",
+      rowsPerPage: [
+        { type: "string", empty: "false" },
+        { type: "number", empty: "false" },
+      ],
       currentPage: "number|empty:false",
     };
 
@@ -37,6 +39,15 @@ module.exports = async (req, res) => {
               [Op.and]: [
                 Sequelize.where(
                   Sequelize.fn("lower", Sequelize.col("Serial.serialNumber")),
+                  Op.like,
+                  "%" + source.keyword.toString().toLowerCase() + "%"
+                ),
+              ],
+            },
+            {
+              [Op.and]: [
+                Sequelize.where(
+                  Sequelize.fn("lower", Sequelize.col("Serial.remark")),
                   Op.like,
                   "%" + source.keyword.toString().toLowerCase() + "%"
                 ),
@@ -70,12 +81,10 @@ module.exports = async (req, res) => {
         : {};
 
     const queryStatus = source.statusId ? { status: source.statusId } : {};
-    const queryRemark = source.remark ? { remark: source.remark } : {};
 
     const where = {
       ...keyword,
       ...queryStatus,
-      ...queryRemark,
       ...dateRange,
     };
 
@@ -97,19 +106,37 @@ module.exports = async (req, res) => {
     const limit = rowsPerPage !== "All" ? rowsPerPage : totalData;
     const offsetLimit = rowsPerPage !== "All" ? { offset, limit } : {};
 
-    const data = await Serial.findAll({
+    Serial.findAll({
       ...offsetLimit,
-      attributes: ["id", "serialNumber", "status", "remark"],
+      attributes: ["id", "serialNumber", "status", "remark", "createdAt"],
       where,
       order: [["id", "DESC"]],
-    });
+    })
+      .then((response) => {
+        response = JSON.parse(JSON.stringify(response));
 
-    return res.json({
-      status: "success",
-      data,
-      totalData,
-      totalPages,
-    });
+        const data = response.map((serial) => {
+          serial.date = moment(serial.createdAt)
+            .utc()
+            .add(7, "hours")
+            .format("YYYY-MM-DD HH:mm:ss");
+
+          return serial;
+        });
+        return res.json({
+          status: "success",
+          data,
+          totalData,
+          totalPages,
+        });
+      })
+      .catch((error) => {
+        console.log("[!] Error : ", error);
+        return res.status(500).json({
+          status: "error",
+          message: error.message,
+        });
+      });
   } catch (error) {
     console.log("[!] Error : ", error);
     return res.status(500).json({

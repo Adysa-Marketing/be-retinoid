@@ -11,7 +11,10 @@ module.exports = async (req, res) => {
     const user = req.user;
     const schema = {
       keyword: "string|optional",
-      rowsPerPage: "number|empty:false",
+      rowsPerPage: [
+        { type: "string", empty: "false" },
+        { type: "number", empty: "false" },
+      ],
       currentPage: "number|empty:false",
     };
 
@@ -36,7 +39,7 @@ module.exports = async (req, res) => {
                 Sequelize.where(
                   Sequelize.fn("lower", Sequelize.col("Reward.name")),
                   Op.like,
-                  "%" + source.keycode.toString().toLowerCase() + "%"
+                  "%" + source.keyword.toString().toLowerCase() + "%"
                 ),
               ],
             },
@@ -70,7 +73,15 @@ module.exports = async (req, res) => {
 
     Reward.findAll({
       ...offsetLimit,
-      attributes: ["id", "name", "description", "point", "image", "minFoot"],
+      attributes: [
+        "id",
+        "name",
+        "amount",
+        "description",
+        "point",
+        "image",
+        "minFoot",
+      ],
       where: { ...keyword },
       order: [["id", "ASC"]],
     })

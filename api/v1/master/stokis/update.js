@@ -32,7 +32,7 @@ module.exports = async (req, res) => {
     };
 
     logger.info({ source, payload });
-
+    const id = source.id;
     const stokis = await Stokis.findOne({ where: { id } });
     if (!stokis) {
       return res.status(404).json({
@@ -45,7 +45,7 @@ module.exports = async (req, res) => {
 
     return res.status(201).json({
       status: "success",
-      data: "Data Stokis berhasil diperbarui",
+      message: "Data Stokis berhasil diperbarui",
     });
   } catch (error) {
     console.log("[!]Error : ", error);

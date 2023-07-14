@@ -1,4 +1,13 @@
-const { User, SponsorKey, Referral } = require("../../../../models");
+const {
+  User,
+  SponsorKey,
+  Referral,
+  Country,
+  Province,
+  District,
+  SubDistrict,
+  Role,
+} = require("../../../../models");
 const logger = require("../../../../libs/logger");
 const Validator = require("fastest-validator");
 const v = new Validator();
@@ -30,18 +39,63 @@ module.exports = async (req, res) => {
         "image",
         "kk",
         "wallet",
+        "address",
+        "countryId",
+        "provinceId",
+        "districtId",
+        "subDistrictId",
+        "remark",
       ],
       include: [
-        { model: SponsorKey },
         {
+          attributes: ["id", "key"],
+          model: SponsorKey,
+          include: {
+            attributes: ["id", "date"],
+            model: Referral,
+            limit: 10,
+            order: [["id", "DESC"]],
+            include: {
+              attributes: ["id", "name", "image", "point"],
+              model: User,
+              include: {
+                attributes: ["name"],
+                model: District,
+              },
+            },
+          },
+        },
+        {
+          attributes: ["id", "date"],
           model: Referral,
           include: {
+            attributes: ["id", "key"],
             model: SponsorKey,
             include: {
-              attributes: ["id", "name"],
+              attributes: ["id", "name", "image"],
               model: User,
             },
           },
+        },
+        {
+          attributes: ["id", "name"],
+          model: Country,
+        },
+        {
+          attributes: ["id", "name"],
+          model: Province,
+        },
+        {
+          attributes: ["id", "name"],
+          model: District,
+        },
+        {
+          attributes: ["id", "name"],
+          model: SubDistrict,
+        },
+        {
+          attributes: ["id", "name"],
+          model: Role,
         },
       ],
       where: { id, roleId: 2 },

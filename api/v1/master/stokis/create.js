@@ -36,7 +36,7 @@ module.exports = async (req, res) => {
 
     return res.status(201).json({
       status: "success",
-      data: "Data Stokis berhasil dibuat",
+      message: "Data Stokis berhasil dibuat",
     });
   } catch (error) {
     console.log("[!]Error : ", error);

@@ -151,7 +151,6 @@ module.exports.Province = async (req, res) => {
     const queryCountry = req.query.countryId
       ? { countryId: req.query.countryId }
       : {};
-    console.log("query : ", queryCountry)
     const province = await Province.findAll({
       attributes: ["id", "key", "name"],
       where: {

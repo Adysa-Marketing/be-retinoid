@@ -21,6 +21,7 @@ module.exports = async (req, res) => {
       attributes: [
         "id",
         "title",
+        "excerpt",
         "image",
         "slug",
         "author",

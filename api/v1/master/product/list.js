@@ -18,7 +18,10 @@ module.exports = async (req, res) => {
     const schema = {
       keyword: "string|optional",
       categoryId: "number|optional",
-      rowsPerPage: "number|empty:false",
+      rowsPerPage: [
+        { type: "string", empty: "false" },
+        { type: "number", empty: "false" },
+      ],
       currentPage: "number|empty:false",
     };
 
@@ -94,6 +97,7 @@ module.exports = async (req, res) => {
       attributes: ["id", "name", "amount", "description", "image", "stock"],
       where,
       include: {
+        attributes: ["id", "name"],
         model: ProductCategory,
       },
       order: [["id", "DESC"]],

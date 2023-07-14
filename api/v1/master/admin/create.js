@@ -33,13 +33,12 @@ module.exports = async (req, res) => {
         enum: ["Male", "Female"],
         optional: true,
       },
-      kk: "string|optional",
-      address: "string|optional",
-      noRekening: "string|optional",
-      countryId: "string|optional",
-      districtId: "string|optional",
-      subDistrictId: "string|optional",
-      remark: "string|optional",
+      kk: "string|empty:false",
+      address: "string|empty:false",
+      countryId: "string|empty:false",
+      districtId: "string|empty:false",
+      subDistrictId: "string|empty:false",
+      remark: "string|empty:false",
     };
 
     const validate = v.compile(schema)(source);
@@ -75,13 +74,13 @@ module.exports = async (req, res) => {
       phone: source.phone,
       kk: source.kk,
       address: source.address,
-      noRekening: source.noRekening,
       roleId: 2,
       countryId: countryId ? countryId : 1,
       provinceId: provinceId ? provinceId : null,
       districtId: districtId ? districtId : null,
       subDistrictId: subDistrictId ? subDistrictId : null,
       ...image,
+      remark: source.remark,
     };
 
     logger.info({ source, payload });
@@ -104,7 +103,7 @@ module.exports = async (req, res) => {
     await RemoveFile(files, false);
     transaction.rollback();
     if (err.errors && err.errors.length > 0 && err.errors[0].path) {
-      logger.err(err.errors);
+      logger.error(err.errors);
       if (err.errors[0].path == "username") {
         return res.status(400).json({
           status: "error",

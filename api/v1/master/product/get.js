@@ -24,7 +24,15 @@ module.exports = async (req, res) => {
 
     const id = req.params.id;
     let product = await Product.findOne({
-      attributes: ["id", "name", "amount", "description", "stock", "remark"],
+      attributes: [
+        "id",
+        "name",
+        "amount",
+        "image",
+        "description",
+        "stock",
+        "remark",
+      ],
       where: { id },
       include: {
         attributes: ["id", "name", "remark"],
