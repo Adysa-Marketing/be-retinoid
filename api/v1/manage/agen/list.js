@@ -64,7 +64,7 @@ module.exports = async (req, res) => {
         model: AgenStatus,
       },
       {
-        attributes: ["id", "name"],
+        attributes: ["id", "name", "agenDiscount"],
         model: Stokis,
       },
     ];

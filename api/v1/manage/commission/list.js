@@ -41,7 +41,7 @@ module.exports = async (req, res) => {
      * */
 
     const queryMember =
-      user && [4].includes(user.roleId)
+      user && [3, 4].includes(user.roleId)
         ? { id: user.id }
         : user && [1, 2].includes(user.roleId) && source.userId
         ? { id: source.userId }
@@ -107,6 +107,7 @@ module.exports = async (req, res) => {
       attributes: ["id", "amount", "date", "remark"],
       where,
       include: [...includeParent],
+      order: [["id", "DESC"]],
     })
       .then((result) => {
         result = JSON.parse(JSON.stringify(result));

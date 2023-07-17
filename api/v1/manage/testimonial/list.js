@@ -87,6 +87,7 @@ module.exports = async (req, res) => {
       ...offsetLimit,
       attributes: ["id", "rating", "testimonial"],
       include: [...includeParent],
+      order: [["id", "DESC"]],
     });
 
     return res.json({

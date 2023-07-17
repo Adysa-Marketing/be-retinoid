@@ -33,7 +33,7 @@ module.exports = async (req, res) => {
       });
 
     await user.update({ isActive: status });
-    return res.status(404).json({
+    return res.json({
       status: "success",
       message: "Status User berhasil diperbarui",
     });

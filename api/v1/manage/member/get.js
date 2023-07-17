@@ -3,6 +3,11 @@ const {
   Testimonial,
   SponsorKey,
   Referral,
+  Country,
+  Province,
+  District,
+  SubDistrict,
+  Role,
 } = require("../../../../models");
 const logger = require("../../../../libs/logger");
 const moment = require("moment");
@@ -36,13 +41,36 @@ module.exports = async (req, res) => {
         "image",
         "kk",
         "wallet",
+        "address",
+        "countryId",
+        "provinceId",
+        "districtId",
+        "subDistrictId",
+        "remark",
       ],
       include: [
         {
           attributes: ["id", "rating", "testimonial", "remark"],
           model: Testimonial,
         },
-        { attributes: ["id", "key"], model: SponsorKey },
+        {
+          attributes: ["id", "key"],
+          model: SponsorKey,
+          include: {
+            attributes: ["id", "date"],
+            model: Referral,
+            limit: 10,
+            order: [["id", "DESC"]],
+            include: {
+              attributes: ["id", "name", "image", "point"],
+              model: User,
+              include: {
+                attributes: ["name"],
+                model: District,
+              },
+            },
+          },
+        },
         {
           attributes: ["id", "date"],
           model: Referral,
@@ -50,10 +78,30 @@ module.exports = async (req, res) => {
             attributes: ["id", "key"],
             model: SponsorKey,
             include: {
-              attributes: ["id", "name"],
+              attributes: ["id", "name", "image"],
               model: User,
             },
           },
+        },
+        {
+          attributes: ["id", "name"],
+          model: Country,
+        },
+        {
+          attributes: ["id", "name"],
+          model: Province,
+        },
+        {
+          attributes: ["id", "name"],
+          model: District,
+        },
+        {
+          attributes: ["id", "name"],
+          model: SubDistrict,
+        },
+        {
+          attributes: ["id", "name"],
+          model: Role,
         },
       ],
       where: { id, roleId: 4 },
@@ -64,13 +112,6 @@ module.exports = async (req, res) => {
       return res
         .status(404)
         .json({ status: "error", message: "Data User tidak ditemukan" });
-
-    user = JSON.parse(JSON.stringify(user));
-
-    user.Referral.date = moment(user.Referral.date)
-      .utc()
-      .add(7, "hours")
-      .format("YYYY-MM-DD HH:mm:ss");
 
     return res.json({
       status: "success",

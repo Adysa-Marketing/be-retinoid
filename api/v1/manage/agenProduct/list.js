@@ -67,7 +67,7 @@ module.exports = async (req, res) => {
         },
       ],
     });
-    const totalData = data.Products.length;
+    const totalData = data && data.Products ? data.Products.length : 0;
 
     const totalPages =
       rowsPerPage !== "All"
@@ -100,7 +100,7 @@ module.exports = async (req, res) => {
       ],
     }).then((user) => {
       user = JSON.parse(JSON.stringify(user));
-      user = user.Products;
+      user = user && user.Products ? user.Products : [];
 
       const data = user.map((product) => {
         product.stock = product.AgenProduct.stock;

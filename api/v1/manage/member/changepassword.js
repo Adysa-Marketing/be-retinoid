@@ -34,7 +34,7 @@ module.exports = async (req, res) => {
       });
 
     await user.update({ password });
-    return res.status(404).json({
+    return res.json({
       status: "success",
       message: "Password User berhasil diperbarui",
     });
