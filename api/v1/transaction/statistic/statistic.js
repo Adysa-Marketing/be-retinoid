@@ -1,5 +1,6 @@
 const {
   Agen,
+  AgenProduct,
   ATrSale,
   Commission,
   Mutation,
@@ -90,8 +91,6 @@ module.exports.ChartSales = (req, res) => {
           };
         });
 
-        console.log("data : ", data);
-
         const color = [
           "primary",
           "secondary",
@@ -153,8 +152,8 @@ module.exports.Product = async (req, res) => {
   }
 };
 
-// total agen active
-module.exports.Agen = async (req, res) => {
+// total user (admin, agen, member)
+module.exports.User = async (req, res) => {
   try {
     const agen = await Agen.count({
       where: { statusId: 4 },
@@ -168,9 +167,19 @@ module.exports.Agen = async (req, res) => {
       },
     });
 
+    const admin = await User.count({
+      where: { roleId: 2 },
+    });
+
+    const member = await User.count({
+      where: { roleId: 4 },
+    });
+
     return res.json({
       status: "success",
-      amount: agen,
+      admin,
+      agen,
+      member,
     });
   } catch (error) {
     console.log("[!]Error : ", error);
@@ -181,11 +190,19 @@ module.exports.Agen = async (req, res) => {
   }
 };
 
-// total member active
-module.exports.Member = async (req, res) => {
+// total new member by month
+module.exports.NewMember = async (req, res) => {
   try {
-    const member = await User.count({ where: { roleId: 4, isActive: true } });
-
+    const startDate = moment().startOf("months").toDate();
+    const endDate = moment().endOf("months").toDate();
+    const where = {
+      roleId: { [Op.in]: [3, 4] },
+      createdAt: {
+        [Op.gte]: startDate,
+        [Op.lte]: endDate,
+      },
+    };
+    const member = await User.count({ where });
     return res.json({
       status: "success",
       amount: member,
@@ -198,6 +215,24 @@ module.exports.Member = async (req, res) => {
     });
   }
 };
+
+// // total member active
+// module.exports.Member = async (req, res) => {
+//   try {
+//     const member = await User.count({ where: { roleId: 4, isActive: true } });
+
+//     return res.json({
+//       status: "success",
+//       amount: member,
+//     });
+//   } catch (error) {
+//     console.log("[!]Error : ", error);
+//     return res.status(500).json({
+//       status: "error",
+//       message: error.message,
+//     });
+//   }
+// };
 
 // total package
 module.exports.Package = async (req, res) => {
@@ -246,12 +281,12 @@ module.exports.TrSale = async (req, res) => {
         [Op.lte]: endDate,
       },
       statusId: {
-        [Op.in]: [1, 3, 4, 5],
+        [Op.in]: [4, 5],
       },
       ...queryAgen,
     };
 
-    const trSale = await TrSale.count(where);
+    const trSale = await TrSale.count({ where });
     return res.json({
       status: "success",
       amount: trSale,
@@ -266,28 +301,30 @@ module.exports.TrSale = async (req, res) => {
 };
 
 // amount monthly income
-module.exports.MonthlyIncome = async (req, res) => {
+module.exports.MonthlyMutation = async (req, res) => {
   try {
     const startDate = moment().startOf("months").toDate();
     const endDate = moment().endOf("months").toDate();
     const where = {
-      type: "Dana Masuk",
       createdAt: {
         [Op.gte]: startDate,
         [Op.lte]: endDate,
       },
     };
 
-    Mutation.findAll({ attributes: ["amount"], where, raw: true })
+    Mutation.findAll({ attributes: ["amount", "type"], where })
       .then((mutation) => {
-        const amount = mutation.length
-          ? mutation.reduce((prev, curr) => {
-              return prev + parseInt(curr.amount);
-            }, 0)
-          : 0;
+        mutation = JSON.parse(JSON.stringify(mutation));
+        const income = mutation
+          .filter((item) => item.type == "Dana Masuk")
+          .reduce((prev, curr) => prev + parseInt(curr.amount), 0);
+        const outcome = mutation
+          .filter((item) => item.type == "Dana Keluar")
+          .reduce((prev, curr) => prev + parseInt(curr.amount), 0);
         return res.json({
           status: "success",
-          amount,
+          income,
+          outcome,
         });
       })
       .catch((error) => {
@@ -306,114 +343,118 @@ module.exports.MonthlyIncome = async (req, res) => {
   }
 };
 
-// amount income
-module.exports.Income = async (req, res) => {
-  try {
-    Mutation.findAll({
-      attributes: ["amount"],
-      where: { type: "Dana Masuk" },
-    })
-      .then((mutation) => {
-        const amount = mutation.length
-          ? mutation.reduce((prev, curr) => {
-              return prev + parseInt(curr.amount);
-            }, 0)
-          : 0;
-        return res.json({
-          status: "success",
-          amount,
-        });
-      })
-      .catch((error) => {
-        console.log("[!]Error : ", error);
-        return res.status(400).json({
-          status: "error",
-          message: error.message,
-        });
-      });
-  } catch (error) {
-    console.log("[!]Error : ", error);
-    return res.status(500).json({
-      status: "error",
-      message: error.message,
-    });
-  }
-};
+// // amount income
+// module.exports.Mutation = async (req, res) => {
+//   try {
+//     Mutation.findAll({
+//       attributes: ["amount", "type"],
+//       // where: { type: "Dana Masuk" },
+//     })
+//       .then((mutation) => {
+//         mutation = JSON.parse(JSON.stringify(mutation));
+//         console.log("mutation :", mutation);
+//         const income = mutation
+//           .filter((item) => item.type == "Dana Masuk")
+//           .reduce((prev, curr) => prev + parseInt(curr.amount), 0);
+//         const outcome = mutation
+//           .filter((item) => item.type == "Dana Keluar")
+//           .reduce((prev, curr) => prev + parseInt(curr.amount), 0);
+//         return res.json({
+//           status: "success",
+//           income,
+//           outcome,
+//         });
+//       })
+//       .catch((error) => {
+//         console.log("[!]Error : ", error);
+//         return res.status(400).json({
+//           status: "error",
+//           message: error.message,
+//         });
+//       });
+//   } catch (error) {
+//     console.log("[!]Error : ", error);
+//     return res.status(500).json({
+//       status: "error",
+//       message: error.message,
+//     });
+//   }
+// };
 
-// amount monthly outcome
-module.exports.MonthlyOutcome = async (req, res) => {
-  try {
-    const startDate = moment().startOf("months").toDate();
-    const endDate = moment().endOf("months").toDate();
-    const where = {
-      type: "Dana Keluar",
-      createdAt: {
-        [Op.gte]: startDate,
-        [Op.lte]: endDate,
-      },
-    };
+// // amount monthly outcome
+// module.exports.MonthlyOutcome = async (req, res) => {
+//   try {
+//     const startDate = moment().startOf("months").toDate();
+//     const endDate = moment().endOf("months").toDate();
+//     const where = {
+//       type: "Dana Keluar",
+//       createdAt: {
+//         [Op.gte]: startDate,
+//         [Op.lte]: endDate,
+//       },
+//     };
 
-    Mutation.findAll({ attributes: ["amount"], where, raw: true })
-      .then((mutation) => {
-        const amount = mutation.length
-          ? mutation.reduce((prev, curr) => {
-              return prev + parseInt(curr.amount);
-            }, 0)
-          : 0;
-        return res.json({
-          status: "success",
-          amount,
-        });
-      })
-      .catch((error) => {
-        console.log("[!]Error : ", error);
-        return res.status(400).json({
-          status: "error",
-          message: error.message,
-        });
-      });
-  } catch (error) {
-    console.log("[!]Error : ", error);
-    return res.status(500).json({
-      status: "error",
-      message: error.message,
-    });
-  }
-};
+//     Mutation.findAll({ attributes: ["amount"], where, raw: true })
+//       .then((mutation) => {
+//         const amount = mutation.length
+//           ? mutation.reduce((prev, curr) => {
+//               return prev + parseInt(curr.amount);
+//             }, 0)
+//           : 0;
+//         return res.json({
+//           status: "success",
+//           amount,
+//         });
+//       })
+//       .catch((error) => {
+//         console.log("[!]Error : ", error);
+//         return res.status(400).json({
+//           status: "error",
+//           message: error.message,
+//         });
+//       });
+//   } catch (error) {
+//     console.log("[!]Error : ", error);
+//     return res.status(500).json({
+//       status: "error",
+//       message: error.message,
+//     });
+//   }
+// };
 
-// amount income
-module.exports.Outcome = async (req, res) => {
-  try {
-    Mutation.findAll({
-      attributes: ["amount"],
-      where: { type: "Dana Keluar" },
-    })
-      .then((mutation) => {
-        const amount = mutation.length
-          ? mutation.reduce((prev, curr) => {
-              return prev + parseInt(curr.amount);
-            }, 0)
-          : 0;
-        return res.json({
-          status: "success",
-          amount,
-        });
-      })
-      .catch((error) => {
-        console.log("[!]Error : ", error);
-        return res.status(400).json({
-          status: "error",
-          message: error.message,
-        });
-      });
-  } catch (error) {
-    console.log("[!]Error : ", error);
-    return res.status(500).json({
-      status: "error",
-      message: error.message,
-    });
-  }
-};
+// // amount income
+// module.exports.Outcome = async (req, res) => {
+//   try {
+//     Mutation.findAll({
+//       attributes: ["amount"],
+//       where: { type: "Dana Keluar" },
+//     })
+//       .then((mutation) => {
+//         const amount = mutation.length
+//           ? mutation.reduce((prev, curr) => {
+//               return prev + parseInt(curr.amount);
+//             }, 0)
+//           : 0;
+//         return res.json({
+//           status: "success",
+//           amount,
+//         });
+//       })
+//       .catch((error) => {
+//         console.log("[!]Error : ", error);
+//         return res.status(400).json({
+//           status: "error",
+//           message: error.message,
+//         });
+//       });
+//   } catch (error) {
+//     console.log("[!]Error : ", error);
+//     return res.status(500).json({
+//       status: "error",
+//       message: error.message,
+//     });
+//   }
+// };
 
 // total monthly TrStokis
 module.exports.TrStokis = async (req, res) => {
@@ -427,7 +468,7 @@ module.exports.TrStokis = async (req, res) => {
       },
     };
 
-    const trStokis = await TrStokis.count(where);
+    const trStokis = await TrStokis.count({ where });
     return res.json({
       status: "success",
       amount: trStokis,
@@ -442,88 +483,88 @@ module.exports.TrStokis = async (req, res) => {
 };
 
 // amount monthly TrStokis
-module.exports.MonthlyIncomeTrStokis = async (req, res) => {
-  try {
-    const startDate = moment().startOf("months").toDate();
-    const endDate = moment().endOf("months").toDate();
-    const where = {
-      date: {
-        [Op.gte]: startDate,
-        [Op.lte]: endDate,
-      },
-      statusId: 4,
-    };
+// module.exports.MonthlyIncomeTrStokis = async (req, res) => {
+//   try {
+//     const startDate = moment().startOf("months").toDate();
+//     const endDate = moment().endOf("months").toDate();
+//     const where = {
+//       date: {
+//         [Op.gte]: startDate,
+//         [Op.lte]: endDate,
+//       },
+//       statusId: 4,
+//     };
 
-    TrStokis.findAll({
-      attributes: ["amount"],
-      where,
-      raw: true,
-    })
-      .then((trStokis) => {
-        const amount = trStokis.length
-          ? trStokis.reduce((prev, curr) => {
-              return prev + parseInt(curr.amount);
-            }, 0)
-          : 0;
-        return res.json({
-          status: "success",
-          amount,
-        });
-      })
-      .catch((error) => {
-        console.log("[!]Error : ", error);
-        return res.status(400).json({
-          status: "error",
-          message: error.message,
-        });
-      });
-  } catch (error) {
-    console.log("[!]Error : ", error);
-    return res.status(500).json({
-      status: "error",
-      message: error.message,
-    });
-  }
-};
+//     TrStokis.findAll({
+//       attributes: ["amount"],
+//       where,
+//       raw: true,
+//     })
+//       .then((trStokis) => {
+//         const amount = trStokis.length
+//           ? trStokis.reduce((prev, curr) => {
+//               return prev + parseInt(curr.amount);
+//             }, 0)
+//           : 0;
+//         return res.json({
+//           status: "success",
+//           amount,
+//         });
+//       })
+//       .catch((error) => {
+//         console.log("[!]Error : ", error);
+//         return res.status(400).json({
+//           status: "error",
+//           message: error.message,
+//         });
+//       });
+//   } catch (error) {
+//     console.log("[!]Error : ", error);
+//     return res.status(500).json({
+//       status: "error",
+//       message: error.message,
+//     });
+//   }
+// };
 
-// amount all TrStokis
-module.exports.IncomeTrStokis = async (req, res) => {
-  try {
-    const where = {
-      statusId: 4,
-    };
+// // amount all TrStokis
+// module.exports.IncomeTrStokis = async (req, res) => {
+//   try {
+//     const where = {
+//       statusId: 4,
+//     };
 
-    TrStokis.findAll({
-      attributes: ["amount"],
-      where,
-      raw: true,
-    })
-      .then((trStokis) => {
-        const amount = trStokis.length
-          ? trStokis.reduce((prev, curr) => {
-              return prev + parseInt(curr.amount);
-            }, 0)
-          : 0;
-        return res.json({
-          status: "success",
-          amount,
-        });
-      })
-      .catch((error) => {
-        console.log("[!]Error : ", error);
-        return res.status(400).json({
-          status: "error",
-          message: error.message,
-        });
-      });
-  } catch (error) {
-    console.log("[!]Error : ", error);
-    return res.status(500).json({
-      status: "error",
-      message: error.message,
-    });
-  }
-};
+//     TrStokis.findAll({
+//       attributes: ["amount"],
+//       where,
+//       raw: true,
+//     })
+//       .then((trStokis) => {
+//         const amount = trStokis.length
+//           ? trStokis.reduce((prev, curr) => {
+//               return prev + parseInt(curr.amount);
+//             }, 0)
+//           : 0;
+//         return res.json({
+//           status: "success",
+//           amount,
+//         });
+//       })
+//       .catch((error) => {
+//         console.log("[!]Error : ", error);
+//         return res.status(400).json({
+//           status: "error",
+//           message: error.message,
+//         });
+//       });
+//   } catch (error) {
+//     console.log("[!]Error : ", error);
+//     return res.status(500).json({
+//       status: "error",
+//       message: error.message,
+//     });
+//   }
+// };
 
 // total monthly req reward
 module.exports.MonthlyTrReward = async (req, res) => {
@@ -536,7 +577,7 @@ module.exports.MonthlyTrReward = async (req, res) => {
         [Op.lte]: endDate,
       },
     };
-    const trReward = await TrReward.count(where);
+    const trReward = await TrReward.count({ where });
     return res.json({
       status: "success",
       amount: trReward,
@@ -561,7 +602,7 @@ module.exports.MonthlyWd = async (req, res) => {
         [Op.lte]: endDate,
       },
     };
-    const widhraw = await Widhraw.count(where);
+    const widhraw = await Widhraw.count({ where });
     return res.json({
       status: "success",
       amount: widhraw,
@@ -647,6 +688,28 @@ module.exports.ATrSale = async (req, res) => {
     });
   }
 };
+// total ATrSale
+module.exports.AgenProductItem = async (req, res) => {
+  try {
+    const user = req.user;
+    const agenProduct = await AgenProduct.count({
+      where: {
+        userId: user.id,
+      },
+    });
+
+    return res.json({
+      status: "success",
+      amount: agenProduct,
+    });
+  } catch (error) {
+    console.log("[!]Error : ", error);
+    return res.status(500).json({
+      status: "error",
+      message: error.message,
+    });
+  }
+};
 
 // amount monthly agen profit
 module.exports.MonthlyAgenProfit = async (req, res) => {
@@ -672,7 +735,7 @@ module.exports.MonthlyAgenProfit = async (req, res) => {
           : 0;
         return res.json({
           status: "success",
-          profit,
+          amount: profit,
         });
       })
       .catch((error) => {
@@ -709,7 +772,7 @@ module.exports.AgenProfit = async (req, res) => {
           : 0;
         return res.json({
           status: "success",
-          profit,
+          amount: profit,
         });
       })
       .catch((error) => {
@@ -728,28 +791,28 @@ module.exports.AgenProfit = async (req, res) => {
   }
 };
 
-// amount bonus
-module.exports.Bonus = async (req, res) => {
-  try {
-    const user = req.user;
-    const data = await User.findOne({
-      attributes: ["id", "name", "wallet"],
-      where: { id: user.id },
-      raw: true,
-    });
+// // amount bonus
+// module.exports.Bonus = async (req, res) => {
+//   try {
+//     const user = req.user;
+//     const data = await User.findOne({
+//       attributes: ["id", "name", "wallet"],
+//       where: { id: user.id },
+//       raw: true,
+//     });
 
-    return res.json({
-      status: "success",
-      amount: parseInt(data.wallet),
-    });
-  } catch (error) {
-    console.log("[!]Error : ", error);
-    return res.status(500).json({
-      status: "error",
-      message: error.message,
-    });
-  }
-};
+//     return res.json({
+//       status: "success",
+//       amount: parseInt(data.wallet),
+//     });
+//   } catch (error) {
+//     console.log("[!]Error : ", error);
+//     return res.status(500).json({
+//       status: "error",
+//       message: error.message,
+//     });
+//   }
+// };
 
 // amount monthly bonus
 module.exports.MonthlyBonus = async (req, res) => {
@@ -861,7 +924,13 @@ module.exports.Referrals = async (req, res) => {
 module.exports.TrReward = async (req, res) => {
   try {
     const user = req.user;
-    const trReward = await TrReward.count({ userId: user.id });
+    const trReward = await TrReward.count({
+      where: {
+        userId: user.id,
+        statusId: { [Op.in]: [1, 4, 5] },
+      },
+    });
+
     return res.json({
       status: "success",
       amount: trReward,
