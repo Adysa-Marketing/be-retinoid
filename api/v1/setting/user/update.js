@@ -44,7 +44,7 @@ module.exports = async (req, res) => {
     const payload = {
       name: source.name,
       email: source.email,
-      phone: source.phone,
+      phone: source.phone.replace("08", "628"),
       gender: source.gender,
       kk: source.kk,
       address: source.address,
@@ -58,7 +58,10 @@ module.exports = async (req, res) => {
 
     logger.info({ source, payload });
 
-    const user = await User.findOne({ attributes: ["id", "name", "image"] });
+    const user = await User.findOne({
+      attributes: ["id", "name", "image"],
+      where: { id },
+    });
     if (!user) {
       await RemoveFile(files, false);
       return res.status(404).json({
@@ -82,20 +85,10 @@ module.exports = async (req, res) => {
     await RemoveFile(files, false);
     if (err.errors && err.errors.length > 0 && err.errors[0].path) {
       logger.error(err.errors);
-      if (err.errors[0].path == "email") {
-        return res.status(400).json({
-          status: "error",
-          message: "Email sudah terdaftar, silahkan gunakan email lain",
-        });
-      } else if (err.errors[0].path == "username") {
+      if (err.errors[0].path == "username") {
         return res.status(400).json({
           status: "error",
           message: "Username sudah terdaftar, silahkan gunakan username lain",
-        });
-      } else {
-        return res.status(400).json({
-          status: "error",
-          message: "No HP sudah terdaftar, silahkan gunakan No HP lain",
         });
       }
     } else {
