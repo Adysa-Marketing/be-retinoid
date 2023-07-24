@@ -1,4 +1,4 @@
-const { User, Generation, CommissionLevel } = require("../../../../models");
+const { User, Generation } = require("../../../../models");
 const logger = require("../../../../libs/logger");
 const Sequelize = require("sequelize");
 const Op = Sequelize.Op;
@@ -13,7 +13,10 @@ module.exports = async (req, res) => {
     const user = req.user;
     const schema = {
       keyword: "string|optional",
-      levelId: "number|optional",
+      levelId: [
+        { type: "string", empty: "false" },
+        { type: "number", empty: "false" },
+      ],
       rowsPerPage: [
         { type: "string", empty: "false" },
         { type: "number", empty: "false" },
@@ -56,15 +59,31 @@ module.exports = async (req, res) => {
         }
       : {};
 
-    const queryLevel = source.levelId ? { levelId: source.levelId } : {};
-    const queryUpline = ![1].includes(user.roleId) ? { userId: user.id } : {};
+    const startDate = moment(source.startDate, "YYYY-MM-DD")
+      .startOf("days")
+      .toDate();
+    const endDate = moment(source.endDate, "YYYY-MM-DD")
+      .startOf("days")
+      .toDate();
+
+    const dateRange =
+      source.startDate && source.endDate
+        ? {
+            createdAt: {
+              [Op.gte]: startDate,
+              [Op.lte]: endDate,
+            },
+          }
+        : {};
+
+    const queryLevel = source.levelId
+      ? source.levelId == "all"
+        ? {}
+        : { levelId: source.levelId }
+      : {};
+    const queryUpline = { userId: user.id };
 
     const includeParent = [
-      {
-        attributes: ["id", "name", "email", "phone", "isActive"],
-        as: "Upline",
-        model: User,
-      },
       {
         attributes: ["id", "name", "email", "phone", "isActive"],
         as: "Downline",
@@ -73,15 +92,12 @@ module.exports = async (req, res) => {
           ...keyword,
         },
       },
-      {
-        attributes: ["id", "name", "percent"],
-        model: CommissionLevel,
-      },
     ];
 
     const where = {
       ...queryUpline,
       ...queryLevel,
+      ...dateRange,
     };
 
     logger.info({ source, where });
@@ -107,9 +123,10 @@ module.exports = async (req, res) => {
 
     Generation.findAll({
       ...offsetLimit,
-      attributes: ["id", "remark"],
+      attributes: ["id", "remark", "createdAt"],
       where,
       include: [...includeParent],
+      order: [["createdAt", "DESC"]],
     })
       .then((result) => {
         result = JSON.parse(JSON.stringify(result));
