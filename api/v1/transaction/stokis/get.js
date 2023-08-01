@@ -6,6 +6,9 @@ const {
   Stokis,
   User,
   Role,
+  Province,
+  District,
+  SubDistrict,
 } = require("../../../../models");
 const logger = require("../../../../libs/logger");
 
@@ -41,6 +44,7 @@ module.exports = async (req, res) => {
         "phoneNumber",
         "fromBank",
         "accountName",
+        "address",
         "date",
         "remark",
       ],
@@ -61,6 +65,18 @@ module.exports = async (req, res) => {
         {
           attributes: ["id", "name"],
           model: Bank,
+        },
+        {
+          attributes: ["id", "name"],
+          model: Province,
+        },
+        {
+          attributes: ["id", "name"],
+          model: District,
+        },
+        {
+          attributes: ["id", "name"],
+          model: SubDistrict,
         },
         {
           attributes: ["id", "name", "username", "email", "phone", "roleId"],

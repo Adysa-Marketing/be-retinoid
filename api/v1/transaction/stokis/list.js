@@ -7,6 +7,8 @@ const {
   TrStatus,
   TrStokis,
   User,
+  Province,
+  District,
 } = require("../../../../models");
 const logger = require("../../../../libs/logger");
 const Sequelize = require("sequelize");
@@ -107,6 +109,14 @@ module.exports = async (req, res) => {
       {
         attributes: ["id", "name"],
         model: Bank,
+      },
+      {
+        attributes: ["id", "name"],
+        model: Province,
+      },
+      {
+        attributes: ["id", "name"],
+        model: District,
       },
       {
         attributes: ["id", "name", "username", "email", "phone"],

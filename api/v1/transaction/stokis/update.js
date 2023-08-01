@@ -21,6 +21,11 @@ module.exports = async (req, res) => {
       userId: "string|optional",
       paymentTypeId: "string|optional",
       bankId: "string|optional",
+      address: "string|optional",
+      countryId: "string|optional",
+      provinceId: "string|optional",
+      districtId: "string|optional",
+      subDistrictId: "string|optional",
       remark: "string|optional",
     };
 
@@ -49,15 +54,19 @@ module.exports = async (req, res) => {
         : {};
 
     const payload = {
-      stokisId: source.stokisId,
       amount: source.amount,
       paymentTypeId: source.paymentTypeId,
       userId: source.userId ? source.userId : user.id,
       statusId: 1,
       kk: source.kk,
-      phoneNumber: source.phoneNumber,
+      phoneNumber: source.phoneNumber.replace("08", "628"),
       fromBank: source.fromBank,
       accountName: source.accountName,
+      address: source.address,
+      countryId: source.countryId ? source.countryId : 1,
+      provinceId: source.provinceId,
+      districtId: source.districtId,
+      subDistrictId: source.subDistrictId,
       bankId: source.bankId,
       ...imageKtp,
       ...image,
