@@ -32,6 +32,7 @@ module.exports = async (req, res) => {
         "verCode",
         "address",
         "isActive",
+        "remark",
       ],
       where: {
         id,

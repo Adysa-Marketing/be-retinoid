@@ -12,7 +12,6 @@ module.exports = async (req, res) => {
   try {
     const schema = {
       keyword: "string|optional",
-      sponsorId: "number|optional",
       rowsPerPage: [
         { type: "string", empty: "false" },
         { type: "number", empty: "false" },

@@ -11,7 +11,7 @@ router.use("/agen", Agen);
 router.use("/agen-product", AgenProduct);
 router.use("/commission", Commission);
 router.use("/member", IsAdmin, Member);
-router.use("/refferal", Refferal);
+router.use("/referral", Refferal);
 router.use("/testimoni", Testimonial);
 
 module.exports = router;
