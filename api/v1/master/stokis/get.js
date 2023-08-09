@@ -17,7 +17,10 @@ module.exports = async (req, res) => {
       });
 
     const id = req.params.id;
-    const stokis = await Stokis.findOne({ where: { id } });
+    const stokis = await Stokis.findOne({
+      attributes: ["id", "name", "price", "discount"],
+      where: { id },
+    });
     if (!stokis) {
       return res.status(404).json({
         status: "error",

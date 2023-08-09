@@ -3,7 +3,7 @@ const { Bank } = require("../../../../models");
 module.exports = async (req, res) => {
   try {
     const data = await Bank.findAll({
-      attributes: ["id", "name"],
+      attributes: ["id", "name", "noRekening", "accountName"],
     });
     return res.json({
       status: "success",
