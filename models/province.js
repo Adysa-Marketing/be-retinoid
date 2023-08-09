@@ -28,6 +28,9 @@ module.exports = (sequelize, DataTypes) => {
     Province.hasMany(models.User, {
       foreignKey: "provinceId",
     });
+    Province.hasMany(models.TrStokis, {
+      foreignKey: "provinceId",
+    });
     Province.hasMany(models.District, {
       foreignKey: "provinceId",
     });

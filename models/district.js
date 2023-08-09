@@ -29,6 +29,9 @@ module.exports = (sequelize, DataTypes) => {
     District.hasMany(models.User, {
       foreignKey: "districtId",
     });
+    District.hasMany(models.TrStokis, {
+      foreignKey: "districtId",
+    });
     District.hasMany(models.SubDistrict, {
       foreignKey: "districtId",
     });

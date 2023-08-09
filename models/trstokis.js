@@ -26,6 +26,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.DATE,
         defaultValue: moment().format("YYYY-MM-DD HH:mm:ss"),
       },
+      address: DataTypes.STRING,
       remark: DataTypes.STRING,
     },
     {
@@ -59,10 +60,26 @@ module.exports = (sequelize, DataTypes) => {
         field: "statusId",
       },
     });
+    TrStokis.belongsTo(models.Province, {
+      foreignKey: {
+        field: "provinceId",
+      },
+    });
+    TrStokis.belongsTo(models.District, {
+      foreignKey: {
+        field: "districtId",
+      },
+    });
+    TrStokis.belongsTo(models.SubDistrict, {
+      foreignKey: {
+        field: "subDistrictId",
+      },
+    });
 
     TrStokis.hasOne(models.Mutation, {
       foreignKey: "trStokisId",
     });
+    
   };
 
   return TrStokis;
