@@ -1,7 +1,18 @@
 const logger = require("../../../libs/logger");
 const Session = require("../../../libs/session");
 
-const { User, SponsorKey, Serial, Agen, Stokis } = require("../../../models");
+const {
+  User,
+  SponsorKey,
+  Serial,
+  Agen,
+  Stokis,
+  Role,
+  Country,
+  Province,
+  District,
+  SubDistrict,
+} = require("../../../models");
 
 const bcryptjs = require("bcryptjs");
 const Validator = require("fastest-validator");
@@ -38,6 +49,26 @@ module.exports = async (req, res) => {
         {
           attributes: ["id", "serialNumber", "status"],
           model: Serial,
+        },
+        {
+          attributes: ["id", "name"],
+          model: Role,
+        },
+        {
+          attributes: ["id", "name"],
+          model: Country,
+        },
+        {
+          attributes: ["id", "name"],
+          model: Province,
+        },
+        {
+          attributes: ["id", "name"],
+          model: District,
+        },
+        {
+          attributes: ["id", "name"],
+          model: SubDistrict,
         },
       ],
       where: {

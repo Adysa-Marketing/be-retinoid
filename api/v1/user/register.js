@@ -37,8 +37,18 @@ module.exports = async (req, res) => {
         empty: false,
       },
       password: "string|empty:false|min:5",
+      passwordConfirm: "string|empty:false|min:5",
       email: "email|empty:false",
-      phone: "string|empty:false|min:9|max:13",
+      phone: {
+        type: "string",
+        pattern: /^(08|628)[0-9]{9,13}$/,
+        messages: {
+          pattern: "No Telpon Tidak Valid",
+        },
+        min: 9,
+        max: 13,
+        empty: false,
+      },
       serial: "string|empty:false",
       referral: "string|empty:false",
       gender: {
@@ -60,6 +70,13 @@ module.exports = async (req, res) => {
         status: "error",
         message: validate,
       });
+
+    if (source.password !== source.passwordConfirm) {
+      return res.status(400).json({
+        status: "error",
+        message: "Password Konfirmasi salah",
+      });
+    }
 
     const password = bcrypt.hashSync(source.password, bcrypt.genSaltSync(2));
     const sponsorKey = cryptoString({ length: 10, type: "base64" });
@@ -107,7 +124,7 @@ module.exports = async (req, res) => {
       username: source.username,
       email: source.email,
       password,
-      phone: source.phone,
+      phone: source.phone.replace("08", "628"),
       gender: source.gender,
       kk: source.kk,
       address: source.address,
