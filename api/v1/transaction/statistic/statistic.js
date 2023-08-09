@@ -943,3 +943,25 @@ module.exports.TrReward = async (req, res) => {
     });
   }
 };
+
+// self info
+module.exports.SelfInfo = async (req, res) => {
+  try {
+    const user = req.user;
+    const info = await User.findOne({
+      attributes: ["id", "point", "wallet"],
+      where: { id: user.id },
+    });
+    return res.json({
+      status: "success",
+      point: info.point,
+      wallet: info.wallet,
+    });
+  } catch (error) {
+    console.log("[!]Error : ", error);
+    return res.status(500).json({
+      status: "error",
+      message: error.message,
+    });
+  }
+};

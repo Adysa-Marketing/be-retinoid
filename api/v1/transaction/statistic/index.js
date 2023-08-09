@@ -32,5 +32,6 @@ router.get("/mon-bonus", Statistic.MonthlyBonus);
 router.get("/success-wd", Statistic.SuccessWidhraw);
 router.get("/referral", Statistic.Referrals);
 router.get("/tr-reward", Statistic.TrReward);
+router.get("/self-info", Statistic.SelfInfo);
 
 module.exports = router;
