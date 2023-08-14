@@ -12,6 +12,7 @@ module.exports = async (req, res) => {
   try {
     const source = req.body;
     const schema = {
+      keyword: "string|optional",
       type: "string|optional",
       category: "string|optional",
       rowsPerPage: [
@@ -28,6 +29,25 @@ module.exports = async (req, res) => {
         message: validate,
       });
 
+    const id =
+      source.keyword?.length > 3
+        ? source.keyword.substr(3, source.keyword.length - 1)
+        : 0;
+    const keycode = !isNaN(id) ? { id } : {};
+
+    const keyword = source.keyword
+      ? {
+          [Op.or]: [
+            {
+              id: !isNaN(source.keyword) ? parseInt(source.keyword) : 0,
+            },
+            {
+              ...keycode,
+            },
+          ],
+        }
+      : {};
+
     const startDate = moment(source.startDate, "YYYY-MM-DD")
       .startOf("days")
       .toDate();
@@ -38,7 +58,7 @@ module.exports = async (req, res) => {
     const dateRange =
       source.startDate && source.endDate
         ? {
-            date: {
+            createdAt: {
               [Op.gte]: startDate,
               [Op.lte]: endDate,
             },
@@ -49,6 +69,7 @@ module.exports = async (req, res) => {
     const queryCategory = source.category ? { category: source.category } : {};
 
     const where = {
+      ...keyword,
       ...dateRange,
       ...queryType,
       ...queryCategory,
@@ -78,16 +99,22 @@ module.exports = async (req, res) => {
       ...offsetLimit,
       attributes: ["id", "type", "category", "amount", "remark", "createdAt"],
       where,
+      order: [["id", "DESC"]],
     })
       .then((result) => {
         result = JSON.parse(JSON.stringify(result));
         const data = result.map((mutation) => {
+          const code = mutation.id.toString().padStart(config.maxFill, 0);
+
           mutation.date = moment(mutation.createdAt)
             .utc()
             .add(7, "hours")
             .format("YYYY-MM-DD HH:mm:ss");
 
-          return mutation;
+          return {
+            ...mutation,
+            kode: `MUT${code}`,
+          };
         });
 
         return res.json({
