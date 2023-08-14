@@ -956,7 +956,7 @@ module.exports.SelfInfo = async (req, res) => {
       status: "success",
       point: info.point,
       wallet: info.wallet,
-      kk: info.kk
+      kk: info.kk,
     });
   } catch (error) {
     console.log("[!]Error : ", error);

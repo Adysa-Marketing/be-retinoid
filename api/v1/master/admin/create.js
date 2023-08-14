@@ -72,7 +72,7 @@ module.exports = async (req, res) => {
       username: source.username,
       email: source.email,
       password,
-      phone: source.phone.replace('08', '628'),
+      phone: source.phone.replace("08", "628"),
       kk: source.kk,
       address: source.address,
       roleId: 2,

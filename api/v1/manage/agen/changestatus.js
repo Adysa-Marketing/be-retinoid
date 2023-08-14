@@ -44,9 +44,7 @@ module.exports = async (req, res) => {
     };
     // jika belum pernah di approve
     const dateApproved =
-      source.statusId == 4
-        ? moment().format("YYYY-MM-DD HH:mm:ss") 
-        : null; // ACTIVED
+      source.statusId == 4 ? moment().format("YYYY-MM-DD HH:mm:ss") : null; // ACTIVED
     if (!agen.dateApproved) payload.dateApproved = dateApproved;
 
     logger.info({ source, payload });

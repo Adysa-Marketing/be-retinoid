@@ -96,7 +96,7 @@ module.exports = async (req, res) => {
       attributes: ["id", "name", "dateApproved"],
       where,
       include: [...includeParent],
-      order: [["id", "DESC"]]
+      order: [["id", "DESC"]],
     });
 
     data.dateApproved = moment(data.dateApproved)

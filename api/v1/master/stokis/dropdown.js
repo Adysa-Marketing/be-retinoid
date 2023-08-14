@@ -13,7 +13,7 @@ module.exports = async (req, res) => {
     });
 
     let available = true;
-    if(checkTrx){
+    if (checkTrx) {
       available = false;
     }
 
