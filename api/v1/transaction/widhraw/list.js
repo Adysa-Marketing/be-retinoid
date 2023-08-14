@@ -89,7 +89,7 @@ module.exports = async (req, res) => {
 
     const includeParent = [
       {
-        attributes: ["id", "name", "email", "phone"],
+        attributes: ["id", "name", "username", "email", "phone"],
         model: User,
         where: { ...queryName },
       },

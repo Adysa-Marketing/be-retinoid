@@ -32,7 +32,7 @@ module.exports = async (req, res) => {
       });
 
     const id = req.params.id;
-    const queryMember = [4].includes(user.roleId) ? { userId: user.id } : {};
+    const queryMember = [3, 4].includes(user.roleId) ? { userId: user.id } : {};
 
     const trStokis = await TrStokis.findOne({
       attributes: [
@@ -63,7 +63,7 @@ module.exports = async (req, res) => {
           model: TrStatus,
         },
         {
-          attributes: ["id", "name"],
+          attributes: ["id", "name", "noRekening"],
           model: Bank,
         },
         {

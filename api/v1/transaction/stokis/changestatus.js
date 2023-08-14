@@ -87,7 +87,7 @@ module.exports = async (req, res) => {
         where: { id: trStokis.userId },
       });
 
-      const mutation = await Mutation.create(
+      await Mutation.create(
         {
           type: "Dana Masuk",
           category: "Stokis",

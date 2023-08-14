@@ -150,6 +150,7 @@ module.exports = async (req, res) => {
       attributes: ["id", "amount", "date", "remark"],
       where,
       include: [...includeParent],
+      order: [["id", "DESC"]],
     })
       .then((result) => {
         result = JSON.parse(JSON.stringify(result));

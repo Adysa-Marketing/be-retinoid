@@ -27,19 +27,9 @@ module.exports = async (req, res) => {
       });
 
     const id = source.id;
-    const dateApproved =
-      source.statusId == 4
-        ? { dateApproved: moment().format("YYYY-MM-DD HH:mm:ss") }
-        : {}; // ACTIVED
 
-    const payload = {
-      statusId: source.statusId,
-      ...dateApproved,
-    };
-
-    logger.info({ source, payload });
     const agen = await Agen.findOne({
-      attributes: ["id", "name", "statusId", "userId"],
+      attributes: ["id", "name", "statusId", "userId", "dateApproved"],
       where: { id },
     });
 
@@ -49,10 +39,22 @@ module.exports = async (req, res) => {
         message: "Data Agen tidak ditemukan",
       });
 
+    const payload = {
+      statusId: source.statusId,
+    };
+    // jika belum pernah di approve
+    const dateApproved =
+      source.statusId == 4
+        ? moment().format("YYYY-MM-DD HH:mm:ss") 
+        : null; // ACTIVED
+    if (!agen.dateApproved) payload.dateApproved = dateApproved;
+
+    logger.info({ source, payload });
+
     await agen.update(payload, { transaction });
     /**
      * 2 == Disabled . set isActive == false
-     * 3 == Actived
+     * 4 == Actived
      */
     if ([2, 4].includes(source.statusId)) {
       const isActive = source.statusId == 2 ? false : true;

@@ -1,4 +1,4 @@
-const { Agen, AgenStatus, Stokis } = require("../../../../models");
+const { Agen, AgenStatus, Stokis, User } = require("../../../../models");
 const logger = require("../../../../libs/logger");
 const Sequelize = require("sequelize");
 const Op = Sequelize.Op;
@@ -67,6 +67,10 @@ module.exports = async (req, res) => {
         attributes: ["id", "name", "agenDiscount"],
         model: Stokis,
       },
+      {
+        attributes: ["id", "name", "username"],
+        model: User,
+      },
     ];
 
     logger.info({ source, where });
@@ -92,6 +96,7 @@ module.exports = async (req, res) => {
       attributes: ["id", "name", "dateApproved"],
       where,
       include: [...includeParent],
+      order: [["id", "DESC"]]
     });
 
     data.dateApproved = moment(data.dateApproved)
