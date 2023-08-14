@@ -46,10 +46,13 @@ module.exports = async (req, res) => {
     }
 
     await RemoveFile(widhraw, true);
-    await User.update(
-      { wallet: sequelize.literal(`wallet + ${parseInt(widhraw.amount)}`) },
-      { where: { id: user.id }, transaction }
-    );
+    // jika status masih pending dan wd di hapus, kembalikan saldo
+    if ([1].includes(widhraw.statusId)) {
+      await User.update(
+        { wallet: sequelize.literal(`wallet + ${parseInt(widhraw.amount)}`) },
+        { where: { id: user.id }, transaction }
+      );
+    }
     await widhraw.destroy({ transaction });
 
     transaction.commit();

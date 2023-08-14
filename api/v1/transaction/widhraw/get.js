@@ -32,13 +32,14 @@ module.exports = async (req, res) => {
         "accountName",
         "image",
         "imageKtp",
+        "kk",
       ],
       where: { id, ...queryMember },
       include: [
-        {
-          attributes: ["id", "name", "email", "phone"],
-          model: User,
-        },
+        // {
+        //   attributes: ["id", "name", "email", "phone"],
+        //   model: User,
+        // },
         {
           attributes: ["id", "name", "remark"],
           model: WdStatus,

@@ -29,6 +29,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      kk: DataTypes.STRING,
       remark: DataTypes.STRING,
     },
     {

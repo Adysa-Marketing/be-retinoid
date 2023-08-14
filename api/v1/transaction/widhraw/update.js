@@ -22,6 +22,7 @@ module.exports = async (req, res) => {
       bankName: "string|optional",
       accountName: "string|optional",
       password: "string|empty:false",
+      kk: "string|optional|min:16|max:16",
       remark: "string|optional",
     };
 
@@ -54,6 +55,7 @@ module.exports = async (req, res) => {
       statusId: 1,
       noRekening: source.noRekening,
       bankName: source.bankName,
+      kk: source.kk,
       accountName: source.accountName,
       ...imageKtp,
       remark: source.remark,

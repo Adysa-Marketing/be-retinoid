@@ -949,13 +949,14 @@ module.exports.SelfInfo = async (req, res) => {
   try {
     const user = req.user;
     const info = await User.findOne({
-      attributes: ["id", "point", "wallet"],
+      attributes: ["id", "point", "wallet", "kk"],
       where: { id: user.id },
     });
     return res.json({
       status: "success",
       point: info.point,
       wallet: info.wallet,
+      kk: info.kk
     });
   } catch (error) {
     console.log("[!]Error : ", error);

@@ -128,12 +128,15 @@ module.exports = async (req, res) => {
         "noRekening",
         "bankName",
         "accountName",
-        "image",
-        "imageKtp",
+        // "image",
+        // "imageKtp",
         "remark",
+        "createdAt",
+        "updatedAt",
       ],
       where,
       include: [...includeParent],
+      order: [["id", "DESC"]],
     })
       .then((result) => {
         result = JSON.parse(JSON.stringify(result));
