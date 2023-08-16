@@ -15,6 +15,7 @@ module.exports = async (req, res) => {
     const schema = {
       id: "string|empty:false",
       rewardId: "string|empty:false",
+      address: "string|empty:false",
       remark: "string|optional",
     };
 
@@ -42,6 +43,7 @@ module.exports = async (req, res) => {
       ...imageKtp,
       userId: user.id,
       rewardId: source.rewardId,
+      address: source.address,
       remark: source.remark,
     };
 

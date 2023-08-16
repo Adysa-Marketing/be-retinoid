@@ -17,6 +17,7 @@ module.exports = async (req, res) => {
     const schema = {
       date: "string|optional",
       rewardId: "string|empty:false",
+      address: "string|empty:false",
       remark: "string|optional",
     };
 
@@ -42,10 +43,11 @@ module.exports = async (req, res) => {
 
     const payload = {
       ...imageKtp,
-      date: moment().format("YYYY-DD-MM HH:mm:ss"),
+      date: moment().format("YYYY-MM-DD HH:mm:ss"),
       userId: user.id,
       rewardId: parseInt(source.rewardId),
       statusId: 1,
+      address: source.address,
       remark: source.remark,
     };
 

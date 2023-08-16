@@ -23,27 +23,19 @@ module.exports = async (req, res) => {
     const queryMember = [4].includes(user.roleId) ? { userId: user.id } : {};
 
     let trReward = await TrReward.findOne({
-      attributes: ["id", "imageKtp", "date", "remark"],
+      attributes: ["id", "imageKtp", "date", "address", "remark"],
       where: { id, ...queryMember },
       include: [
         {
-          attributes: ["id", "name", "email", "phone"],
+          attributes: ["id", "name", "username", "phone", "kk"],
           model: User,
         },
         {
-          attributes: ["id", "name", "remark"],
+          attributes: ["id", "name"],
           model: RwStatus,
         },
         {
-          attributes: [
-            "id",
-            "name",
-            "description",
-            "point",
-            "minFoot",
-            "image",
-            "amount",
-          ],
+          attributes: ["id", "name", "point", "minFoot"],
           model: Reward,
         },
       ],

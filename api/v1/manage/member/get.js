@@ -62,7 +62,7 @@ module.exports = async (req, res) => {
             limit: 10,
             order: [["id", "DESC"]],
             include: {
-              attributes: ["id", "name", "image", "point"],
+              attributes: ["id", "name", "image", "point", "roleId"],
               model: User,
               include: {
                 attributes: ["name"],

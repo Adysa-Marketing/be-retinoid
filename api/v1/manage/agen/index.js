@@ -7,11 +7,12 @@ const Get = require("./get");
 const List = require("./list");
 const IsAdmin = require("../../../middleware/isAdmin");
 
-router.get("/get/:id", IsAdmin, Get);
-router.post("/list", IsAdmin, List);
-router.post("/create", IsAdmin, Create);
-router.put("/change-pass", IsAdmin, ChangePass);
-router.put("/change-status", IsAdmin, ChangeStat);
-router.delete("/delete", IsAdmin, Delete);
+router.use("/", IsAdmin);
+router.get("/get/:id", Get);
+router.post("/list", List);
+router.post("/create", Create);
+router.put("/change-pass", ChangePass);
+router.put("/change-status", ChangeStat);
+router.delete("/delete", Delete);
 
 module.exports = router;

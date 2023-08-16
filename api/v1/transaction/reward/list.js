@@ -66,7 +66,6 @@ module.exports = async (req, res) => {
           }
         : {};
 
-    const queryName = source.keyword ? { name: source.keyword } : {};
     const queryStatus = source.statusId ? { statusId: source.statusId } : {};
     const queryReward = source.rewardId ? { rewardId: source.rewardId } : {};
     const queryMember = [3, 4].includes(user.roleId) ? { userId: user.id } : {};
@@ -83,7 +82,6 @@ module.exports = async (req, res) => {
       {
         attributes: ["id", "name", "email", "phone"],
         model: User,
-        where: { ...queryName },
       },
       {
         attributes: ["id", "name", "remark"],
@@ -94,7 +92,7 @@ module.exports = async (req, res) => {
         model: Reward,
       },
     ];
-    logger.info(source);
+    logger.info({ source, where });
 
     const rowsPerPage = source.rowsPerPage;
     const currentPage = source.currentPage;
@@ -120,6 +118,7 @@ module.exports = async (req, res) => {
       attributes: ["id", "imageKtp", "date", "remark"],
       where,
       include: [...includeParent],
+      order: [["id", "DESC"]],
     })
       .then((result) => {
         result = JSON.parse(JSON.stringify(result));

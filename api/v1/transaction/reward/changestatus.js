@@ -33,7 +33,7 @@ module.exports = async (req, res) => {
     };
 
     const id = source.id;
-    const queryMember = [4, 4].includes(user.roleId) ? { userId: user.id } : {};
+    const queryMember = [3, 4].includes(user.roleId) ? { userId: user.id } : {};
 
     logger.info({ source, payload });
 
