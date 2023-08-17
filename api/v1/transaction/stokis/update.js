@@ -14,7 +14,16 @@ module.exports = async (req, res) => {
       id: "string|empty:false",
       amount: "string|optional",
       kk: "string|optional",
-      phoneNumber: "string|optional",
+      phoneNumber: {
+        type: "string",
+        pattern: /^(08|628)[0-9]{9,13}$/,
+        messages: {
+          pattern: "No Telpon Tidak Valid",
+        },
+        min: 9,
+        max: 13,
+        optional: true,
+      },
       fromBank: "string|optional",
       accountName: "string|optional",
       stokisId: "string|optional",

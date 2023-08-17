@@ -13,7 +13,16 @@ module.exports = async (req, res) => {
     const schema = {
       name: "string|optional",
       email: "string|optional",
-      phone: "string|optional|min:9|max:13",
+      phone: {
+        type: "string",
+        pattern: /^(08|628)[0-9]{9,13}$/,
+        messages: {
+          pattern: "No Telpon Tidak Valid",
+        },
+        min: 9,
+        max: 13,
+        optional: true,
+      },
       gender: {
         type: "string",
         enum: ["Male", "Female"],
