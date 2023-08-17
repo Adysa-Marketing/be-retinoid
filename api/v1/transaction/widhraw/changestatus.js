@@ -2,6 +2,7 @@ const { User, Widhraw, Mutation } = require("../../../../models");
 const { RemoveFile } = require("./asset");
 const logger = require("../../../../libs/logger");
 const db = require("../../../../models");
+const wabot = require("../../../../libs/wabot");
 
 const sequelize = require("sequelize");
 const Validator = require("fastest-validator");
@@ -12,6 +13,10 @@ module.exports = async (req, res) => {
   const user = req.user;
   const transaction = await db.sequelize.transaction({ autocommit: false });
   const files = req.files;
+  let waMessage = {
+    to: null,
+    message: null,
+  };
 
   try {
     const schema = {
@@ -68,6 +73,11 @@ module.exports = async (req, res) => {
       });
     }
 
+    const userData = await User.findOne({
+      attributes: ["id", "name", "username", "phone"],
+      where: { id: widhraw.userId },
+    });
+
     /**
      * jika widhraw.statusId == Canceled / Rejected / Transfered
      */
@@ -100,7 +110,6 @@ module.exports = async (req, res) => {
      * update wallet user
      */
     if ([2, 3].includes(parseInt(source.statusId))) {
-      const userData = await User.findByPk(widhraw.userId);
       if (!userData) {
         RemoveImg(files, false);
         return res.status(404).json({
@@ -119,12 +128,9 @@ module.exports = async (req, res) => {
 
     RemoveImg(widhraw, true);
     await widhraw.update({ ...payload, ...image }, { transaction });
-    if (parseInt(source.statusId) == 5) {
-      const userData = await User.findOne({
-        attributes: ["id", "name"],
-        where: { id: widhraw.userId },
-      });
 
+    // transfered
+    if (parseInt(source.statusId) == 5) {
       await Mutation.create(
         {
           type: "Dana Keluar",
@@ -143,6 +149,29 @@ module.exports = async (req, res) => {
       );
     }
     transaction.commit();
+
+    // set custom message
+    let message = "";
+    const statusId = source.statusId;
+    statusId == 2 // cancel
+      ? (message = `[Transaksi Widhraw] - ADYSA MARKETING\n\nHi *${userData.username}*, Transaksi widhraw anda berhasil dibatalkan dan saldo anda berhasil dikembalikan`)
+      : statusId == 3 // reject
+      ? (message = `[Transaksi Widhraw] - ADYSA MARKETING\n\nHi *${userData.username}*, Mohon maaf transaksi widhraw anda ditolak oleh admin dan saldo anda berhasil dikembalikan!`)
+      : statusId == 4 // approved
+      ? (message = `[Transaksi Widhraw] - ADYSA MARKETING\n\nHi *${userData.username}*, Transaksi widhraw anda sudah di approve oleh admin. silahkan menunggu beberapa saat untuk proses transfer`)
+      : (message = `[Transaksi Widhraw] - ADYSA MARKETING\n\nHi *${
+          userData.username
+        }*, Selamat widhraw anda sudah di transfer oleh admin dengan nominal approve *Rp.${new Intl.NumberFormat(
+          "id-ID"
+        ).format(widhraw.paidAmount)}*`); // transfered
+
+    waMessage = {
+      to: userData.phone,
+      message,
+    };
+    // send message
+    wabot.Send(waMessage);
+
     return res.json({
       status: "success",
       message: "Status Widhraw berhasil diperbarui",

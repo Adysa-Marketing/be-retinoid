@@ -2,6 +2,7 @@ const { User, Widhraw } = require("../../../../models");
 const logger = require("../../../../libs/logger");
 const db = require("../../../../models");
 const { RemoveFile } = require("./asset");
+const wabot = require("../../../../libs/wabot");
 
 const bcryptjs = require("bcryptjs");
 const sequelize = require("sequelize");
@@ -61,7 +62,7 @@ module.exports = async (req, res) => {
     logger.info({ files, payload });
 
     const userData = await User.findOne({
-      attributes: ["id", "wallet", "password"],
+      attributes: ["id", "wallet", "password", "phone", "username"],
       where: { id: user.id },
     });
 
@@ -103,6 +104,21 @@ module.exports = async (req, res) => {
     );
 
     transaction.commit();
+    wabot.Send({
+      to: userData.phone,
+      message: `[Transaksi Widhraw] - ADYSA MARKETING\n\nHi *${
+        userData.username
+      }*, permintaan widhraw berhasil dengan detail : \n\n1. Nominal Widhraw : *Rp.${new Intl.NumberFormat(
+        "id-ID"
+      ).format(
+        parseInt(source.amount)
+      )}* \n2. Biaya Admin : *Rp.${new Intl.NumberFormat("id-ID").format(
+        10000
+      )}* \n3. Nominal Approve : *Rp.${new Intl.NumberFormat("id-ID").format(
+        parseInt(source.amount) - 10000
+      )}* \n\nData yang anda ajukan akan segera di proses oleh admin, mohon kesediaan-nya untuk menunggu. \n\nTerimakasih`,
+    });
+
     return res.status(201).json({
       status: "success",
       message:

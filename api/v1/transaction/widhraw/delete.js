@@ -2,6 +2,7 @@ const { User, Widhraw } = require("../../../../models");
 const { RemoveFile } = require("./asset");
 const logger = require("../../../../libs/logger");
 const db = require("../../../../models");
+const wabot = require("../../../../libs/wabot");
 
 const sequelize = require("sequelize");
 const Validator = require("fastest-validator");
@@ -45,6 +46,12 @@ module.exports = async (req, res) => {
       });
     }
 
+    const userData = await User.findOne({
+      attributes: ["id", "username", "phone"],
+      where: { id: user.id },
+    });
+    let messageRefund = "";
+
     await RemoveFile(widhraw, true);
     // jika status masih pending dan wd di hapus, kembalikan saldo
     if ([1].includes(widhraw.statusId)) {
@@ -52,10 +59,19 @@ module.exports = async (req, res) => {
         { wallet: sequelize.literal(`wallet + ${parseInt(widhraw.amount)}`) },
         { where: { id: user.id }, transaction }
       );
+
+      messageRefund = `dan saldo anda senilai *Rp.${new Intl.NumberFormat(
+        "id-ID"
+      ).format(parseInt(widhraw.amount))}* berhasil dikembalikan`;
     }
     await widhraw.destroy({ transaction });
 
     transaction.commit();
+
+    wabot.Send({
+      to: userData.phone,
+      message: `[Transaksi Widhraw] - ADYSA MARKETING\n\nHi *${userData.username}*, Transaksi widhraw anda berhasil dihapus ${messageRefund}`,
+    });
     return res.json({
       status: "success",
       message: "Data Widhraw berhasil dihapus",
