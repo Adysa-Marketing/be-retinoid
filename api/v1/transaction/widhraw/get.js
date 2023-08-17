@@ -33,6 +33,7 @@ module.exports = async (req, res) => {
         "image",
         "imageKtp",
         "kk",
+        "remark"
       ],
       where: { id, ...queryMember },
       include: [

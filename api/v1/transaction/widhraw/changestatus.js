@@ -61,7 +61,7 @@ module.exports = async (req, res) => {
     logger.info({ source, payload });
 
     const widhraw = await Widhraw.findOne({
-      attributes: ["id", "userId", "amount", "paidAmount", "statusId", "image"],
+      attributes: ["id", "userId", "amount", "paidAmount", "statusId", "image", "remark"],
       where: { id, ...queryMember },
     });
 
@@ -156,7 +156,7 @@ module.exports = async (req, res) => {
     statusId == 2 // cancel
       ? (message = `[Transaksi Widhraw] - ADYSA MARKETING\n\nHi *${userData.username}*, Transaksi widhraw anda berhasil dibatalkan dan saldo anda berhasil dikembalikan`)
       : statusId == 3 // reject
-      ? (message = `[Transaksi Widhraw] - ADYSA MARKETING\n\nHi *${userData.username}*, Mohon maaf transaksi widhraw anda ditolak oleh admin dan saldo anda berhasil dikembalikan!`)
+      ? (message = `[Transaksi Widhraw] - ADYSA MARKETING\n\nHi *${userData.username}*, Mohon maaf transaksi widhraw anda ditolak oleh admin dengan alasan ${source.remark} dan saldo anda berhasil dikembalikan!`)
       : statusId == 4 // approved
       ? (message = `[Transaksi Widhraw] - ADYSA MARKETING\n\nHi *${userData.username}*, Transaksi widhraw anda sudah di approve oleh admin. silahkan menunggu beberapa saat untuk proses transfer`)
       : (message = `[Transaksi Widhraw] - ADYSA MARKETING\n\nHi *${
