@@ -10,6 +10,24 @@ const Network = require("../api/v1/network");
 const Setting = require("../api/v1/setting");
 const Transaction = require("../api/v1/transaction");
 const User = require("../api/v1/user");
+const wabot = require("../libs/wabot");
+
+//testing wa bot
+// app.post("/send-chat", async (req, res) => {
+//   wabot.Send({
+//     to: "085325224829",
+//     message: `[Transaksi Widhraw] - ADYSA MARKETING\n\nHi *Redha*, permintaan widhraw berhasil dengan detail : \n\n1. Nominal Widhraw : Rp.*Rp.${new Intl.NumberFormat(
+//       "id-ID"
+//     ).format(50000)}* \n2. Biaya Admin : Rp.*Rp.${new Intl.NumberFormat(
+//       "id-ID"
+//     ).format(10000)}* \n3. Nominal Approve : Rp.*Rp.${new Intl.NumberFormat(
+//       "id-ID"
+//     ).format(
+//       parseInt(50000) - 10000
+//     )}* \n\nData yang anda ajukan akan segera di proses oleh admin, mohon kesediaan-nya untuk menunggu. \n\nTrimakasih`,
+//   });
+//   return res.send("oke");
+// });
 
 // Auth Unless
 app.use(
