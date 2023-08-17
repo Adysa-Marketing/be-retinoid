@@ -61,7 +61,15 @@ module.exports = async (req, res) => {
     logger.info({ source, payload });
 
     const widhraw = await Widhraw.findOne({
-      attributes: ["id", "userId", "amount", "paidAmount", "statusId", "image", "remark"],
+      attributes: [
+        "id",
+        "userId",
+        "amount",
+        "paidAmount",
+        "statusId",
+        "image",
+        "remark",
+      ],
       where: { id, ...queryMember },
     });
 

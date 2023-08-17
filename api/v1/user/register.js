@@ -170,9 +170,9 @@ module.exports = async (req, res) => {
       attributes: ["id", "username", "phone"],
       where: { id: sponsor.userId },
     });
-    const message = `Hi ${
+    const message = `[Bonus Generasi] - ADYSA MARKETING\n\nHi ${
       userUpliner.username
-    }, Selamat anda mendapatkan bonus senilai Rp.${new Intl.NumberFormat(
+    }, Selamat anda mendapatkan bonus generasi senilai Rp.${new Intl.NumberFormat(
       "id-ID"
     ).format(commission)} dari downline ${
       userData.name
@@ -217,10 +217,6 @@ module.exports = async (req, res) => {
       { where: { id: sponsor.userId }, transaction }
     );
 
-    // kurang notification wa bot untuk info commission masuk
-
-    // end notifikasi wa bot
-
     // proses commission
     await calculateDownlineBonus(
       sponsor.userId, // id penyeponsor
@@ -237,6 +233,14 @@ module.exports = async (req, res) => {
     // condition for calculate downline in the upliner
     isRegistered = true;
     upliner = sponsor.userId;
+
+    // notification success regist
+    const phone = source.phone.replace("08", "628");
+    wabot.Send({
+      to: phone,
+      message: `[Pendaftaran Member] - ADYSA MARKETING\n\nHi ${source.username}, Selamat pendaftaran anda telah berhasil`,
+    });
+    // end notifikasi wa bot
 
     return res.status(201).json({
       status: "success",
@@ -308,9 +312,9 @@ const calculateDownlineBonus = async (
     attributes: ["id", "username", "phone"],
     where: { id: userUplineId },
   });
-  const message = `Hi ${
+  const message = `[Bonus Generasi] - ADYSA MARKETING\n\nHi ${
     userUpliner.username
-  }, Selamat anda mendapatkan bonus senilai Rp.${new Intl.NumberFormat(
+  }, Selamat anda mendapatkan bonus generasi senilai Rp.${new Intl.NumberFormat(
     "id-ID"
   ).format(
     commission

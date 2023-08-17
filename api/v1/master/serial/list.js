@@ -108,7 +108,14 @@ module.exports = async (req, res) => {
 
     Serial.findAll({
       ...offsetLimit,
-      attributes: ["id", "serialNumber", "status", "remark", "createdAt", "updatedAt"],
+      attributes: [
+        "id",
+        "serialNumber",
+        "status",
+        "remark",
+        "createdAt",
+        "updatedAt",
+      ],
       where,
       order: [["id", "DESC"]],
     })
