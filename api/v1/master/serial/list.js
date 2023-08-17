@@ -108,7 +108,7 @@ module.exports = async (req, res) => {
 
     Serial.findAll({
       ...offsetLimit,
-      attributes: ["id", "serialNumber", "status", "remark", "createdAt"],
+      attributes: ["id", "serialNumber", "status", "remark", "createdAt", "updatedAt"],
       where,
       order: [["id", "DESC"]],
     })
@@ -120,6 +120,14 @@ module.exports = async (req, res) => {
             .utc()
             .add(7, "hours")
             .format("YYYY-MM-DD HH:mm:ss");
+
+          serial.updated = null;
+          if (serial.createdAt !== serial.updatedAt) {
+            serial.updated = moment(serial.updatedAt)
+              .utc()
+              .add(7, "hours")
+              .format("YYYY-MM-DD HH:mm:ss");
+          }
 
           return serial;
         });

@@ -40,6 +40,7 @@ module.exports = async (req, res) => {
     return res.status(201).json({
       status: "success",
       data: "Data Serial berhasil diperbarui",
+      message: "Data Serial berhasil diperbarui",
     });
   } catch (error) {
     console.log("[!]Error : ", error);
