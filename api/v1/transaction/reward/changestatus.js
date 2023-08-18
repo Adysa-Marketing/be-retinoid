@@ -1,5 +1,6 @@
-const { TrReward } = require("../../../../models");
+const { TrReward, User } = require("../../../../models");
 const logger = require("../../../../libs/logger");
+const wabot = require("../../../../libs/wabot");
 
 const Validator = require("fastest-validator");
 const v = new Validator();
@@ -7,7 +8,6 @@ const v = new Validator();
 module.exports = async (req, res) => {
   const source = req.body;
   const user = req.user;
-  console.log("source", source);
 
   try {
     const schema = {
@@ -38,7 +38,7 @@ module.exports = async (req, res) => {
     logger.info({ source, payload });
 
     const trReward = await TrReward.findOne({
-      attributes: ["id", "statusId", "rewardId"],
+      attributes: ["id", "statusId", "rewardId", "userId"],
       where: { id, ...queryMember },
     });
 
@@ -70,7 +70,28 @@ module.exports = async (req, res) => {
         message: "Mohon maaf, Data Transaksi Reward sudah tidak dapat diubah",
       });
 
+    const userData = await User.findOne({
+      attributes: ["id", "name", "username", "phone"],
+      where: { id: trReward.userId },
+    });
+
     await trReward.update(payload);
+
+    let message = "";
+    const statusId = source.statusId;
+    statusId == "2" // cancel
+      ? (message = `*[Transaksi Reward] - ADYSA MARKETING*\n\nHi *${userData.username}*, Transaksi reward anda berhasil dibatalkan.`)
+      : statusId == "3" // reject
+      ? (message = `*[Transaksi Reward] - ADYSA MARKETING*\n\nHi *${userData.username}*, Mohon maaf transaksi reward anda ditolak oleh admin dengan alasan ${source.remark}.`)
+      : statusId == "4" // approved
+      ? (message = `*[Transaksi Reward] - ADYSA MARKETING*\n\nHi *${userData.username}*, Transaksi reward anda sudah di approve oleh admin. silahkan menunggu beberapa saat untuk informasi resi pengiriman`)
+      : (message = `*[Transaksi Reward] - ADYSA MARKETING*\n\nHi *${userData.username}*, Selamat reward anda sudah dalam proses pengiriman dengan detail resi [ *${source.remark}* ]`); // delivered
+
+    // send message
+    wabot.Send({
+      to: userData.phone,
+      message,
+    });
 
     return res.json({
       status: "success",

@@ -1,6 +1,7 @@
 const { TrReward, Reward, Referral, User } = require("../../../../models");
 const logger = require("../../../../libs/logger");
 const { RemoveFile } = require("./asset");
+const wabot = require("../../../../libs/wabot");
 
 const moment = require("moment");
 const Sequelize = require("sequelize");
@@ -54,7 +55,7 @@ module.exports = async (req, res) => {
     logger.info({ source, payload });
 
     const reward = await Reward.findOne({
-      attributes: ["id", "point", "minFoot"],
+      attributes: ["id", "name", "description", "point", "minFoot"],
       where: { id: source.rewardId },
     });
     if (!reward) {
@@ -107,6 +108,17 @@ module.exports = async (req, res) => {
     if (checkPoint.length >= reward.minFoot) {
       // buat transaksi
       await TrReward.create(payload);
+
+      const userData = await User.findOne({
+        attributes: ["id", "phone", "username"],
+        where: { id: user.id },
+      });
+
+      wabot.Send({
+        to: userData.phone,
+        message: `*[Transaksi Reward] - ADYSA MARKETING*\n\nHi *${userData.username}*, permintaan reward berhasil dengan detail : \n\n1. Item : *${reward.name}* \n2. Persyaratan : Minimal *${reward.minFoot}* kaki/downline dengan masing-masing *${reward.point}* point tiap kaki/downline \n3. Deskripsi : ${reward.description} \n4. Alamat Pengiriman : ${source.address} \n\nData yang anda ajukan akan segera di proses oleh admin, mohon kesediaan-nya untuk menunggu. \n\nTerimakasih`,
+      });
+
       return res.status(201).json({
         status: "success",
         message:

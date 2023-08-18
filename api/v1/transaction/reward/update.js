@@ -1,5 +1,6 @@
 const { TrReward, Reward, Referral, User } = require("../../../../models");
 const logger = require("../../../../libs/logger");
+const wabot = require("../../../../libs/wabot");
 const { RemoveFile } = require("./asset");
 const Sequelize = require("sequelize");
 const Op = Sequelize.Op;
@@ -133,6 +134,16 @@ module.exports = async (req, res) => {
       if (checkPoint.length >= reward.minFoot) {
         // buat transaksi
         await trReward.update(payload);
+
+        const userData = await User.findOne({
+          attributes: ["id", "username", "phone"],
+          where: { id: user.id },
+        });
+
+        wabot.Send({
+          to: userData.phone,
+          message: `*[Transaksi Reward] - ADYSA MARKETING*\n\nHi *${userData.username}*, update transaksi reward berhasil dengan detail : \n\n1. Item : *${reward.name}* \n2. Persyaratan : Minimal *${reward.minFoot}* kaki/downline dengan masing-masing *${reward.point}* point tiap kaki/downline \n3. Deskripsi : ${reward.description} \n4. Alamat Pengiriman : ${source.address} \n\nData yang anda ajukan akan segera di proses oleh admin, mohon kesediaan-nya untuk menunggu. \n\nTerimakasih`,
+        });
         return res.status(200).json({
           status: "success",
           message:
@@ -151,6 +162,17 @@ module.exports = async (req, res) => {
     await RemoveImg(trReward, true);
 
     await trReward.update(payload);
+
+    const userData = await User.findOne({
+      attributes: ["id", "username", "phone"],
+      where: { id: user.id },
+    });
+
+    wabot.Send({
+      to: userData.phone,
+      message: `*[Transaksi Reward] - ADYSA MARKETING*\n\nHi *${userData.username}*, update transaksi reward berhasil dengan detail : \n\n1. Item : *${reward.name}* \n2. Persyaratan : Minimal *${reward.minFoot}* kaki/downline dengan masing-masing *${reward.point}* point tiap kaki/downline \n3. Deskripsi : ${reward.description} \n4. Alamat Pengiriman : ${source.address} \n\nData yang anda ajukan akan segera di proses oleh admin, mohon kesediaan-nya untuk menunggu. \n\nTerimakasih`,
+    });
+
     return res.status(200).json({
       status: "success",
       message:

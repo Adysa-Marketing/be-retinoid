@@ -1,7 +1,8 @@
-const { TrReward } = require("../../../../models");
+const { TrReward, User } = require("../../../../models");
 const { RemoveFile } = require("./asset");
 const logger = require("../../../../libs/logger");
 const db = require("../../../../models");
+const wabot = require("../../../../libs/wabot");
 
 const Validator = require("fastest-validator");
 const v = new Validator();
@@ -46,6 +47,16 @@ module.exports = async (req, res) => {
     await trReward.destroy({ transaction });
 
     transaction.commit();
+
+    const userData = await User.findOne({
+      attributes: ["id", "username", "phone"],
+      where: { id: user.id },
+    });
+
+    wabot.Send({
+      to: userData.phone,
+      message: `*[Transaksi Reward] - ADYSA MARKETING*\n\nHi *${userData.username}*, Transaksi reward anda berhasil dihapus.`,
+    });
     return res.json({
       status: "success",
       message: "Data Transaksi Reward berhasil dihapus",
