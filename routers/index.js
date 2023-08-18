@@ -34,6 +34,10 @@ app.use(
   Auth.unless({
     path: [
       "/api/v1/user/login",
+      "/api/v1/user/reset/sendotp",
+      "/api/v1/user/reset/verify",
+      "/api/v1/user/reset/isvalid",
+      "/api/v1/user/reset/change",
       "/api/v1/user/register",
       "/api/v1/master/article/list",
       "/api/v1/master/article/detail/:slug",

@@ -34,6 +34,7 @@
     "express-useragent": "^1.0.15",
     "fastest-validator": "^1.17.0",
     "get-caller-file": "^2.0.5",
+    "js-sha512": "^0.8.0",
     "json-beautify": "^1.1.1",
     "jsonwebtoken": "^9.0.0",
     "lodash": "^4.17.21",

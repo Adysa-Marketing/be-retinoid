@@ -54,6 +54,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.BOOLEAN,
         defaultValue: true,
       },
+      confirmCode: DataTypes.STRING,
       remark: DataTypes.STRING,
     },
     {

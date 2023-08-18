@@ -1,6 +1,7 @@
 const { User } = require("../../../../models");
 const logger = require("../../../../libs/logger");
 const bcrypt = require("bcryptjs");
+const wabot = require("../../../../libs/wabot");
 const Validator = require("fastest-validator");
 const v = new Validator();
 
@@ -24,7 +25,7 @@ module.exports = async (req, res) => {
 
     logger.info(source);
     const user = await User.findOne({
-      attributes: ["id", "name", "password"],
+      attributes: ["id", "name", "username", "password", "phone"],
       where: { id },
     });
     if (!user)
@@ -41,6 +42,12 @@ module.exports = async (req, res) => {
     }
 
     await user.update({ password });
+
+    wabot.Send({
+      to: user.phone,
+      message: `*[PASSWORD RESET] - ADYSA MARKETING*\n\nHi *${user.username}*, Password anda berhasil diubah. Demi menjaga keamanan account anda, JANGAN BERIKAN password anda kepada siapapun.`,
+    });
+
     return res.json({
       status: "success",
       message: "Password User berhasil diperbarui",
