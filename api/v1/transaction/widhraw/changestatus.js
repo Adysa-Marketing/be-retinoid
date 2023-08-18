@@ -162,12 +162,12 @@ module.exports = async (req, res) => {
     let message = "";
     const statusId = source.statusId;
     statusId == "2" // cancel
-      ? (message = `[Transaksi Widhraw] - ADYSA MARKETING\n\nHi *${userData.username}*, Transaksi widhraw anda berhasil dibatalkan dan saldo anda berhasil dikembalikan`)
+      ? (message = `*[Transaksi Widhraw] - ADYSA MARKETING*\n\nHi *${userData.username}*, Transaksi widhraw anda berhasil dibatalkan dan saldo anda berhasil dikembalikan`)
       : statusId == "3" // reject
-      ? (message = `[Transaksi Widhraw] - ADYSA MARKETING\n\nHi *${userData.username}*, Mohon maaf transaksi widhraw anda ditolak oleh admin dengan alasan ${source.remark} dan saldo anda berhasil dikembalikan!`)
+      ? (message = `*[Transaksi Widhraw] - ADYSA MARKETING*\n\nHi *${userData.username}*, Mohon maaf transaksi widhraw anda ditolak oleh admin dengan alasan ${source.remark} dan saldo anda berhasil dikembalikan!`)
       : statusId == "4" // approved
-      ? (message = `[Transaksi Widhraw] - ADYSA MARKETING\n\nHi *${userData.username}*, Transaksi widhraw anda sudah di approve oleh admin. silahkan menunggu beberapa saat untuk proses transfer`)
-      : (message = `[Transaksi Widhraw] - ADYSA MARKETING\n\nHi *${
+      ? (message = `*[Transaksi Widhraw] - ADYSA MARKETING*\n\nHi *${userData.username}*, Transaksi widhraw anda sudah di approve oleh admin. silahkan menunggu beberapa saat untuk proses transfer`)
+      : (message = `*[Transaksi Widhraw] - ADYSA MARKETING*\n\nHi *${
           userData.username
         }*, Selamat widhraw anda sudah di transfer oleh admin dengan nominal approve *Rp.${new Intl.NumberFormat(
           "id-ID"

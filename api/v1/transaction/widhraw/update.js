@@ -134,7 +134,7 @@ module.exports = async (req, res) => {
     transaction.commit();
     wabot.Send({
       to: userData.phone,
-      message: `[Transaksi Widhraw] - ADYSA MARKETING\n\nHi *${
+      message: `*[Transaksi Widhraw] - ADYSA MARKETING*\n\nHi *${
         userData.username
       }*, update widhraw berhasil dengan detail : \n\n1. Nominal Widhraw : *Rp.${new Intl.NumberFormat(
         "id-ID"

@@ -125,7 +125,7 @@ module.exports = async (req, res) => {
 
     wabot.Send({
       to: userData.phone,
-      message: `[Transaksi Stokis] - ADYSA MARKETING\n\nHi *${
+      message: `*[Transaksi Stokis] - ADYSA MARKETING*\n\nHi *${
         userData.username
       }*, pengajuan tarsaksi Stokis anda berhasil dengan detail : \n\n1. Nama Stokis : *${
         checkDataStokis.name

@@ -52,7 +52,7 @@ module.exports = async (req, res) => {
 
     wabot.Send({
       to: userData.phone,
-      message: `[Transaksi Stokis] - ADYSA MARKETING\n\nHi *${userData.username}*, Transaksi stokis anda berhasil dihapus. apabila anda telah melakukan transfer pembayaran, harap menghubungi admin untuk melakukan pengembalian pembayaran dengan menyertakan data diri dan bukti transfer yang telah dilakukan \n\nTerimakasih`,
+      message: `*[Transaksi Stokis] - ADYSA MARKETING*\n\nHi *${userData.username}*, Transaksi stokis anda berhasil dihapus. apabila anda telah melakukan transfer pembayaran, harap menghubungi admin untuk melakukan pengembalian pembayaran dengan menyertakan data diri dan bukti transfer yang telah dilakukan \n\nTerimakasih`,
     });
 
     return res.json({

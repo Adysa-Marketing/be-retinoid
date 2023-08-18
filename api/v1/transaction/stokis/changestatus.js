@@ -122,10 +122,10 @@ module.exports = async (req, res) => {
     let message = "";
     const statusId = source.statusId;
     statusId == "2" // cancel
-      ? (message = `[Transaksi Stokis] - ADYSA MARKETING\n\nHi *${userData.username}*, Transaksi stokis anda berhasil dibatalkan. apabila anda telah melakukan transfer pembayaran, harap menghubungi admin untuk melakukan pengembalian pembayaran dengan menyertakan data diri dan bukti transfer yang telah dilakukan. \n\nTerimakasih`)
+      ? (message = `*[Transaksi Stokis] - ADYSA MARKETING*\n\nHi *${userData.username}*, Transaksi stokis anda berhasil dibatalkan. apabila anda telah melakukan transfer pembayaran, harap menghubungi admin untuk melakukan pengembalian pembayaran dengan menyertakan data diri dan bukti transfer yang telah dilakukan. \n\nTerimakasih`)
       : statusId == "3" // reject
-      ? (message = `[Transaksi Stokis] - ADYSA MARKETING\n\nHi *${userData.username}*, Mohon maaf transaksi stokis anda ditolak oleh admin dengan alasan ${source.remark}. apabila anda telah melakukan transfer pembayaran, harap menghubungi admin untuk melakukan pengembalian pembayaran dengan menyertakan data diri dan bukti transfer yang telah dilakukan. \n\nTerimakasih`)
-      : (message = `[Transaksi Stokis] - ADYSA MARKETING\n\nHi *${userData.username}*, Transaksi stokis anda sudah di approve oleh admin. akses akun anda akan segera di upgrade sebagai AGEN, mohon tunggu beberapa saat.\n\nTerimakasih`); // approved
+      ? (message = `*[Transaksi Stokis] - ADYSA MARKETING*\n\nHi *${userData.username}*, Mohon maaf transaksi stokis anda ditolak oleh admin dengan alasan ${source.remark}. apabila anda telah melakukan transfer pembayaran, harap menghubungi admin untuk melakukan pengembalian pembayaran dengan menyertakan data diri dan bukti transfer yang telah dilakukan. \n\nTerimakasih`)
+      : (message = `*[Transaksi Stokis] - ADYSA MARKETING*\n\nHi *${userData.username}*, Transaksi stokis anda sudah di approve oleh admin. akses akun anda akan segera di upgrade sebagai AGEN, mohon tunggu beberapa saat.\n\nTerimakasih`); // approved
 
     waMessage = {
       to: userData.phone,

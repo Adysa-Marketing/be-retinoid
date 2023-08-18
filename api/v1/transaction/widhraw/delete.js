@@ -70,7 +70,7 @@ module.exports = async (req, res) => {
 
     wabot.Send({
       to: userData.phone,
-      message: `[Transaksi Widhraw] - ADYSA MARKETING\n\nHi *${userData.username}*, Transaksi widhraw anda berhasil dihapus ${messageRefund}`,
+      message: `*[Transaksi Widhraw] - ADYSA MARKETING*\n\nHi *${userData.username}*, Transaksi widhraw anda berhasil dihapus ${messageRefund}`,
     });
     return res.json({
       status: "success",
