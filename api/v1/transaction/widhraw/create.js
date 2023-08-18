@@ -104,6 +104,7 @@ module.exports = async (req, res) => {
     );
 
     transaction.commit();
+
     wabot.Send({
       to: userData.phone,
       message: `[Transaksi Widhraw] - ADYSA MARKETING\n\nHi *${

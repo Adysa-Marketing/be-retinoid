@@ -161,11 +161,11 @@ module.exports = async (req, res) => {
     // set custom message
     let message = "";
     const statusId = source.statusId;
-    statusId == 2 // cancel
+    statusId == "2" // cancel
       ? (message = `[Transaksi Widhraw] - ADYSA MARKETING\n\nHi *${userData.username}*, Transaksi widhraw anda berhasil dibatalkan dan saldo anda berhasil dikembalikan`)
-      : statusId == 3 // reject
+      : statusId == "3" // reject
       ? (message = `[Transaksi Widhraw] - ADYSA MARKETING\n\nHi *${userData.username}*, Mohon maaf transaksi widhraw anda ditolak oleh admin dengan alasan ${source.remark} dan saldo anda berhasil dikembalikan!`)
-      : statusId == 4 // approved
+      : statusId == "4" // approved
       ? (message = `[Transaksi Widhraw] - ADYSA MARKETING\n\nHi *${userData.username}*, Transaksi widhraw anda sudah di approve oleh admin. silahkan menunggu beberapa saat untuk proses transfer`)
       : (message = `[Transaksi Widhraw] - ADYSA MARKETING\n\nHi *${
           userData.username

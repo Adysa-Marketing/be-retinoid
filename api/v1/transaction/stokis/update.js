@@ -1,6 +1,7 @@
-const { TrStokis } = require("../../../../models");
+const { TrStokis, User, Stokis } = require("../../../../models");
 const logger = require("../../../../libs/logger");
 const { RemoveFile } = require("./asset");
+const wabot = require("../../../../libs/wabot");
 
 const Validator = require("fastest-validator");
 const v = new Validator();
@@ -87,6 +88,7 @@ module.exports = async (req, res) => {
     const id = source.id;
     const queryMember = [3, 4].includes(user.roleId) ? { userId: user.id } : {};
     const trStokis = await TrStokis.findOne({
+      attributes: ["id", "stokisId"],
       where: {
         id,
         ...queryMember,
@@ -103,9 +105,42 @@ module.exports = async (req, res) => {
       });
     }
 
+    const checkDataStokis = await Stokis.findOne({
+      attributes: ["id", "name", "discount", "description"],
+      where: {
+        id: source.stokisId ? source.stokisId : trStokis.stokisId,
+      },
+    });
+
+    if (!checkDataStokis) {
+      return res.status(400).json({
+        status: "error",
+        message: "Permintaan gagal, data stokis tidak ditemukan",
+      });
+    }
+
     RemoveImg(trStokis, true);
 
     await trStokis.update(payload);
+
+    const userData = await User.findOne({
+      attributes: ["id", "username", "phone"],
+      where: { id: user.id },
+    });
+
+    wabot.Send({
+      to: userData.phone,
+      message: `[Transaksi Stokis] - ADYSA MARKETING\n\nHi *${
+        userData.username
+      }*, update tarsaksi Stokis anda berhasil dengan detail : \n\n1. Nama Stokis : *${
+        checkDataStokis.name
+      }* \n2. Harga : *Rp.${new Intl.NumberFormat("id-ID").format(
+        checkDataStokis.discount
+      )}* \n3. Deskripsi : ${
+        checkDataStokis.description
+      } \n\nData yang anda ajukan akan segera di proses oleh admin, mohon kesediaan-nya untuk menunggu. \n\nTerimakasih`,
+    });
+
     return res.status(201).json({
       status: "success",
       message:

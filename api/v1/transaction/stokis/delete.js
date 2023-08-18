@@ -1,6 +1,7 @@
-const { TrStokis } = require("../../../../models");
+const { TrStokis, User } = require("../../../../models");
 const { RemoveFile } = require("./asset");
 const logger = require("../../../../libs/logger");
+const wabot = require("../../../../libs/wabot");
 
 const Validator = require("fastest-validator");
 const v = new Validator();
@@ -41,8 +42,18 @@ module.exports = async (req, res) => {
         message: "Mohon maaf, Data Transaksi Stokis tidak dapat dihapus",
       });
 
+    const userData = await User.findOne({
+      attributes: ["id", "username", "phone"],
+      where: { id: trStokis.userId },
+    });
+
     await RemoveFile(trStokis, true);
     await trStokis.destroy();
+
+    wabot.Send({
+      to: userData.phone,
+      message: `[Transaksi Stokis] - ADYSA MARKETING\n\nHi *${userData.username}*, Transaksi stokis anda berhasil dihapus. apabila anda telah melakukan transfer pembayaran, harap menghubungi admin untuk melakukan pengembalian pembayaran dengan menyertakan data diri dan bukti transfer yang telah dilakukan \n\nTerimakasih`,
+    });
 
     return res.json({
       status: "success",

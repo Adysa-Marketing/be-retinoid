@@ -5,7 +5,6 @@ const { RemoveFile } = require("./asset");
 const wabot = require("../../../../libs/wabot");
 
 const bcryptjs = require("bcryptjs");
-const sequelize = require("sequelize");
 const Validator = require("fastest-validator");
 const v = new Validator();
 

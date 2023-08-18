@@ -1,6 +1,7 @@
 const { TrStokis, Stokis, Mutation, User } = require("../../../../models");
 const logger = require("../../../../libs/logger");
 const db = require("../../../../models");
+const wabot = require("../../../../libs/wabot");
 
 const Validator = require("fastest-validator");
 const v = new Validator();
@@ -9,6 +10,10 @@ module.exports = async (req, res) => {
   const source = req.body;
   const user = req.user;
   const transaction = await db.sequelize.transaction({ autocommit: false });
+  let waMessage = {
+    to: null,
+    message: null,
+  };
 
   try {
     const schema = {
@@ -16,7 +21,7 @@ module.exports = async (req, res) => {
       statusId: {
         type: "number",
         empty: false,
-        enum: [1, 2, 3, 4, 5],
+        enum: [1, 2, 3, 4],
       },
       remark: "string|optional",
     };
@@ -105,8 +110,30 @@ module.exports = async (req, res) => {
       );
     }
 
+    const userData = await User.findOne({
+      attributes: ["id", "name", "username", "phone"],
+      where: { id: trStokis.userId },
+    });
+
     await trStokis.update(payload, { transaction });
     transaction.commit();
+
+    // set custom message
+    let message = "";
+    const statusId = source.statusId;
+    statusId == "2" // cancel
+      ? (message = `[Transaksi Stokis] - ADYSA MARKETING\n\nHi *${userData.username}*, Transaksi stokis anda berhasil dibatalkan. apabila anda telah melakukan transfer pembayaran, harap menghubungi admin untuk melakukan pengembalian pembayaran dengan menyertakan data diri dan bukti transfer yang telah dilakukan. \n\nTerimakasih`)
+      : statusId == "3" // reject
+      ? (message = `[Transaksi Stokis] - ADYSA MARKETING\n\nHi *${userData.username}*, Mohon maaf transaksi stokis anda ditolak oleh admin dengan alasan ${source.remark}. apabila anda telah melakukan transfer pembayaran, harap menghubungi admin untuk melakukan pengembalian pembayaran dengan menyertakan data diri dan bukti transfer yang telah dilakukan. \n\nTerimakasih`)
+      : (message = `[Transaksi Stokis] - ADYSA MARKETING\n\nHi *${userData.username}*, Transaksi stokis anda sudah di approve oleh admin. akses akun anda akan segera di upgrade sebagai AGEN, mohon tunggu beberapa saat.\n\nTerimakasih`); // approved
+
+    waMessage = {
+      to: userData.phone,
+      message,
+    };
+    // send message
+    wabot.Send(waMessage);
+
     logger.info({ source, payload });
     return res.json({
       status: "success",
