@@ -170,13 +170,13 @@ module.exports = async (req, res) => {
       attributes: ["id", "username", "phone"],
       where: { id: sponsor.userId },
     });
-    const message = `[Bonus Generasi] - ADYSA MARKETING\n\nHi ${
+    const message = `*[Bonus Generasi] - ADYSA MARKETING*\n\nHi *${
       userUpliner.username
-    }, Selamat anda mendapatkan bonus generasi senilai Rp.${new Intl.NumberFormat(
+    }*, Selamat anda mendapatkan bonus generasi senilai *Rp. ${new Intl.NumberFormat(
       "id-ID"
-    ).format(commission)} dari downline ${
+    ).format(commission)}* dari downline *${
       userData.name
-    } dengan kedalaman level 1`;
+    }* dengan kedalaman *level 1*`;
 
     await Commission.create(
       {
@@ -238,7 +238,7 @@ module.exports = async (req, res) => {
     const phone = source.phone.replace("08", "628");
     wabot.Send({
       to: phone,
-      message: `[Pendaftaran Member] - ADYSA MARKETING\n\nHi ${source.username}, Selamat pendaftaran anda telah berhasil`,
+      message: `*[Pendaftaran Member] - ADYSA MARKETING*\n\nHi *${source.username}*, Selamat pendaftaran anda telah berhasil`,
     });
     // end notifikasi wa bot
 
@@ -312,13 +312,13 @@ const calculateDownlineBonus = async (
     attributes: ["id", "username", "phone"],
     where: { id: userUplineId },
   });
-  const message = `[Bonus Generasi] - ADYSA MARKETING\n\nHi ${
+  const message = `*[Bonus Generasi] - ADYSA MARKETING*\n\nHi *${
     userUpliner.username
-  }, Selamat anda mendapatkan bonus generasi senilai Rp.${new Intl.NumberFormat(
+  }*, Selamat anda mendapatkan bonus generasi senilai *Rp. ${new Intl.NumberFormat(
     "id-ID"
   ).format(
     commission
-  )} dari downline ${downlineName} dengan kedalaman level ${level}`;
+  )}* dari downline *${downlineName}* dengan kedalaman *level ${level}*`;
 
   // create commission
   await Commission.create(
