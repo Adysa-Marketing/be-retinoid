@@ -20,6 +20,9 @@ app.use(express.static(path.join(__dirname, "public")));
 
 const port = config.port;
 
+// token wabot
+global.token = config.token
+
 app.use("/api/v1", router);
 
 app.listen(port, () => {

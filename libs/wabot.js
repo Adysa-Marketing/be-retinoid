@@ -7,7 +7,7 @@ const axios = require("axios");
 module.exports.Send = (payloadData) => {
   return new Promise((resolve, reject) => {
     const headers = {
-      token: config.token,
+      token: token, // global var token
     };
     logger.info({ sending: payloadData, headers });
     axios
