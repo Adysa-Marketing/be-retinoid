@@ -10,7 +10,7 @@ const {
   Role,
 } = require("../../../../models");
 const logger = require("../../../../libs/logger");
-const moment = require("moment");
+const sanitizeHtml = require("sanitize-html");
 const Validator = require("fastest-validator");
 const v = new Validator();
 
@@ -112,6 +112,12 @@ module.exports = async (req, res) => {
       return res
         .status(404)
         .json({ status: "error", message: "Data User tidak ditemukan" });
+
+    user = JSON.parse(JSON.stringify(user));
+    user.remark = sanitizeHtml(user.remark, {
+      allowedTags: [],
+      allowedAttributes: {},
+    });
 
     return res.json({
       status: "success",

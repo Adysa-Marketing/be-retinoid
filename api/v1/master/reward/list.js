@@ -1,6 +1,7 @@
 const { Reward, Referral, User, TrReward } = require("../../../../models");
 const logger = require("../../../../libs/logger");
 const Sequelize = require("sequelize");
+const sanitizeHtml = require("sanitize-html");
 const Op = Sequelize.Op;
 const Validator = require("fastest-validator");
 const v = new Validator();
@@ -71,7 +72,7 @@ module.exports = async (req, res) => {
     const limit = rowsPerPage !== "All" ? rowsPerPage : totalData;
     const offsetLimit = rowsPerPage !== "All" ? { offset, limit } : {};
 
-    const data = await Reward.findAll({
+    Reward.findAll({
       ...offsetLimit,
       attributes: [
         "id",
@@ -84,14 +85,32 @@ module.exports = async (req, res) => {
       ],
       where: { ...keyword },
       order: [["id", "ASC"]],
-    });
+    })
+      .then((result) => {
+        result = JSON.parse(JSON.stringify(result));
+        const data = result.map((reward) => {
+          reward.description = sanitizeHtml(reward.description, {
+            allowedTags: [],
+            allowedAttributes: {},
+          });
 
-    return res.json({
-      status: "success",
-      data,
-      totalData,
-      totalPages,
-    });
+          return reward;
+        });
+
+        return res.json({
+          status: "success",
+          data,
+          totalData,
+          totalPages,
+        });
+      })
+      .catch((error) => {
+        console.log("[!] Error : ", error);
+        return res.status(400).json({
+          status: "error",
+          message: error.message,
+        });
+      });
   } catch (error) {
     console.log("[!] Error : ", error);
     return res.status(500).json({

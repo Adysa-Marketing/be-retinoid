@@ -116,6 +116,7 @@ module.exports = async (req, res) => {
         "isActive",
       ],
       where,
+      order: [["id", "DESC"]],
     });
 
     return res.json({

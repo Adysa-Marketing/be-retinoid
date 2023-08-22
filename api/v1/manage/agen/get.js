@@ -1,69 +1,3 @@
-// const { User, Role, Agen } = require("../../../../models");
-// const logger = require("../../../../libs/logger");
-// const Validator = require("fastest-validator");
-// const v = new Validator();
-// const moment = require("moment");
-
-// module.exports = async (req, res) => {
-//   try {
-//     const schema = {
-//       id: "string|empty:false",
-//     };
-
-//     const validate = v.compile(schema)(req.params);
-//     if (validate.length)
-//       return res.status(400).json({
-//         status: "error",
-//         message: validate,
-//       });
-
-//     const id = req.params.id;
-//     const agen = await Agen.findOne({
-//       attributes: ["id", "name", "dateApproved"],
-//       include: [
-//         {
-//           attributes: [
-//             "id",
-//             "name",
-//             "username",
-//             "email",
-//             "phone",
-//             "image",
-//             "isActive",
-//           ],
-//           include: {
-//             attributes: ["id", "name"],
-//             model: Role,
-//           },
-//           model: User,
-//         },
-//       ],
-//     });
-
-//     logger.info({ id });
-//     if (!agen)
-//       return res
-//         .status(404)
-//         .json({ status: "error", message: "Data Agen tidak ditemukan" });
-
-//     agen.dateApproved = moment(agen.dateApproved)
-//       .utc()
-//       .add(7, "hours")
-//       .format("YYYY-MM-DD HH:mm:ss");
-
-//     return res.json({
-//       status: "success",
-//       data: agen,
-//     });
-//   } catch (error) {
-//     console.log("[!] Error : ", error);
-//     return res.status(500).json({
-//       status: "error",
-//       message: error.message,
-//     });
-//   }
-// };
-
 const {
   User,
   Testimonial,
@@ -78,7 +12,7 @@ const {
 const logger = require("../../../../libs/logger");
 const Validator = require("fastest-validator");
 const v = new Validator();
-const moment = require("moment");
+const sanitizeHtml = require("sanitize-html");
 
 module.exports = async (req, res) => {
   try {
@@ -178,6 +112,12 @@ module.exports = async (req, res) => {
       return res
         .status(404)
         .json({ status: "error", message: "Data Agen tidak ditemukan" });
+
+    user = JSON.parse(JSON.stringify(user));
+    user.remark = sanitizeHtml(user.remark, {
+      allowedTags: [],
+      allowedAttributes: {},
+    });
 
     return res.json({
       status: "success",

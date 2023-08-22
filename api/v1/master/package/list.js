@@ -1,6 +1,7 @@
 const { Package } = require("../../../../models");
 const logger = require("../../../../libs/logger");
 const Sequelize = require("sequelize");
+const sanitizeHtml = require("sanitize-html");
 const Op = Sequelize.Op;
 const Validator = require("fastest-validator");
 const v = new Validator();
@@ -75,19 +76,36 @@ module.exports = async (req, res) => {
     const limit = rowsPerPage !== "All" ? rowsPerPage : totalData;
     const offsetLimit = rowsPerPage !== "All" ? { offset, limit } : {};
 
-    const data = await Package.findAll({
+    await Package.findAll({
       ...offsetLimit,
       attributes: ["id", "name", "type", "amount", "description", "image"],
       where,
       order: [["id", "ASC"]],
-    });
+    })
+      .then((result) => {
+        result = JSON.parse(JSON.stringify(result));
+        const data = result.map((package) => {
+          package.description = sanitizeHtml(package.description, {
+            allowedTags: [],
+            allowedAttributes: {},
+          });
+          return package;
+        });
 
-    return res.json({
-      status: "success",
-      data,
-      totalData,
-      totalPages,
-    });
+        return res.json({
+          status: "success",
+          data,
+          totalData,
+          totalPages,
+        });
+      })
+      .catch((error) => {
+        console.log("[!] Error : ", error);
+        return res.status(500).json({
+          status: "error",
+          message: error.message,
+        });
+      });
   } catch (error) {
     console.log("[!] Error : ", error);
     return res.status(500).json({

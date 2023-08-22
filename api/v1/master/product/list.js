@@ -6,6 +6,7 @@ const {
 } = require("../../../../models");
 const logger = require("../../../../libs/logger");
 const Sequelize = require("sequelize");
+const sanitizeHtml = require("sanitize-html");
 const Op = Sequelize.Op;
 const Validator = require("fastest-validator");
 const v = new Validator();
@@ -118,6 +119,11 @@ module.exports = async (req, res) => {
                   ? parseInt(user.profit) * 2
                   : parseInt(user.profit);
             }
+
+            product.description = sanitizeHtml(product.description, {
+              allowedTags: [],
+              allowedAttributes: {},
+            });
 
             return {
               discount,

@@ -1,6 +1,7 @@
 const { ProductCategory } = require("../../../../models");
 const logger = require("../../../../libs/logger");
 const Sequelize = require("sequelize");
+const sanitizeHtml = require("sanitize-html");
 const Op = Sequelize.Op;
 const Validator = require("fastest-validator");
 const v = new Validator();
@@ -70,19 +71,38 @@ module.exports = async (req, res) => {
     const limit = rowsPerPage !== "All" ? rowsPerPage : totalData;
     const offsetLimit = rowsPerPage !== "All" ? { offset, limit } : {};
 
-    const data = await ProductCategory.findAll({
+    ProductCategory.findAll({
       ...offsetLimit,
       attributes: ["id", "name", "remark"],
       where: { ...keyword },
       order: [["id", "DESC"]],
-    });
+    })
+      .then((result) => {
+        result = JSON.parse(JSON.stringify(result));
 
-    return res.json({
-      status: "success",
-      data,
-      totalData,
-      totalPages,
-    });
+        const data = result.map((pc) => {
+          pc.remark = sanitizeHtml(pc.remark, {
+            allowedTags: [],
+            allowedAttributes: {},
+          });
+
+          return pc;
+        });
+
+        return res.json({
+          status: "success",
+          data,
+          totalData,
+          totalPages,
+        });
+      })
+      .catch((error) => {
+        console.log("[!] Error : ", error);
+        return res.status(400).json({
+          status: "error",
+          message: error.message,
+        });
+      });
   } catch (error) {
     console.log("[!] Error : ", error);
     return res.status(500).json({
