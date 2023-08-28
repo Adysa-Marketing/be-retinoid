@@ -1,6 +1,7 @@
-const { Product, TrSale } = require("../../../../models");
+const { Product, TrSale, User } = require("../../../../models");
 const logger = require("../../../../libs/logger");
 const { RemoveFile } = require("./asset");
+const wabot = require("../../../../libs/wabot");
 
 const moment = require("moment");
 const Validator = require("fastest-validator");
@@ -23,6 +24,7 @@ module.exports = async (req, res) => {
       paymentTypeId: "string|empty:false",
       userId: "string|optional",
       bankId: "string|optional",
+      address: "string|empty:false",
       remark: "string|optional",
     };
 
@@ -38,6 +40,14 @@ module.exports = async (req, res) => {
       return res.status(400).json({
         status: "error",
         message: validate,
+      });
+    }
+
+    if (![3].includes(user.roleId)) {
+      RemoveImg(files, false);
+      return res.status(404).json({
+        status: "error",
+        message: "Mohon maaf anda tidak dapat melakukan transaksi ini",
       });
     }
 
@@ -60,15 +70,17 @@ module.exports = async (req, res) => {
       statusId: 1,
       userId: source.userId ? source.userId : user.id,
       bankId: source.bankId ? source.bankId : null,
+      address: source.address,
       remark: source.remark,
     };
 
     logger.info({ source, files, payload });
 
     const produk = await Product.findOne({
-      attributes: ["id", "name", "stock"],
+      attributes: ["id", "name", "stock", "amount"],
       where: { id: source.productId },
     });
+
     if (!produk) {
       RemoveImg(files, false);
       return res.status(404).json({
@@ -86,6 +98,31 @@ module.exports = async (req, res) => {
     }
 
     await TrSale.create(payload);
+
+    const userData = await User.findOne({
+      attributes: ["id", "username", "phone"],
+      where: { id: user.id },
+    });
+
+    wabot.Send({
+      to: userData.phone,
+      message: `*[Transaksi Produk] - ADYSA MARKETING*\n\nHi *${
+        userData.username
+      }*, pengajuan transaksi Produk anda berhasil dengan detail : \n\n1. Nama Produk : *${
+        produk.name
+      }* \n2. Harga Satuan :  *Rp.${new Intl.NumberFormat("id-ID").format(
+        produk.amount
+      )}* \n3. Jumlah : *${
+        source.qty
+      }* \n4. Harga Total : *Rp.${new Intl.NumberFormat("id-ID").format(
+        source.amount
+      )}* \n5. Diskon Agen : *Rp.${new Intl.NumberFormat("id-ID").format(
+        source.discount
+      )}* \n6. Total Bayar : *Rp.${new Intl.NumberFormat("id-ID").format(
+        source.paidAmount
+      )}* \n\nData yang anda ajukan akan segera di proses oleh admin, mohon kesediaan-nya untuk menunggu. \n\nTerimakasih`,
+    });
+
     return res.status(201).json({
       status: "success",
       message:

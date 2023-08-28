@@ -29,6 +29,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.DATE,
         defaultValue: moment().format("YYYY-MM-DD HH:mm:ss"),
       },
+      address: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
       remark: DataTypes.STRING,
     },
     {

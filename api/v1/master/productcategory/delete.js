@@ -17,6 +17,13 @@ module.exports = async (req, res) => {
       });
 
     const id = req.body.id;
+
+    if ([1, 2].includes(id))
+      return res.status(404).json({
+        status: "error",
+        message: "Mohon maaf, Kategori tidak boleh dihapus",
+      });
+
     const productCategory = await ProductCategory.findByPk(id);
 
     logger.info({ id });

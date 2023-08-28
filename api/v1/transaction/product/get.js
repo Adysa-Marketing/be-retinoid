@@ -41,12 +41,13 @@ module.exports = async (req, res) => {
         "fromBank",
         "accountName",
         "date",
+        "address",
         "remark",
       ],
       where: { id, ...queryAgen },
       include: [
         {
-          attributes: ["id", "name", "email", "phone"],
+          attributes: ["id", "name", "username", "phone"],
           model: User,
         },
         {
@@ -58,11 +59,11 @@ module.exports = async (req, res) => {
           model: PaymentType,
         },
         {
-          attributes: ["id", "name"],
+          attributes: ["id", "name", "noRekening"],
           model: Bank,
         },
         {
-          attributes: ["id", "name", "amount", "image"],
+          attributes: ["id", "name", "amount", "image", "stock"],
           model: Product,
           include: {
             attributes: ["id", "name"],
@@ -78,6 +79,23 @@ module.exports = async (req, res) => {
         status: "error",
         message: "Data Transaksi Produk tidak ditemukan",
       });
+
+    trSale = JSON.parse(JSON.stringify(trSale));
+
+    if (
+      [1, 2].includes(trSale.Product?.ProductCategory?.id) &&
+      [3].includes(user.roleId)
+    ) {
+      let discount = 0;
+      discount =
+        trSale.Product?.ProductCategory?.id == 1
+          ? parseInt(user.profit) * 2
+          : trSale.Product?.ProductCategory?.id == 2
+          ? parseInt(user.profit)
+          : 0;
+
+      trSale.Product.discount = discount;
+    }
 
     trSale.date = moment(trSale.date)
       .utc()

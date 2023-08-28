@@ -132,7 +132,7 @@ module.exports = async (req, res) => {
       to: userData.phone,
       message: `*[Transaksi Stokis] - ADYSA MARKETING*\n\nHi *${
         userData.username
-      }*, update tarsaksi Stokis anda berhasil dengan detail : \n\n1. Nama Stokis : *${
+      }*, update transaksi Stokis anda berhasil dengan detail : \n\n1. Nama Stokis : *${
         checkDataStokis.name
       }* \n2. Harga : *Rp.${new Intl.NumberFormat("id-ID").format(
         checkDataStokis.discount

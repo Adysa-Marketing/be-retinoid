@@ -1,6 +1,7 @@
-const { TrSale } = require("../../../../models");
+const { TrSale, User } = require("../../../../models");
 const { RemoveFile } = require("./asset");
 const logger = require("../../../../libs/logger");
+const wabot = require("../../../../libs/wabot");
 const Validator = require("fastest-validator");
 const v = new Validator();
 
@@ -18,6 +19,14 @@ module.exports = async (req, res) => {
         status: "error",
         message: validate,
       });
+
+    if (![3].includes(user.roleId)) {
+      RemoveImg(files, false);
+      return res.status(404).json({
+        status: "error",
+        message: "Mohon maaf anda tidak dapat melakukan transaksi ini",
+      });
+    }
 
     const id = req.body.id;
     const queryAgen = [3].includes(user.roleId) ? { userId: user.id } : {};
@@ -41,8 +50,18 @@ module.exports = async (req, res) => {
       });
     }
 
+    const userData = await User.findOne({
+      attributes: ["id", "username", "phone"],
+      where: { id: trSale.userId },
+    });
+
     await RemoveFile(trSale, true);
     await trSale.destroy();
+
+    wabot.Send({
+      to: userData.phone,
+      message: `*[Transaksi Produk] - ADYSA MARKETING*\n\nHi *${userData.username}*, Transaksi Produk anda berhasil dihapus. apabila anda telah melakukan transfer pembayaran, harap menghubungi admin untuk melakukan pengembalian pembayaran dengan menyertakan data diri dan bukti transfer yang telah dilakukan \n\nTerimakasih`,
+    });
 
     return res.json({
       status: "success",

@@ -1,13 +1,6 @@
 const env = process.env.NODE_ENV;
 const config = require("../../../../config/core")[env];
-const {
-  Product,
-  TrSale,
-  User,
-  Bank,
-  PaymentType,
-  TrStatus,
-} = require("../../../../models");
+const { Product, TrSale, User, Bank, TrStatus } = require("../../../../models");
 const logger = require("../../../../libs/logger");
 const Sequelize = require("sequelize");
 const Op = Sequelize.Op;
@@ -102,7 +95,7 @@ module.exports = async (req, res) => {
 
     const includeParent = [
       {
-        attributes: ["id", "name", "email", "phone"],
+        attributes: ["id", "name", "email"],
         model: User,
       },
       {
@@ -111,14 +104,10 @@ module.exports = async (req, res) => {
       },
       {
         attributes: ["id", "name"],
-        model: PaymentType,
-      },
-      {
-        attributes: ["id", "name"],
         model: Bank,
       },
       {
-        attributes: ["id", "name", "amount", "image"],
+        attributes: ["id", "name"],
         model: Product,
         where: {
           ...queryCategory,
@@ -155,9 +144,6 @@ module.exports = async (req, res) => {
         "discount",
         "paidAmount",
         "qty",
-        "image",
-        "fromBank",
-        "accountName",
         "date",
         "remark",
       ],

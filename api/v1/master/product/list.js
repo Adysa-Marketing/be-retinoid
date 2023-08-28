@@ -117,7 +117,9 @@ module.exports = async (req, res) => {
               discount =
                 product.ProductCategory.id == 1
                   ? parseInt(user.profit) * 2
-                  : parseInt(user.profit);
+                  : product.ProductCategory.id == 2
+                  ? parseInt(user.profit)
+                  : 0;
             }
 
             product.description = sanitizeHtml(product.description, {

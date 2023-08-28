@@ -4,6 +4,7 @@ const db = require("../../../../models");
 const Validator = require("fastest-validator");
 const v = new Validator();
 const moment = require("moment");
+const wabot = require("../../../../libs/wabot");
 
 module.exports = async (req, res) => {
   const source = req.body;
@@ -63,6 +64,26 @@ module.exports = async (req, res) => {
     }
 
     transaction.commit();
+
+    const userData = await User.findOne({
+      attributes: ["id", "name", "username", "phone"],
+      where: { id: agen.userId },
+    });
+
+    // set custom message
+    let message = "";
+    const statusId = source.statusId;
+    statusId == "2" // disable
+      ? (message = `*[Informasi Agen] - ADYSA MARKETING*\n\nHi *${userData.username}*, akun anda sementara di disable oleh admin, untuk melakukan aktivasi dan informasi lebih lanjut harap hubungi admin \n\nTerimakasih`)
+      : (message = `*[Informasi Agen] - ADYSA MARKETING*\n\nHi *${userData.username}*, akun anda sudah aktif dengan level akses sebagai Agen Stokis.`); // approved
+
+    let waMessage = {
+      to: userData.phone,
+      message,
+    };
+    // send message
+    wabot.Send(waMessage);
+
     return res.json({
       status: "success",
       message: "Status Agen berhasil diperbarui",

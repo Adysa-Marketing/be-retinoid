@@ -46,18 +46,20 @@ module.exports = async (req, res) => {
         .status(404)
         .json({ status: "error", message: "Data Produk tidak ditemukan" });
 
-    if ([1].includes(product.ProductCategory.id) && [3].includes(user.roleId)) {
-      const agen = await Agen.findOne({
-        attributes: ["id", "name"],
-        where: { userId: user.id },
-        include: {
-          attributes: ["id", "agenDiscount"],
-          model: Stokis,
-        },
-        raw: true,
-      });
+    if (
+      [1, 2].includes(product.ProductCategory.id) &&
+      [3].includes(user.roleId)
+    ) {
+      let discount = 0;
+      discount =
+        product.ProductCategory.id == 1
+          ? parseInt(user.profit) * 2
+          : product.ProductCategory.id == 2
+          ? parseInt(user.profit)
+          : 0;
 
-      product.discount = agen.Stokis.agenDiscount;
+      product = JSON.parse(JSON.stringify(product));
+      product.discount = discount;
     }
 
     return res.json({

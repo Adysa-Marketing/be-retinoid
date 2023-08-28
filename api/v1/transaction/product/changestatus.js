@@ -7,6 +7,7 @@ const {
 } = require("../../../../models");
 const logger = require("../../../../libs/logger");
 const db = require("../../../../models");
+const wabot = require("../../../../libs/wabot");
 
 const sequelize = require("sequelize");
 const Op = sequelize.Op;
@@ -46,7 +47,7 @@ module.exports = async (req, res) => {
     const id = source.id;
     const queryAgen = [3].includes(user.roleId) ? { userId: user.id } : {};
 
-    const trSalse = await TrSale.findOne({
+    const trSale = await TrSale.findOne({
       attributes: [
         "id",
         "statusId",
@@ -60,7 +61,7 @@ module.exports = async (req, res) => {
       where: { id, ...queryAgen },
     });
 
-    if (!trSalse)
+    if (!trSale)
       return res.status(404).json({
         status: "error",
         message: "Mohon maaf data transaksi produk tidak ditemukan",
@@ -72,9 +73,9 @@ module.exports = async (req, res) => {
      */
     if (
       ([3].includes(user.roleId) && //agen
-        [1].includes(trSalse.statusId) && // tr.stat == 1
+        [1].includes(trSale.statusId) && // tr.stat == 1
         ![2].includes(source.statusId)) || // source.stat !== 2
-      [2, 3, 5].includes(trSalse.statusId) // (canceled, rejected, delivered)
+      [2, 3, 5].includes(trSale.statusId) // (canceled, rejected, delivered)
     )
       return res.status(400).json({
         status: "error",
@@ -84,7 +85,7 @@ module.exports = async (req, res) => {
     /**
      * Status tidak boleh diubah delivered ketika status awal !== approved
      */
-    if (trSalse.statusId !== 4 && source.statusId == 5)
+    if (trSale.statusId !== 4 && source.statusId == 5)
       return res.status(400).json({
         status: "error",
         message:
@@ -92,10 +93,10 @@ module.exports = async (req, res) => {
       });
 
     // Status Approved
-    if (source.statusId === 4 && trSalse.statusId === 1) {
+    if (source.statusId === 4 && trSale.statusId === 1) {
       const product = await Product.findOne({
         attributes: ["id", "name", "stock"],
-        where: { id: trSalse.productId },
+        where: { id: trSale.productId },
       });
 
       if (!product)
@@ -104,37 +105,37 @@ module.exports = async (req, res) => {
           message: "Mohon maaf, Data Produk tidak ditemukan",
         });
 
-      if (product.stock < trSalse.qty)
+      if (product.stock < trSale.qty)
         return res.status(400).json({
           status: "error",
           message: `Transaksi gagal, Mohon maaf jumlah pembelian melebihi stok yang tersedia. Stok tersedia saat ini adalah ${produk.stock} Produk`,
         });
 
       await product.update(
-        { stock: sequelize.literal(`stock - ${trSalse.qty}`) },
+        { stock: sequelize.literal(`stock - ${trSale.qty}`) },
         { transaction }
       );
-      await trSalse.update(payload, { transaction });
+      await trSale.update(payload, { transaction });
 
       const user = await User.findOne({
         attributes: ["id", "name"],
-        where: { id: trSalse.userId },
+        where: { id: trSale.userId },
       });
 
       await Mutation.create(
         {
           type: "Dana Masuk",
           category: "Product",
-          amount: trSalse.paidAmount,
+          amount: trSale.paidAmount,
           description: `Transaksi Produk ${product.name} dari ${
             user.name
           } sebanyak ${
-            trSalse.qty
+            trSale.qty
           } produk dengan total Rp.${new Intl.NumberFormat("id-ID").format(
-            trSalse.amount
+            trSale.amount
           )}`,
-          userId: trSalse.userId,
-          saleId: trSalse.id,
+          userId: trSale.userId,
+          saleId: trSale.id,
           remark: "",
         },
         { transaction }
@@ -145,7 +146,7 @@ module.exports = async (req, res) => {
         where: {
           [Op.and]: [
             {
-              userId: trSalse.userId,
+              userId: trSale.userId,
             },
             {
               productId: product.id,
@@ -157,9 +158,9 @@ module.exports = async (req, res) => {
       if (!agenProduct) {
         await AgenProduct.create(
           {
-            stock: trSalse.qty,
-            userId: trSalse.userId,
-            productId: trSalse.productId,
+            stock: trSale.qty,
+            userId: trSale.userId,
+            productId: trSale.productId,
           },
           { transaction }
         );
@@ -167,23 +168,54 @@ module.exports = async (req, res) => {
         // update stock
         await agenProduct.update(
           {
-            stock: sequelize.literal(`stock + ${trSalse.qty}`),
+            stock: sequelize.literal(`stock + ${trSale.qty}`),
           },
           { transaction }
         );
       }
-
-      // proses notifikasi wa kalau transaksi di approve oleh admin
+      const userData = await User.findOne({
+        attributes: ["id", "name", "username", "phone"],
+        where: { id: trSale.userId },
+      });
 
       transaction.commit();
+      // proses notifikasi wa kalau transaksi di approve oleh admin
+
+      wabot.Send({
+        to: userData.phone,
+        message: `*[Transaksi Produk] - ADYSA MARKETING*\n\nHi *${userData.username}*, Transaksi reward anda sudah di approve oleh admin. silahkan menunggu beberapa saat untuk informasi resi pengiriman.`,
+      });
+
       return res.json({
         status: "success",
         message: "Status transaksi produk berhasil di approve",
       });
     }
 
-    await trSalse.update(payload, { transaction });
+    const userData = await User.findOne({
+      attributes: ["id", "name", "username", "phone"],
+      where: { id: trSale.userId },
+    });
+
+    await trSale.update(payload, { transaction });
     transaction.commit();
+
+    let message = "";
+    const statusId = source.statusId;
+    statusId == "2" // cancel
+      ? (message = `*[Transaksi Produk] - ADYSA MARKETING*\n\nHi *${userData.username}*, Transaksi Produk anda berhasil dibatalkan.`)
+      : statusId == "3" // reject
+      ? (message = `*[Transaksi Produk] - ADYSA MARKETING*\n\nHi *${userData.username}*, Mohon maaf transaksi produk anda ditolak oleh admin dengan alasan ${source.remark}.`)
+      : statusId == "4" // approved
+      ? (message = `*[Transaksi Produk] - ADYSA MARKETING*\n\nHi *${userData.username}*, Transaksi Produk anda sudah di approve oleh admin. silahkan menunggu beberapa saat untuk informasi resi pengiriman`)
+      : (message = `*[Transaksi Produk] - ADYSA MARKETING*\n\nHi *${userData.username}*, Selamat Produk yang anda pesan sudah dalam proses pengiriman dengan detail resi [ *${source.remark}* ]`); // delivered
+
+    // send message
+    wabot.Send({
+      to: userData.phone,
+      message,
+    });
+
     return res.json({
       status: "success",
       message: "Data transaksi produk berhasil diperbarui",
