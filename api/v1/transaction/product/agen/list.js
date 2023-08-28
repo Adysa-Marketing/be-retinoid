@@ -134,7 +134,7 @@ module.exports = async (req, res) => {
     const limit = rowsPerPage !== "All" ? rowsPerPage : totalData;
     const offsetLimit = rowsPerPage !== "All" ? { offset, limit } : {};
 
-    await ATrSale.findAll({
+    ATrSale.findAll({
       ...offsetLimit,
       attributes: ["id", "name", "qty", "amount", "profit", "remark"],
       where,

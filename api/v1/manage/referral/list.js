@@ -94,17 +94,6 @@ module.exports = async (req, res) => {
           ...keyword,
         },
       },
-      {
-        attributes: ["id", "userId", "key"],
-        model: SponsorKey,
-        where: {
-          ...keyword,
-        },
-        include: {
-          attributes: ["id", "name", "username", "email", "phone", "point"],
-          model: User, //upline
-        },
-      },
     ];
 
     logger.info({ source, where });

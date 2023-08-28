@@ -21,6 +21,9 @@ router.get("/sale-stokis", Statistic.TrStokis);
 router.get("/mon-rw", Statistic.MonthlyTrReward);
 router.get("/mon-wd", Statistic.MonthlyWd);
 router.get("/mon-spend-wd", Statistic.MonthlySpendingWd);
+router.get("/history-sale", Statistic.HistorySale);
+router.get("/history-reward", Statistic.HistoryReward);
+router.get("/history-stokis", Statistic.HistoryStokis);
 
 // agen + member
 router.get("/agen-sale", Statistic.ATrSale);
@@ -33,5 +36,8 @@ router.get("/success-wd", Statistic.SuccessWidhraw);
 router.get("/referral", Statistic.Referrals);
 router.get("/tr-reward", Statistic.TrReward);
 router.get("/self-info", Statistic.SelfInfo);
+router.get("/history-referral", Statistic.HistoryReferral);
+router.get("/history-widhraw", Statistic.HistoryWidhraw);
+router.get("/history-agen-sale", Statistic.HistoryAgenSale);
 
 module.exports = router;

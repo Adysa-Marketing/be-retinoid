@@ -1,3 +1,5 @@
+const env = process.env.NODE_ENV;
+const config = require("../../../../config/core")[env];
 const {
   Agen,
   AgenProduct,
@@ -5,14 +7,20 @@ const {
   Commission,
   Mutation,
   Package,
+  PaymentType,
   Product,
   ProductCategory,
   Referral,
+  Reward,
+  RwStatus,
   Stokis,
+  SponsorKey,
   TrReward,
   TrSale,
+  TrStatus,
   TrStokis,
   User,
+  WdStatus,
   Widhraw,
 } = require("../../../../models");
 
@@ -964,6 +972,360 @@ module.exports.SelfInfo = async (req, res) => {
       wallet: info.wallet,
       kk: info.kk,
     });
+  } catch (error) {
+    console.log("[!]Error : ", error);
+    return res.status(500).json({
+      status: "error",
+      message: error.message,
+    });
+  }
+};
+
+module.exports.HistoryReferral = async (req, res) => {
+  try {
+    const user = req.user;
+    const sponsorKey = await SponsorKey.findOne({
+      attributes: ["id", "userId", "key"],
+      where: { userId: user.id },
+    });
+
+    await Referral.findAll({
+      limit: 10,
+      attributes: ["id", "date"],
+      where: {
+        sponsorId: sponsorKey.id,
+      },
+      include: [
+        {
+          attributes: ["id", "name", "email", "phone"],
+          model: User, //downline
+        },
+      ],
+      order: [["id", "DESC"]],
+    })
+      .then((result) => {
+        result = JSON.parse(JSON.stringify(result));
+
+        const data = result.map((ref) => {
+          ref.date = moment(ref.date)
+            .utc()
+            .add(7, "hours")
+            .format("YYYY-MM-DD HH:mm:ss");
+
+          return {
+            ...ref,
+          };
+        });
+
+        return res.json({
+          status: "success",
+          data,
+        });
+      })
+      .catch((error) => {
+        console.log("[!]Error : ", error);
+        return res.status(400).json({
+          status: "error",
+          message: error.message,
+        });
+      });
+  } catch (error) {
+    console.log("[!]Error : ", error);
+    return res.status(500).json({
+      status: "error",
+      message: error.message,
+    });
+  }
+};
+
+module.exports.HistoryWidhraw = async (req, res) => {
+  try {
+    const user = req.user;
+    const queryMember = [3, 4].includes(user.roleId) ? { userId: user.id } : {};
+
+    await Widhraw.findAll({
+      limit: 10,
+      attributes: ["id", "amount", "paidAmount", "createdAt", "updatedAt"],
+      where: { ...queryMember },
+      include: [
+        {
+          attributes: ["id", "name"],
+          model: WdStatus,
+        },
+      ],
+      order: [["id", "DESC"]],
+    })
+      .then((result) => {
+        result = JSON.parse(JSON.stringify(result));
+
+        const data = result.map((wd) => {
+          const code = wd.id.toString().padStart(config.maxFill, 0);
+          wd.createdAt = moment(wd.createdAt)
+            .utc()
+            .add(7, "hours")
+            .format("YYYY-MM-DD HH:mm:ss");
+
+          wd.updatedAt = moment(wd.updatedAt)
+            .utc()
+            .add(7, "hours")
+            .format("YYYY-MM-DD HH:mm:ss");
+
+          return {
+            ...wd,
+            kode: `TRW${code}`,
+          };
+        });
+
+        return res.json({
+          status: "success",
+          data,
+        });
+      })
+      .catch((error) => {
+        console.log("[!] Error : ", error);
+        return res.status(500).json({
+          status: "error",
+          message: error.message,
+        });
+      });
+  } catch (error) {
+    console.log("[!]Error : ", error);
+    return res.status(500).json({
+      status: "error",
+      message: error.message,
+    });
+  }
+};
+// history agen sale
+module.exports.HistoryAgenSale = async (req, res) => {
+  const user = req.user;
+  try {
+    ATrSale.findAll({
+      limit: 10,
+      attributes: ["id", "name", "qty", "amount", "profit", "remark"],
+      where: {
+        userId: user.id,
+      },
+      include: [
+        {
+          attributes: ["id", "name"],
+          model: TrStatus,
+        },
+        {
+          attributes: ["id", "name"],
+          model: PaymentType,
+        },
+        {
+          attributes: ["id", "name", "amount"],
+          model: Product,
+        },
+      ],
+      order: [["id", "DESC"]],
+    })
+      .then((result) => {
+        result = JSON.parse(JSON.stringify(result));
+
+        const data = result.map((aTrS) => {
+          const code = aTrS.id.toString().padStart(config.maxFill, 0);
+
+          aTrS.createdAt = moment(aTrS.createdAt)
+            .utc()
+            .add(7, "hours")
+            .format("YYYY-MM-DD HH:mm:ss");
+
+          return {
+            ...aTrS,
+            kode: `ATS${code}`,
+          };
+        });
+
+        res.status(200).json({
+          status: "success",
+          data,
+        });
+      })
+      .catch((error) => {
+        console.log("[!]Error : ", error);
+        return res.status(400).json({
+          status: "error",
+          message: error.message,
+        });
+      });
+  } catch (error) {
+    console.log("[!]Error : ", error);
+    return res.status(500).json({
+      status: "error",
+      message: error.message,
+    });
+  }
+};
+
+module.exports.HistorySale = (req, res) => {
+  try {
+    TrSale.findAll({
+      limit: 10,
+      attributes: ["id", "amount", "discount", "paidAmount"],
+      include: [
+        {
+          attributes: ["id", "name"],
+          model: User,
+        },
+        {
+          attributes: ["id", "name"],
+          model: TrStatus,
+        },
+        {
+          attributes: ["id", "name"],
+          model: Product,
+        },
+      ],
+      order: [["id", "DESC"]],
+    })
+      .then((result) => {
+        result = JSON.parse(JSON.stringify(result));
+
+        const data = result.map((trS) => {
+          const code = trS.id.toString().padStart(config.maxFill, 0);
+
+          trS.date = moment(trS.date)
+            .utc()
+            .add(7, "hours")
+            .format("YYYY-MM-DD HH:mm:ss");
+
+          return {
+            ...trS,
+            kode: `TRS${code}`,
+          };
+        });
+
+        return res.json({
+          status: "success",
+          data,
+        });
+      })
+      .catch((error) => {
+        console.log("[!] Error : ", error);
+        return res.status(500).json({
+          status: "error",
+          message: error.message,
+        });
+      });
+  } catch (error) {
+    console.log("[!]Error : ", error);
+    return res.status(500).json({
+      status: "error",
+      message: error.message,
+    });
+  }
+};
+
+module.exports.HistoryReward = (req, res) => {
+  try {
+    TrReward.findAll({
+      limit: 10,
+      attributes: ["id", "date", "remark"],
+      include: [
+        {
+          attributes: ["id", "name"],
+          model: User,
+        },
+        {
+          attributes: ["id", "name"],
+          model: RwStatus,
+        },
+        {
+          attributes: ["id", "name"],
+          model: Reward,
+        },
+      ],
+      order: [["id", "DESC"]],
+    })
+      .then((result) => {
+        result = JSON.parse(JSON.stringify(result));
+
+        const data = result.map((trRw) => {
+          const code = trRw.id.toString().padStart(config.maxFill, 0);
+          trRw.date = moment(trRw.date)
+            .utc()
+            .add(7, "hours")
+            .format("YYYY-MM-DD HH:mm:ss");
+
+          return {
+            ...trRw,
+            kode: `TRR${code}`,
+          };
+        });
+
+        return res.json({
+          status: "success",
+          data,
+        });
+      })
+      .catch((error) => {
+        console.log("[!] Error : ", error);
+        return res.status(500).json({
+          status: "error",
+          message: error.message,
+        });
+      });
+  } catch (error) {
+    console.log("[!]Error : ", error);
+    return res.status(500).json({
+      status: "error",
+      message: error.message,
+    });
+  }
+};
+
+module.exports.HistoryStokis = (req, res) => {
+  try {
+    TrStokis.findAll({
+      limit: 10,
+      attributes: ["id", "amount", "date"],
+      include: [
+        {
+          attributes: ["id", "name", "price"],
+          model: Stokis,
+        },
+        {
+          attributes: ["id", "name"],
+          model: TrStatus,
+        },
+        {
+          attributes: ["id", "username", "email", "phone"],
+          model: User,
+        },
+      ],
+      order: [["id", "DESC"]],
+    })
+      .then((result) => {
+        result = JSON.parse(JSON.stringify(result));
+
+        const data = result.map((tr) => {
+          const code = tr.id.toString().padStart(config.maxFill, 0);
+          tr.date = moment(tr.date)
+            .utc()
+            .add(7, "hours")
+            .format("YYYY-MM-DD HH:mm:ss");
+
+          return {
+            ...tr,
+            kode: `TRS${code}`,
+          };
+        });
+
+        return res.json({
+          status: "success",
+          data,
+        });
+      })
+      .catch((error) => {
+        console.log("[!] Error : ", error);
+        return res.status(500).json({
+          status: "error",
+          message: error.message,
+        });
+      });
   } catch (error) {
     console.log("[!]Error : ", error);
     return res.status(500).json({
