@@ -67,7 +67,7 @@ module.exports = async (req, res) => {
     const dateRange =
       source.startDate && source.endDate
         ? {
-            date: {
+            createdAt: {
               [Op.gte]: startDate,
               [Op.lte]: endDate,
             },
@@ -139,6 +139,7 @@ module.exports = async (req, res) => {
       attributes: ["id", "name", "qty", "amount", "profit", "remark"],
       where,
       include: [...includeParent],
+      order: [["id", "DESC"]],
     })
       .then((result) => {
         result = JSON.parse(JSON.stringify(result));

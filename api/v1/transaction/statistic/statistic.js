@@ -719,6 +719,9 @@ module.exports.MonthlyAgenProfit = async (req, res) => {
     const endDate = moment().endOf("months").toDate();
     const where = {
       userId: user.id,
+      statusId: {
+        [Op.in]: [4, 5],
+      },
 
       createdAt: {
         [Op.gte]: startDate,
@@ -762,6 +765,9 @@ module.exports.AgenProfit = async (req, res) => {
       attributes: ["profit"],
       where: {
         userId: user.id,
+        statusId: {
+          [Op.in]: [4, 5],
+        },
       },
     })
       .then((sale) => {

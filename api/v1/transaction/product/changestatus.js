@@ -108,7 +108,7 @@ module.exports = async (req, res) => {
       if (product.stock < trSale.qty)
         return res.status(400).json({
           status: "error",
-          message: `Transaksi gagal, Mohon maaf jumlah pembelian melebihi stok yang tersedia. Stok tersedia saat ini adalah ${produk.stock} Produk`,
+          message: `Transaksi gagal, Mohon maaf jumlah pembelian melebihi stok yang tersedia. Stok tersedia saat ini adalah ${product.stock} Produk`,
         });
 
       await product.update(
