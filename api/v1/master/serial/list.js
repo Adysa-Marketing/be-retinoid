@@ -1,4 +1,4 @@
-const { Serial } = require("../../../../models");
+const { Serial, User } = require("../../../../models");
 const logger = require("../../../../libs/logger");
 const Sequelize = require("sequelize");
 const Op = Sequelize.Op;
@@ -90,9 +90,18 @@ module.exports = async (req, res) => {
 
     logger.info({ source, where });
 
+    const includeParent = [
+      {
+        attributes: ["id", "username"],
+        model: User,
+      },
+    ];
     const rowsPerPage = source.rowsPerPage;
     const currentPage = source.currentPage;
-    const totalData = await Serial.count({ where });
+    const totalData = await Serial.count({
+      include: [...includeParent],
+      where,
+    });
 
     const totalPages =
       rowsPerPage !== "All"
@@ -116,6 +125,7 @@ module.exports = async (req, res) => {
         "createdAt",
         "updatedAt",
       ],
+      include: [...includeParent],
       where,
       order: [["id", "DESC"]],
     })

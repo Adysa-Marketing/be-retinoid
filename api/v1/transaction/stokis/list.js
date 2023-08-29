@@ -70,7 +70,7 @@ module.exports = async (req, res) => {
     const dateRange =
       source.startDate && source.endDate
         ? {
-            createdAt: {
+            date: {
               [Op.gte]: startDate,
               [Op.lte]: endDate,
             },
