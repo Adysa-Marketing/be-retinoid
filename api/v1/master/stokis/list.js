@@ -2,6 +2,7 @@ const { Stokis } = require("../../../../models");
 const logger = require("../../../../libs/logger");
 const Sequelize = require("sequelize");
 const Op = Sequelize.Op;
+const sanitizeHtml = require("sanitize-html");
 const Validator = require("fastest-validator");
 const v = new Validator();
 
@@ -70,7 +71,7 @@ module.exports = async (req, res) => {
     const limit = rowsPerPage !== "All" ? rowsPerPage : totalData;
     const offsetLimit = rowsPerPage !== "All" ? { offset, limit } : {};
 
-    const data = await Stokis.findAll({
+    await Stokis.findAll({
       ...offsetLimit,
       attributes: [
         "id",
@@ -81,14 +82,33 @@ module.exports = async (req, res) => {
         "description",
       ],
       where: { ...keyword },
-    });
+    })
+      .then((response) => {
+        response = JSON.parse(JSON.stringify(response));
 
-    return res.json({
-      status: "success",
-      data,
-      totalData,
-      totalPages,
-    });
+        const data = response.map((item) => {
+          item.description = sanitizeHtml(item.description, {
+            allowedTags: [],
+            allowedAttributes: {},
+          });
+
+          return item;
+        });
+
+        return res.json({
+          status: "success",
+          data,
+          totalData,
+          totalPages,
+        });
+      })
+      .catch((error) => {
+        console.log("[!] Error : ", error);
+        return res.status(500).json({
+          status: "error",
+          message: error.message,
+        });
+      });
   } catch (error) {
     console.log("[!] Error : ", error);
     return res.status(500).json({

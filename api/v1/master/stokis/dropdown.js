@@ -1,5 +1,7 @@
 const { Stokis, TrStokis } = require("../../../../models");
 const { Op } = require("sequelize");
+const sanitizeHtml = require("sanitize-html");
+
 module.exports = async (req, res) => {
   try {
     const user = req.user;
@@ -17,7 +19,7 @@ module.exports = async (req, res) => {
       available = false;
     }
 
-    const data = await Stokis.findAll({
+    await Stokis.findAll({
       attributes: [
         "id",
         "name",
@@ -26,12 +28,30 @@ module.exports = async (req, res) => {
         "agenDiscount",
         "description",
       ],
-    });
-    return res.json({
-      status: "success",
-      available,
-      data,
-    });
+    })
+      .then((response) => {
+        response = JSON.parse(JSON.stringify(response));
+        const data = response.map((item) => {
+          item.description = sanitizeHtml(item.description, {
+            allowedTags: [],
+            allowedAttributes: {},
+          });
+
+          return item;
+        });
+        return res.json({
+          status: "success",
+          available,
+          data,
+        });
+      })
+      .catch((error) => {
+        console.log("[!] Error : ", error);
+        return res.status(500).json({
+          status: "error",
+          message: error.message,
+        });
+      });
   } catch (error) {
     console.log("[!] Error : ", error);
     return res.status(500).json({

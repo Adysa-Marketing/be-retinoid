@@ -11,7 +11,7 @@ const Upload = require("../../../../libs/upload");
 const IsAdmin = require("../../../middleware/isAdmin");
 
 router.get("/get/:id", IsAdmin, Get);
-router.get("/detail/:slug", Detail);
+router.post("/detail", Detail);
 router.post("/list", List);
 router.post(
   "/create",

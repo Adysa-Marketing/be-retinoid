@@ -49,12 +49,12 @@ async function createProductCategory() {
     {
       name: "Bundle Paket",
       remark:
-        "Pembelian Produk bundle akan bendapatkan potongan harga 20 - 40rb / produk untuk agen stokis",
+        "Pembelian Bundle Paket akan bendapatkan potongan harga 20 - 40rb / produk untuk agen stokis",
     },
     {
       name: "Bundle Produk",
       remark:
-        "Pembelian Produk bundle akan bendapatkan potongan harga 10 - 20rb / produk untuk agen stokis",
+        "Pembelian Bundle Produk akan bendapatkan potongan harga 10 - 20rb / produk untuk agen stokis",
     },
   ]);
   console.log("[DONE CREATE PRODUCT-CATEGORY");
@@ -76,17 +76,17 @@ async function createStokis() {
       name: "Agen Stokis Regular",
       price: 10000000,
       discount: 9600000,
-      agenDiscount: 20000,
+      agenDiscount: 10000,
       description:
-        "Dengan mendaftar sebagai agen stokis Regular, anda akan mendapatkan 40 product + 20 pin serial register. (harga per product: 240rb, dan pembelian kedepan harga sama 240rb. profit stokis 10rb/product)",
+        "Dengan mendaftar sebagai agen stokis Regular, anda akan mendapatkan 40 product + 20 pin serial register. (profit stokis 10rb/product)",
     },
     {
       name: "Agen Stokis Premiun",
       price: 20000000,
       discount: 18500000,
-      agenDiscount: 40000,
+      agenDiscount: 20000,
       description:
-        "Dengan mendaftar sebagai agen stokis Premium, anda akan mendapatkan 60 product + 40 pin serial register. (harga per product: 230rb, dan pembelian kedepan harga sama 230rb. profit stokis 20rb/product)",
+        "Dengan mendaftar sebagai agen stokis Premium, anda akan mendapatkan 60 product + 40 pin serial register. (profit stokis 20rb/product)",
     },
   ]);
   console.log("[DONE CREATE STOKIS]");
@@ -155,8 +155,8 @@ async function createUser() {
   try {
     const payload = {
       name: "Super Admin",
-      username: "superadmin",
-      email: "superadmin@gmail.com",
+      username: "adysaskincare",
+      email: "adysaskincare@gmail.com",
       password,
       phone: "085325224829",
       gender: "Male",

@@ -1,4 +1,9 @@
-const { Product, TrSale, User } = require("../../../../models");
+const {
+  Product,
+  TrSale,
+  User,
+  ProductCategory,
+} = require("../../../../models");
 const logger = require("../../../../libs/logger");
 const { RemoveFile } = require("./asset");
 const wabot = require("../../../../libs/wabot");
@@ -98,6 +103,10 @@ module.exports = async (req, res) => {
     const produk = await Product.findOne({
       attributes: ["id", "name", "stock", "amount"],
       where: { id: source.productId },
+      include: {
+        attributes: ["id", "name"],
+        model: ProductCategory,
+      },
     });
 
     if (!produk) {
@@ -116,7 +125,47 @@ module.exports = async (req, res) => {
       });
     }
 
-    RemoveImg(trSalse, true);
+    let discount = 0;
+    // jika product category == bundle product. cek diskon
+    if (
+      [1, 2].includes(produk.ProductCategory.id) &&
+      [3].includes(user.roleId)
+    ) {
+      const categoryId = produk.ProductCategory.id;
+      const productPrice = parseInt(produk.amount);
+
+      if (categoryId == 1) {
+        //bundle package bronze
+        if (productPrice >= 500000 && productPrice <= 1000000)
+          discount = parseInt(user.profit) * 2;
+
+        //bundle package silver
+        if (productPrice >= 1500000 && productPrice <= 2000000)
+          discount = parseInt(user.profit) * 6;
+
+        //bundle package gold
+        if (productPrice >= 2500000 && productPrice <= 3000000)
+          discount = parseInt(user.profit) * 10;
+      } else if (categoryId == 2) {
+        discount = parseInt(user.profit); // bundle product
+      }
+    }
+
+    discount = parseInt(discount) * parseInt(source.qty);
+
+    // jika diskon tidak sesuai
+    if (discount !== parseInt(source.discount)) {
+      RemoveImg(files, false);
+      return res.status(400).json({
+        status: "error",
+        message: `Transaksi gagal, Total diskon tidak sesuai`,
+      });
+    }
+
+    if (Object.keys(files).length) {
+      RemoveImg(trSalse, true);
+    }
+
     await trSalse.update(payload);
 
     const userData = await User.findOne({

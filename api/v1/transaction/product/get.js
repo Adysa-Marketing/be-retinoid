@@ -87,12 +87,30 @@ module.exports = async (req, res) => {
       [3].includes(user.roleId)
     ) {
       let discount = 0;
-      discount =
-        trSale.Product?.ProductCategory?.id == 1
-          ? parseInt(user.profit) * 2
-          : trSale.Product?.ProductCategory?.id == 2
-          ? parseInt(user.profit)
-          : 0;
+      // discount =
+      //   trSale.Product?.ProductCategory?.id == 1
+      //     ? parseInt(user.profit) * 2
+      //     : trSale.Product?.ProductCategory?.id == 2
+      //     ? parseInt(user.profit)
+      //     : 0;
+      const categoryId = trSale.Product.ProductCategory.id;
+      const productPrice = parseInt(trSale.Product.amount);
+
+      if (categoryId == 1) {
+        //bundle package bronze
+        if (productPrice >= 500000 && productPrice <= 1000000)
+          discount = parseInt(user.profit) * 2;
+
+        //bundle package silver
+        if (productPrice >= 1500000 && productPrice <= 2000000)
+          discount = parseInt(user.profit) * 6;
+
+        //bundle package gold
+        if (productPrice >= 2500000 && productPrice <= 3000000)
+          discount = parseInt(user.profit) * 10;
+      } else if (categoryId == 2) {
+        discount = parseInt(user.profit); // bundle product
+      }
 
       trSale.Product.discount = discount;
     }

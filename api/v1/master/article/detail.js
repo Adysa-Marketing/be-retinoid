@@ -5,19 +5,20 @@ const Validator = require("fastest-validator");
 const v = new Validator();
 
 module.exports = async (req, res) => {
+  const source = req.body;
   try {
     const schema = {
       slug: "string|empty:false",
     };
 
-    const validate = v.compile(schema)(req.params);
+    const validate = v.compile(schema)(source);
     if (validate.length)
       return res.status(400).json({
         status: "error",
         message: validate,
       });
 
-    const slug = req.params.slug;
+    const slug = source.slug;
     const checkArticle = await Article.findOne({
       attributes: ["id"],
       where: { slug },
@@ -45,6 +46,7 @@ module.exports = async (req, res) => {
         "isActive",
         "view",
         "description",
+        "excerpt",
         "remark",
       ],
       where: { slug },

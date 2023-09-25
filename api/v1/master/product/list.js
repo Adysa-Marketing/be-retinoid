@@ -109,17 +109,35 @@ module.exports = async (req, res) => {
         const data = await Promise.all(
           response.map(async (product) => {
             let discount = 0;
-            // jika product category == bundle product. berikan diskon
+            // jika product category == bundle package / product. berikan diskon
             if (
               [1, 2].includes(product.ProductCategory.id) &&
               [3].includes(user.roleId)
             ) {
-              discount =
-                product.ProductCategory.id == 1
-                  ? parseInt(user.profit) * 2
-                  : product.ProductCategory.id == 2
-                  ? parseInt(user.profit)
-                  : 0;
+              // discount =
+              //   product.ProductCategory.id == 1
+              //     ? parseInt(user.profit) * 2
+              //     : product.ProductCategory.id == 2
+              //     ? parseInt(user.profit)
+              //     : 0;
+              const categoryId = product.ProductCategory.id;
+              const productPrice = parseInt(product.amount);
+
+              if (categoryId == 1) {
+                //bundle package bronze
+                if (productPrice >= 500000 && productPrice <= 1000000)
+                  discount = parseInt(user.profit) * 2;
+
+                //bundle package silver
+                if (productPrice >= 1500000 && productPrice <= 2000000)
+                  discount = parseInt(user.profit) * 6;
+
+                //bundle package gold
+                if (productPrice >= 2500000 && productPrice <= 3000000)
+                  discount = parseInt(user.profit) * 10;
+              } else if (categoryId == 2) {
+                discount = parseInt(user.profit); // bundle product
+              }
             }
 
             product.description = sanitizeHtml(product.description, {

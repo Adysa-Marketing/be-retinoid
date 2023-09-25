@@ -18,7 +18,14 @@ module.exports = async (req, res) => {
 
     const id = req.params.id;
     const stokis = await Stokis.findOne({
-      attributes: ["id", "name", "price", "discount"],
+      attributes: [
+        "id",
+        "name",
+        "price",
+        "discount",
+        "agenDiscount",
+        "description",
+      ],
       where: { id },
     });
     if (!stokis) {
