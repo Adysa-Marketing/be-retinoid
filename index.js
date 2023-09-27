@@ -10,6 +10,7 @@ const router = require("./routers");
 const logger = require("./libs/logger");
 const env = process.env.NODE_ENV || "development";
 const config = require("./config/core")[env];
+const fs = require("fs-extra");
 
 app.use(userAgent.express());
 app.use(requirestIp.mw());
@@ -22,6 +23,15 @@ const port = config.port;
 
 // token wabot
 global.token = config.token;
+
+setInterval(() => {
+  console.log("CLEAR LOGS");
+  clearLogs();
+}, 15 * 24 * 60 * 60 * 1000); // bersihkan log setiap 15 hari
+
+const clearLogs = () => {
+  fs.emptyDirSync("./logs");
+};
 
 app.use("/api/v1", router);
 

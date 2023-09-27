@@ -11,4 +11,4 @@ services:
       - PORT=$PORT
       - NODE_ENV=$NODE_ENV
     volumes:
-      - /home/adysaskin/cdn.assets/images:/app/public/img
+      - /home/adysaskin/cdn.assets/images:/usr/src/app/public/img
