@@ -25,6 +25,11 @@ const corsOptions = {
     "https://dasboard.adysaskincare.com",
   ],
 };
+const check = (req, res, next) => {
+  console.log("req :", req.headers.origin);
+  next();
+};
+app.use(check);
 app.use(cors(corsOptions));
 
 const port = config.port;
