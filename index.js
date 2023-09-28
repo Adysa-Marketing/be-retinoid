@@ -16,8 +16,16 @@ app.use(userAgent.express());
 app.use(requirestIp.mw());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-app.use(cors());
 app.use(express.static(path.join(__dirname, "public")));
+const corsOptions = {
+  origin: [
+    "https://www.adysaskincare.com",
+    "https://adysaskincare.com",
+    "https://wabot.adysaskincare.com",
+    "https://dasboard.adysaskincare.com",
+  ],
+};
+app.use(cors(corsOptions));
 
 const port = config.port;
 
