@@ -41,7 +41,7 @@ async function createCommissionLevel() {
 
 async function createPaymentType() {
   await PaymentType.bulkCreate([{ name: "CASH" }, { name: "TRANSFER" }]);
-  console.log("[DONE CREATE PAYMENT-TYPE");
+  console.log("[DONE CREATE PAYMENT-TYPE]");
 }
 
 async function createProductCategory() {
@@ -57,7 +57,7 @@ async function createProductCategory() {
         "Pembelian Bundle Produk akan bendapatkan potongan harga 10 - 20rb / produk untuk agen stokis",
     },
   ]);
-  console.log("[DONE CREATE PRODUCT-CATEGORY");
+  console.log("[DONE CREATE PRODUCT-CATEGORY]");
 }
 
 async function createRole() {
@@ -86,7 +86,7 @@ async function createStokis() {
       discount: 18500000,
       agenDiscount: 20000,
       description:
-        "Dengan mendaftar sebagai agen stokis Premium, anda akan mendapatkan 60 product + 40 pin serial register. (profit stokis 20rb/product)",
+        "Dengan mendaftar sebagai agen stokis Premium, anda akan mendapatkan 80 product + 40 pin serial register. (profit stokis 20rb/product)",
     },
   ]);
   console.log("[DONE CREATE STOKIS]");
@@ -100,7 +100,7 @@ async function createTrStatus() {
     { name: "Approved" },
     { name: "Delivered" },
   ]);
-  console.log("[DONE CREATE TR-STATUS");
+  console.log("[DONE CREATE TR-STATUS]");
 }
 
 async function createRwStatus() {
@@ -150,15 +150,15 @@ async function bulkSync() {
 async function createUser() {
   const transaction = await db.sequelize.transaction({ autocommit: false });
   const sponsorKey = cryptoString({ length: 10, type: "base64" });
-  const password = bcrypt.hashSync("rahasia", bcrypt.genSaltSync(2));
+  const password = bcrypt.hashSync("Rahasia123", bcrypt.genSaltSync(2));
 
   try {
     const payload = {
       name: "Super Admin",
       username: "adysaskincare",
-      email: "adysaskincare@gmail.com",
+      email: "adysaskin@gmail.com",
       password,
-      phone: "085325224829",
+      phone: "628121588315",
       gender: "Male",
       kk: "3318161304010001",
       roleId: 1,
