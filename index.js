@@ -25,7 +25,6 @@ const corsOptions = {
     "https://dashboard.adysaskincare.com",
   ],
 };
-app.use(check);
 app.use(cors(corsOptions));
 
 const port = config.port;
