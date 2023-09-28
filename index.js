@@ -22,12 +22,8 @@ const corsOptions = {
     "https://www.adysaskincare.com",
     "https://adysaskincare.com",
     "https://wabot.adysaskincare.com",
-    "https://dasboard.adysaskincare.com",
+    "https://dashboard.adysaskincare.com",
   ],
-};
-const check = (req, res, next) => {
-  console.log("req :", req.headers.origin);
-  next();
 };
 app.use(check);
 app.use(cors(corsOptions));
