@@ -265,11 +265,11 @@ module.exports = async (req, res) => {
     }
   } finally {
     if (isRegistered && upliner != null) {
+      await calculatePoint(upliner);
       // send wa notification
       for (const payload of dataNotification) {
         await wabot.Send(payload);
       }
-      await calculatePoint(upliner);
     }
   }
 };
