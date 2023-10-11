@@ -3,6 +3,7 @@ const logger = require("../../../../libs/logger");
 const { RemoveFile } = require("./asset");
 const wabot = require("../../../../libs/wabot");
 const { Op } = require("sequelize");
+const sanitizeHtml = require("sanitize-html");
 const Validator = require("fastest-validator");
 const v = new Validator();
 
@@ -123,6 +124,11 @@ module.exports = async (req, res) => {
       where: { id: user.id },
     });
 
+    let deskripsiStokis = sanitizeHtml(checkDataStokis.description, {
+      allowedTags: [],
+      allowedAttributes: {},
+    });
+
     wabot.Send({
       to: userData.phone,
       message: `*[Transaksi Stokis] - ADYSA MARKETING*\n\nHi *${
@@ -131,10 +137,34 @@ module.exports = async (req, res) => {
         checkDataStokis.name
       }* \n2. Harga : *Rp.${new Intl.NumberFormat("id-ID").format(
         checkDataStokis.discount
-      )}* \n3. Deskripsi : ${
-        checkDataStokis.description
-      } \n\nData yang anda ajukan akan segera di proses oleh admin, mohon kesediaan-nya untuk menunggu. \n\nTerimakasih`,
+      )}* \n3. Deskripsi : ${deskripsiStokis} \n\nData yang anda ajukan akan segera di proses oleh admin, mohon kesediaan-nya untuk menunggu. \n\nTerimakasih`,
     });
+
+    User.findOne({
+      attributes: ["id", "phone", "username"],
+      where: {
+        roleId: 1,
+      },
+    })
+      .then((superadmin) => {
+        if (superadmin && superadmin.phone) {
+          wabot.Send({
+            to: superadmin.phone,
+            message: `[Notif Transaksi] - ADYSA MARKETING\n\nHi *${
+              superadmin.username
+            }*, ada pendaftaran agen stokis dengan detail : \n\n1. Username : *${
+              userData.username
+            }* \n2. Nama Stokis : *${
+              checkDataStokis.name
+            }* \n3. Harga : *Rp.${new Intl.NumberFormat("id-ID").format(
+              checkDataStokis.discount
+            )}* \n4. Deskripsi : ${deskripsiStokis} \n\nSegera lakukan pengecekan melalui panel dashboard \n\nTerimakasih`,
+          });
+        }
+      })
+      .catch((err) => {
+        console.log("[!] Error Find SuperAdmin : ", err);
+      });
 
     return res.status(201).json({
       status: "success",

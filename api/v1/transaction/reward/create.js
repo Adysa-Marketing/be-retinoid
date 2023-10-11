@@ -6,6 +6,7 @@ const wabot = require("../../../../libs/wabot");
 const moment = require("moment");
 const Sequelize = require("sequelize");
 const Op = Sequelize.Op;
+const sanitizeHtml = require("sanitize-html");
 const Validator = require("fastest-validator");
 const v = new Validator();
 
@@ -114,10 +115,33 @@ module.exports = async (req, res) => {
         where: { id: user.id },
       });
 
+      let deskripsiReward = sanitizeHtml(reward.description, {
+        allowedTags: [],
+        allowedAttributes: {},
+      });
+
       wabot.Send({
         to: userData.phone,
-        message: `*[Transaksi Reward] - ADYSA MARKETING*\n\nHi *${userData.username}*, permintaan reward berhasil dengan detail : \n\n1. Item : *${reward.name}* \n2. Persyaratan : Minimal *${reward.minFoot}* kaki/downline dengan masing-masing *${reward.point}* point tiap kaki/downline \n3. Deskripsi : ${reward.description} \n4. Alamat Pengiriman : ${source.address} \n\nData yang anda ajukan akan segera di proses oleh admin, mohon kesediaan-nya untuk menunggu. \n\nTerimakasih`,
+        message: `*[Transaksi Reward] - ADYSA MARKETING*\n\nHi *${userData.username}*, permintaan reward berhasil dengan detail : \n\n1. Item : *${reward.name}* \n2. Persyaratan : Minimal *${reward.minFoot}* kaki/downline dengan masing-masing *${reward.point}* point tiap kaki/downline \n3. Deskripsi : ${deskripsiReward} \n4. Alamat Pengiriman : ${source.address} \n\nData yang anda ajukan akan segera di proses oleh admin, mohon kesediaan-nya untuk menunggu. \n\nTerimakasih`,
       });
+
+      User.findOne({
+        attributes: ["id", "phone", "username"],
+        where: {
+          roleId: 1,
+        },
+      })
+        .then((superadmin) => {
+          if (superadmin && superadmin.phone) {
+            wabot.Send({
+              to: superadmin.phone,
+              message: `[Notif Transaksi] - ADYSA MARKETING\n\nHi *${superadmin.username}*, ada pengajuan reward dari member dengan detail : \n\n1. Username : *${userData.username}* \n2. Item : *${reward.name}* \n3. Persyaratan : Minimal *${reward.minFoot}* kaki/downline dengan masing-masing *${reward.point}* point tiap kaki/downline \n4. Deskripsi : ${deskripsiReward} \n5. Alamat Pengiriman : ${source.address} \n\nSegera lakukan pengecekan melalui panel dashboard \n\nTerimakasih`,
+            });
+          }
+        })
+        .catch((err) => {
+          console.log("[!] Error Find SuperAdmin : ", err);
+        });
 
       return res.status(201).json({
         status: "success",

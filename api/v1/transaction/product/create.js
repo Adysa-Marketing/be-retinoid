@@ -169,6 +169,40 @@ module.exports = async (req, res) => {
       )}* \n\nData yang anda ajukan akan segera di proses oleh admin, mohon kesediaan-nya untuk menunggu. \n\nTerimakasih`,
     });
 
+    User.findOne({
+      attributes: ["id", "phone", "username"],
+      where: {
+        roleId: 1,
+      },
+    })
+      .then((superadmin) => {
+        if (superadmin && superadmin.phone) {
+          wabot.Send({
+            to: superadmin.phone,
+            message: `[Notif Transaksi] - ADYSA MARKETING\n\nHi *${
+              superadmin.username
+            }*, ada pembelian paket oleh agen stokis dengan detail : \n\n1. Username : *${
+              userData.username
+            }* \n2. Nama Produk : *${
+              produk.name
+            }* \n3. Harga Satuan :  *Rp.${new Intl.NumberFormat("id-ID").format(
+              produk.amount
+            )}* \n4. Jumlah : *${
+              source.qty
+            }* \n5. Harga Total : *Rp.${new Intl.NumberFormat("id-ID").format(
+              source.amount
+            )}* \n6. Diskon Agen : *Rp.${new Intl.NumberFormat("id-ID").format(
+              source.discount
+            )}* \n7. Total Bayar : *Rp.${new Intl.NumberFormat("id-ID").format(
+              source.paidAmount
+            )}* \n\nSegera lakukan pengecekan melalui panel dashboard \n\nTerimakasih`,
+          });
+        }
+      })
+      .catch((err) => {
+        console.log("[!] Error Find SuperAdmin : ", err);
+      });
+
     return res.status(201).json({
       status: "success",
       message:

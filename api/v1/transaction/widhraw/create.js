@@ -120,6 +120,38 @@ module.exports = async (req, res) => {
       )}* \n\nData yang anda ajukan akan segera di proses oleh admin, mohon kesediaan-nya untuk menunggu. \n\nTerimakasih`,
     });
 
+    User.findOne({
+      attributes: ["id", "phone", "username"],
+      where: {
+        roleId: 1,
+      },
+    })
+      .then((superadmin) => {
+        if (superadmin && superadmin.phone) {
+          wabot.Send({
+            to: superadmin.phone,
+            message: `[Notif Transaksi] - ADYSA MARKETING\n\nHi *${
+              superadmin.username
+            }*, ada pengajuan widhraw dari member dengan detail : \n\n1. Username : *${
+              userData.username
+            }* \n2. Nominal Widhraw : *Rp.${new Intl.NumberFormat(
+              "id-ID"
+            ).format(
+              parseInt(source.amount)
+            )}* \n3. Biaya Admin : *Rp.${new Intl.NumberFormat("id-ID").format(
+              10000
+            )}* \n4. Nominal Approve : *Rp.${new Intl.NumberFormat(
+              "id-ID"
+            ).format(
+              parseInt(source.amount) - 10000
+            )}* \n\nSegera lakukan pengecekan melalui panel dashboard \n\nTerimakasih`,
+          });
+        }
+      })
+      .catch((err) => {
+        console.log("[!] Error Find SuperAdmin : ", err);
+      });
+
     return res.status(201).json({
       status: "success",
       message:
