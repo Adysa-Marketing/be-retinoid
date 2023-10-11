@@ -18,8 +18,8 @@ const Auth = (req, res, next) => {
       } else {
         req.token = token;
         req.user = user;
-        const name = user.name;
-        logger.info({ source, ip, url, name });
+        const username = user.username;
+        logger.info({ source, ip, url, username });
         next();
       }
     });

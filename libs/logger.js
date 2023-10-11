@@ -9,6 +9,7 @@ const {
 } = require("winston");
 const getCallerFile = require("get-caller-file");
 const beautify = require("json-beautify");
+const moment = require("moment");
 
 const options = {
   file: {
@@ -47,7 +48,13 @@ const logger = createLogger({
     format.timestamp(),
     format.simple(),
     format.printf((msg) =>
-      colorizer.colorize(msg.level, `${msg.timestamp} - ${msg.message}`)
+      colorizer.colorize(
+        msg.level,
+        `${moment(msg.timestamp)
+          .utc()
+          .add(7, "hours")
+          .format("DD-MM-YYYY HH:mm:ss")} - ${msg.message}`
+      )
     )
   ),
   transports: [
