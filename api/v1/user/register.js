@@ -43,7 +43,7 @@ module.exports = async (req, res) => {
       email: "email|empty:false",
       phone: {
         type: "string",
-        pattern: /^(08|628)[0-9]{9,13}$/,
+        pattern: /^(08|628)[0-9]{7,13}$/,
         messages: {
           pattern: "No Telpon Tidak Valid",
         },

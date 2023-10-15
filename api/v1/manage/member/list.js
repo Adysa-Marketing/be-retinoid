@@ -2,6 +2,7 @@ const { User } = require("../../../../models");
 const logger = require("../../../../libs/logger");
 const Sequelize = require("sequelize");
 const Op = Sequelize.Op;
+const moment = require("moment");
 const Validator = require("fastest-validator");
 const v = new Validator();
 
@@ -103,7 +104,7 @@ module.exports = async (req, res) => {
     const limit = rowsPerPage !== "All" ? rowsPerPage : totalData;
     const offsetLimit = rowsPerPage !== "All" ? { offset, limit } : {};
 
-    const data = await User.findAll({
+    User.findAll({
       ...offsetLimit,
       attributes: [
         "id",
@@ -114,17 +115,37 @@ module.exports = async (req, res) => {
         "gender",
         "point",
         "isActive",
+        "wallet",
+        "createdAt",
       ],
       where,
       order: [["id", "DESC"]],
-    });
+    })
+      .then((result) => {
+        result = JSON.parse(JSON.stringify(result));
 
-    return res.json({
-      status: "success",
-      data,
-      totalData,
-      totalPages,
-    });
+        const data = result.map((user) => {
+          user.createdAt = moment(user.createdAt)
+            .utc()
+            .add(7, "hours")
+            .format("DD-MM-YYYY HH:mm:ss");
+          return user;
+        });
+
+        return res.json({
+          status: "success",
+          data,
+          totalData,
+          totalPages,
+        });
+      })
+      .catch((error) => {
+        console.log("[!] Error : ", error);
+        return res.status(500).json({
+          status: "error",
+          message: error.message,
+        });
+      });
   } catch (error) {
     console.log("[!] Error : ", error);
     return res.status(500).json({
