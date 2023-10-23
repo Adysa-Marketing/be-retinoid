@@ -17,12 +17,12 @@ module.exports = async (req, res) => {
       kk: "string|optional",
       phoneNumber: {
         type: "string",
-        pattern: /^(08|628)[0-9]{9,13}$/,
+        pattern: /^(08|628)[0-9]{7,13}$/,
         messages: {
           pattern: "No Telpon Tidak Valid",
         },
-        min: 9,
-        max: 13,
+        min: 7,
+        max: 14,
         optional: true,
       },
       fromBank: "string|optional",

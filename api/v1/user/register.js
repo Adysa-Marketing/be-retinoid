@@ -47,8 +47,8 @@ module.exports = async (req, res) => {
         messages: {
           pattern: "No Telpon Tidak Valid",
         },
-        min: 9,
-        max: 13,
+        min: 7,
+        max: 14,
         empty: false,
       },
       serial: "string|empty:false",
@@ -238,7 +238,7 @@ module.exports = async (req, res) => {
     const phone = source.phone.replace("08", "628");
     wabot.Send({
       to: phone,
-      message: `*[Pendaftaran Member] - ADYSA MARKETING*\n\nHi *${source.username}*, Selamat pendaftaran anda telah berhasil`,
+      message: `*[Pendaftaran Member] - ADYSA MARKETING*\n\nHi *${source.username}*, Selamat pendaftaran anda telah berhasil\n\nSilahkan bergabung kedalam group melalui tautan berikut : https://chat.whatsapp.com/B9X5SWxTaToJqTOj4ocYJ3`,
     });
     // end notifikasi wa bot
 
