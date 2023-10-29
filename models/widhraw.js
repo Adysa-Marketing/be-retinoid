@@ -27,7 +27,7 @@ module.exports = (sequelize, DataTypes) => {
       image: DataTypes.STRING,
       imageKtp: {
         type: DataTypes.STRING,
-        allowNull: false,
+        // allowNull: false,
       },
       kk: DataTypes.STRING,
       remark: DataTypes.STRING,

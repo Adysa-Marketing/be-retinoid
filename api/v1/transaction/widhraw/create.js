@@ -12,7 +12,7 @@ const v = new Validator();
 module.exports = async (req, res) => {
   const source = req.body;
   const user = req.user;
-  const files = req.files;
+  // const files = req.files;
   const transaction = await db.sequelize.transaction({ autocommit: false });
 
   try {
@@ -26,25 +26,25 @@ module.exports = async (req, res) => {
       remark: "string|optional",
     };
 
-    const RemoveImg = async (img, option) =>
-      files &&
-      files.imageKtp &&
-      files.imageKtp.length > 0 &&
-      (await RemoveFile(img, option));
+    // const RemoveImg = async (img, option) =>
+    //   files &&
+    //   files.imageKtp &&
+    //   files.imageKtp.length > 0 &&
+    //   (await RemoveFile(img, option));
 
     const validate = v.compile(schema)(source);
     if (validate.length) {
-      RemoveImg(files, false);
+      // RemoveImg(files, false);
       return res.status(400).json({
         status: "error",
         message: validate,
       });
     }
 
-    const imageKtp =
-      files && files.imageKtp && files.imageKtp.length > 0
-        ? { imageKtp: files.imageKtp[0].filename }
-        : {};
+    // const imageKtp =
+    //   files && files.imageKtp && files.imageKtp.length > 0
+    //     ? { imageKtp: files.imageKtp[0].filename }
+    //     : {};
 
     const payload = {
       userId: user.id,
@@ -55,11 +55,11 @@ module.exports = async (req, res) => {
       bankName: source.bankName,
       kk: source.kk,
       accountName: source.accountName,
-      ...imageKtp,
+      // ...imageKtp,
       remark: source.remark,
     };
 
-    logger.info({ files, payload });
+    logger.info({ payload });
 
     const userData = await User.findOne({
       attributes: ["id", "wallet", "password", "phone", "username"],
@@ -68,7 +68,7 @@ module.exports = async (req, res) => {
 
     // validate password
     if (!bcryptjs.compareSync(source.password, userData.password)) {
-      RemoveImg(files, false);
+      // RemoveImg(files, false);
       return res.status(400).json({
         status: "error",
         message:
@@ -78,7 +78,7 @@ module.exports = async (req, res) => {
 
     // minimal widhraw
     if (parseInt(source.amount) < 50000) {
-      RemoveImg(files, false);
+      // RemoveImg(files, false);
       return res.status(400).json({
         status: "error",
         message:
@@ -88,7 +88,7 @@ module.exports = async (req, res) => {
 
     // check wallet
     if (userData.wallet < parseInt(source.amount)) {
-      RemoveImg(files, false);
+      // RemoveImg(files, false);
       return res.status(400).json({
         status: "error",
         message: "Maaf permintaan anda gagal, Saldo anda tidak mencukupi",
@@ -160,7 +160,7 @@ module.exports = async (req, res) => {
   } catch (error) {
     console.log("[!] Error : ", error);
     transaction.rollback();
-    await RemoveFile(files, false);
+    // await RemoveFile(files, false);
     return res.status(500).json({
       status: "error",
       message: error.message,

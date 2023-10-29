@@ -31,7 +31,7 @@ module.exports = async (req, res) => {
         "bankName",
         "accountName",
         "image",
-        "imageKtp",
+        // "imageKtp",
         "kk",
         "remark",
       ],
