@@ -21,13 +21,13 @@ module.exports = (sequelize, DataTypes) => {
 
   AccountLevel.associate = (models) => {
     AccountLevel.hasMany(models.CommissionLevel, {
-      foreign: "accountLevelId",
+      foreignKey: "accountLevelId",
     });
     AccountLevel.hasMany(models.User, {
-      foreign: "accountLevelId",
+      foreignKey: "accountLevelId",
     });
     AccountLevel.hasMany(models.Serial, {
-      foreign: "accountLevelId",
+      foreignKey: "accountLevelId",
     });
   };
 
