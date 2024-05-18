@@ -33,6 +33,13 @@ module.exports = (sequelize, DataTypes) => {
     Serial.hasOne(models.User, {
       foreignKey: "serialId",
     });
+
+    // belogs to
+    Serial.belongsTo(models.AccountLevel, {
+      foreignKey: {
+        field: "accountLevelId",
+      },
+    });
   };
 
   return Serial;

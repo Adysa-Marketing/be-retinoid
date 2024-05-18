@@ -6,6 +6,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       name: DataTypes.STRING,
       percent: DataTypes.INTEGER,
+      level: DataTypes.INTEGER,
       remark: DataTypes.STRING,
     },
     {
@@ -19,6 +20,13 @@ module.exports = (sequelize, DataTypes) => {
     });
     CommissionLevel.hasMany(models.Generation, {
       foreignKey: "levelId",
+    });
+
+    // belongs to
+    CommissionLevel.belongsTo(models.AccountLevel, {
+      foreignKey: {
+        field: "accountLevelId",
+      },
     });
   };
 

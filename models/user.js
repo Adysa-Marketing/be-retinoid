@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       username: {
         type: DataTypes.STRING,
-        allowNull: true,
+        allowNull: false,
         unique: true,
       },
       email: {
@@ -99,6 +99,11 @@ module.exports = (sequelize, DataTypes) => {
         field: "sponsorId",
       },
     });
+    User.belongsTo(models.AccountLevel, {
+      foreignKey: {
+        field: "accountLevelId",
+      },
+    });
 
     // belongsToMany
     User.belongsToMany(models.Product, {
@@ -107,9 +112,6 @@ module.exports = (sequelize, DataTypes) => {
     });
 
     // has Many
-    User.hasOne(models.Referral, {
-      foreignKey: "userId",
-    });
     User.hasMany(models.Commission, {
       foreignKey: "userId",
     });
@@ -140,8 +142,14 @@ module.exports = (sequelize, DataTypes) => {
     User.hasMany(models.Generation, {
       foreignKey: "downlineId",
     });
+    User.hasMany(models.ActivityLog, {
+      foreignKey: "userId",
+    });
 
     // hasOne
+    User.hasOne(models.Referral, {
+      foreignKey: "userId",
+    });
     User.hasOne(models.Testimonial, {
       foreignKey: "userId",
     });
