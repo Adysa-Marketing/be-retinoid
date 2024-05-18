@@ -1,4 +1,4 @@
-const { AccountLevel } = require("../../../../models");
+const { AccountLevel, CommissionLevel } = require("../../../../models");
 const logger = require("../../../../libs/logger");
 const Validator = require("fastest-validator");
 const v = new Validator();
@@ -7,8 +7,9 @@ module.exports = async (req, res) => {
   const source = req.body;
   try {
     const schema = {
+      id: "number|empty:false",
       name: "string|empty:false",
-      amount: "string|empty:false",
+      percent: "number|empty:false|min:1",
       remark: "string|optional",
     };
 
@@ -20,18 +21,31 @@ module.exports = async (req, res) => {
       });
     }
 
+    // cek existing data
+    let commissionLevel = await CommissionLevel.findOne({
+      where: { id: source.id },
+    });
+
+    if (!commissionLevel) {
+      return res.status(404).json({
+        status: "error",
+        message: "Data Level komisi tidak ditemukan",
+      });
+    }
+
+    // data yg boleh di update hanya nama dan persen saja
     const payload = {
       name: source.name,
-      amount: source.amount,
+      percent: source.percent,
       remark: source.remark,
     };
 
     logger.info({ source, payload });
 
-    await AccountLevel.create(payload);
+    commissionLevel.update(payload);
     return res.status(201).json({
       status: "success",
-      message: "Level Akun berhasil dibuat",
+      message: "Level Komisi berhasil diperbarui",
     });
   } catch (error) {
     console.log("[!] Error : ", error);

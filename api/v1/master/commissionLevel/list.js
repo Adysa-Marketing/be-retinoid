@@ -1,4 +1,4 @@
-const { AccountLevel } = require("../../../../models");
+const { AccountLevel, CommissionLevel } = require("../../../../models");
 const logger = require("../../../../libs/logger");
 const Sequelize = require("sequelize");
 const Op = Sequelize.Op;
@@ -37,7 +37,7 @@ module.exports = async (req, res) => {
             {
               [Op.and]: [
                 Sequelize.where(
-                  Sequelize.fn("lower", Sequelize.col("AccountLevel.name")),
+                  Sequelize.fn("lower", Sequelize.col("CommissionLevel.name")),
                   Op.like,
                   "%" + source.keyword.toString().toLowerCase() + "%"
                 ),
@@ -57,9 +57,17 @@ module.exports = async (req, res) => {
 
     logger.info({ source, where });
 
+    const includeParent = {
+      attributes: ["id", "name", "amount", "remark"],
+      model: AccountLevel,
+    };
+
     const rowsPerPage = source.rowsPerPage;
     const currentPage = source.currentPage;
-    const totalData = await AccountLevel.count({ where });
+    const totalData = await CommissionLevel.count({
+      where,
+      include: includeParent,
+    });
 
     const totalPages =
       rowsPerPage !== "All"
@@ -73,10 +81,11 @@ module.exports = async (req, res) => {
     const limit = rowsPerPage !== "All" ? rowsPerPage : totalData;
     const offsetLimit = rowsPerPage !== "All" ? { offset, limit } : {};
 
-    const data = await AccountLevel.findAll({
+    const data = await CommissionLevel.findAll({
       ...offsetLimit,
-      attributes: ["id", "name", "amount", "remark"],
+      attributes: ["id", "name", "percent", "level", "remark"],
       where,
+      include: includeParent,
       order: [["id", "ASC"]],
     });
 
