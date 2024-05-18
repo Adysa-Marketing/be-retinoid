@@ -1,4 +1,4 @@
-const { Serial } = require("../../../../models");
+const { AccountLevel, Serial } = require("../../../../models");
 const logger = require("../../../../libs/logger");
 const cryptoString = require("crypto-random-string");
 const Validator = require("fastest-validator");
@@ -10,6 +10,7 @@ module.exports = async (req, res) => {
   try {
     const schema = {
       amount: "number|empty:false|min:1|max:100",
+      accountLevelId: "number|empty:false",
       remark: "string|empty:false",
     };
 
@@ -20,12 +21,23 @@ module.exports = async (req, res) => {
         message: validate,
       });
 
+    const accountLevel = await AccountLevel.findOne({
+      where: { id: source.accountLevelId },
+    });
+    if (!accountLevel) {
+      return res.status(400).json({
+        status: "error",
+        message: "Level Akun tidak ditemukan",
+      });
+    }
+
     let payloadData = [];
 
     for (let i = 1; i <= source.amount; i++) {
       const payload = {
         serialNumber: cryptoString({ length: 10, type: "numeric" }),
         status: 1,
+        accountLevelId: source.accountLevelId,
         remark: source.remark,
       };
       payloadData = [...payloadData, payload];

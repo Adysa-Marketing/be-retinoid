@@ -1,4 +1,4 @@
-const { Serial, User } = require("../../../../models");
+const { Serial, User, AccountLevel } = require("../../../../models");
 const logger = require("../../../../libs/logger");
 const Sequelize = require("sequelize");
 const Op = Sequelize.Op;
@@ -94,6 +94,10 @@ module.exports = async (req, res) => {
       {
         attributes: ["id", "username"],
         model: User,
+      },
+      {
+        attributes: ["id", "name"],
+        model: AccountLevel,
       },
     ];
     const rowsPerPage = source.rowsPerPage;

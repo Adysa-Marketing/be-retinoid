@@ -10,7 +10,7 @@ module.exports = async (req, res) => {
     const schema = {
       id: "string|empty:false",
       name: "string|empty:false",
-      amount: "string|empty:false",
+      amount: "number|empty:false",
       remark: "string|optional",
     };
 

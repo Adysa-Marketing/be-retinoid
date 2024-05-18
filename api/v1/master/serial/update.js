@@ -1,4 +1,4 @@
-const { Serial } = require("../../../../models");
+const { AccountLevel, Serial } = require("../../../../models");
 const logger = require("../../../../libs/logger");
 const cryptoString = require("crypto-random-string");
 const Validator = require("fastest-validator");
@@ -33,6 +33,21 @@ module.exports = async (req, res) => {
         status: "Error",
         message: "Data serial tidak ditemukan / sudah digunakan",
       });
+    }
+
+    // cek akun level apabila di update juga
+    if (source.accountLevelId != serialNumber.accountLevelId) {
+      let accountLevel = await AccountLevel.findOne({
+        where: { id: source.accountLevelId },
+      });
+      if (!accountLevel) {
+        return res.status(404).json({
+          status: "error",
+          message: "Level Akun tidak ditemukan",
+        });
+      }
+
+      payload["accountLevelId"] = accountLevel.id;
     }
 
     await serialNumber.update(payload, { where: { id } });
