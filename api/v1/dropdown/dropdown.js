@@ -10,6 +10,7 @@ const {
   Province,
   District,
   SubDistrict,
+  AccountLevel,
 } = require("../../../models");
 
 module.exports.Role = async (req, res) => {
@@ -208,6 +209,24 @@ module.exports.SubDistrict = async (req, res) => {
     return res.json({
       status: "success",
       data: subDistrict,
+    });
+  } catch (error) {
+    console.log("[!] Error : ", error.message);
+    res.status(500).json({
+      status: "error",
+      message: error.message,
+    });
+  }
+};
+
+module.exports.AccountLevel = async (req, res) => {
+  try {
+    const accountLevel = await AccountLevel.findAll({
+      attributes: ["id", "name"],
+    });
+    return res.json({
+      status: "success",
+      data: accountLevel,
     });
   } catch (error) {
     console.log("[!] Error : ", error.message);

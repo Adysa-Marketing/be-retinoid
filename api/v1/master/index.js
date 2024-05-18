@@ -1,4 +1,5 @@
 const router = require("express").Router();
+const AccountLevel = require("./accountLevel");
 const Admin = require("./admin");
 const Article = require("./article");
 const Bank = require("./bank");
@@ -10,6 +11,7 @@ const Serial = require("./serial");
 const Stokis = require("./stokis");
 const WaBot = require("./wabot");
 
+router.use("/account-level", AccountLevel);
 router.use("/admin", Admin);
 router.use("/article", Article);
 router.use("/bank", Bank);

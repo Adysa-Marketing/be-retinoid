@@ -12,5 +12,6 @@ router.get("/country", Dropdown.Country);
 router.get("/province", Dropdown.Province);
 router.get("/district", Dropdown.District);
 router.get("/sub-district", Dropdown.SubDistrict);
+router.get("/account-level", Dropdown.AccountLevel);
 
 module.exports = router;
