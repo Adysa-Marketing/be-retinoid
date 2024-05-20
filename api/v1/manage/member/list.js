@@ -1,4 +1,4 @@
-const { User } = require("../../../../models");
+const { AccountLevel, User } = require("../../../../models");
 const logger = require("../../../../libs/logger");
 const Sequelize = require("sequelize");
 const Op = Sequelize.Op;
@@ -88,9 +88,16 @@ module.exports = async (req, res) => {
 
     logger.info({ source, where });
 
+    const includeParent = [
+      {
+        attributes: ["id", "name"],
+        model: AccountLevel,
+      },
+    ];
+
     const rowsPerPage = source.rowsPerPage;
     const currentPage = source.currentPage;
-    const totalData = await User.count({ where });
+    const totalData = await User.count({ include: [...includeParent], where });
 
     const totalPages =
       rowsPerPage !== "All"
@@ -118,6 +125,7 @@ module.exports = async (req, res) => {
         "wallet",
         "createdAt",
       ],
+      include: [...includeParent],
       where,
       order: [["id", "DESC"]],
     })

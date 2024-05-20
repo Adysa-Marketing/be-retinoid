@@ -1,4 +1,5 @@
 const router = require("express").Router();
+const ChangeAccountLevel = require("./changeAccountLevel");
 const ChangePass = require("./changepassword");
 const ChangeStat = require("./changestatus");
 const Create = require("./create");
@@ -11,6 +12,7 @@ router.use("/", IsAdmin);
 router.get("/get/:id", Get);
 router.post("/list", List);
 router.post("/create", Create);
+router.put("/change-level", IsAdmin, ChangeAccountLevel);
 router.put("/change-pass", ChangePass);
 router.put("/change-status", ChangeStat);
 router.delete("/delete", Delete);

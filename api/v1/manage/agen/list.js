@@ -1,4 +1,10 @@
-const { Agen, AgenStatus, Stokis, User } = require("../../../../models");
+const {
+  AccountLevel,
+  Agen,
+  AgenStatus,
+  Stokis,
+  User,
+} = require("../../../../models");
 const logger = require("../../../../libs/logger");
 const Sequelize = require("sequelize");
 const Op = Sequelize.Op;
@@ -70,6 +76,12 @@ module.exports = async (req, res) => {
       {
         attributes: ["id", "name", "username"],
         model: User,
+        include: [
+          {
+            attributes: ["id", "name"],
+            model: AccountLevel,
+          },
+        ],
       },
     ];
 
