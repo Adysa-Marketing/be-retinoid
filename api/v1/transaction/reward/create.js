@@ -38,6 +38,15 @@ module.exports = async (req, res) => {
       });
     }
 
+    // jika user accoune level bukan gold maka di tolak untuk ambil reward
+    if (!user.AccountLevelId || user.AccountLevelId != 2) {
+      return res.status(400).json({
+        status: "error",
+        message:
+          "Mohon maaf permintaan anda tidak dapat di proses. Hanya akun dengan level GOLD yang dapat melakukan permintaan berikut",
+      });
+    }
+    
     const imageKtp =
       files && files.imageKtp && files.imageKtp.length > 0
         ? { imageKtp: files.imageKtp[0].filename }

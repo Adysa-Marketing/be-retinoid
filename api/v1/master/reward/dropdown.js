@@ -1,6 +1,7 @@
 const { Reward, Referral, User, TrReward } = require("../../../../models");
 const Sequelize = require("sequelize");
 const Op = Sequelize.Op;
+const sanitizeHtml = require("sanitize-html");
 
 module.exports = async (req, res) => {
   try {
@@ -37,6 +38,10 @@ module.exports = async (req, res) => {
 
         const data = await Promise.all(
           result.map(async (rw) => {
+            rw.description = sanitizeHtml(rw.description, {
+              allowedTags: [],
+              allowedAttributes: {},
+            });
             const point = rw.point;
             const minFoot = rw.minFoot;
             let status = false; //status diperbolehkan amnbil reward
@@ -67,6 +72,11 @@ module.exports = async (req, res) => {
 
               if (!checkOldTr && checkPoint.length >= minFoot) {
                 status = true;
+              }
+
+              // jika user belum memiliki akun level / akun level bukan gold(2) maka user tidak boleh claim reward
+              if (!user.AccountLevelId || user.AccountLevelId != 2) {
+                status = false;
               }
             }
 
