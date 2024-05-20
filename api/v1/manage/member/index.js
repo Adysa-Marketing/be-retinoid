@@ -3,10 +3,12 @@ const ChangeAccountLevel = require("./changeAccountLevel");
 const ChangePass = require("./changepassword");
 const ChangeStat = require("./changestatus");
 const Get = require("./get");
-const List = require("./list");
+const InjectSaldo = require("./injectSaldo");
 const IsAdmin = require("../../../middleware/isAdmin");
+const List = require("./list");
 
 router.get("/get/:id", IsAdmin, Get);
+router.post("/inject-saldo", IsAdmin, InjectSaldo);
 router.post("/list", IsAdmin, List);
 router.put("/change-level", IsAdmin, ChangeAccountLevel);
 router.put("/change-pass", IsAdmin, ChangePass);

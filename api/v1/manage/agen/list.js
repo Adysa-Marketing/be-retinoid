@@ -74,7 +74,7 @@ module.exports = async (req, res) => {
         model: Stokis,
       },
       {
-        attributes: ["id", "name", "username"],
+        attributes: ["id", "name", "username", "wallet"],
         model: User,
         include: [
           {

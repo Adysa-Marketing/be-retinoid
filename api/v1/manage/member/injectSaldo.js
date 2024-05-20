@@ -1,10 +1,4 @@
-const {
-  AccountLevel,
-  ActivityLog,
-  Agen,
-  Serial,
-  User,
-} = require("../../../../models");
+const { ActivityLog, User } = require("../../../../models");
 const db = require("../../../../models");
 const logger = require("../../../../libs/logger");
 const Sequelize = require("sequelize");
@@ -19,7 +13,7 @@ module.exports = async (req, res, next) => {
 
     const schema = {
       id: "number|empty:false",
-      accountLevelId: "number|empty:false",
+      amount: "number|empty:false|min:0",
     };
 
     const validate = v.compile(schema)(source);
@@ -31,17 +25,11 @@ module.exports = async (req, res, next) => {
 
     logger.info({ source });
 
-    const agen = await Agen.findByPk(source.id);
-    if (!agen)
-      return res.status(404).json({
-        status: "error",
-        message: "Data Agen tidak ditemukan",
-      });
-
     const user = await User.findOne({
-      attributes: ["id", "serialId", "username"],
-      where: { id: agen.userId },
+      attributes: ["id", "serialId", "username", "wallet"],
+      where: { id: source.id },
     });
+
     if (!user) {
       return res.status(404).json({
         status: "error",
@@ -49,28 +37,18 @@ module.exports = async (req, res, next) => {
       });
     }
 
-    const accountLevel = await AccountLevel.findByPk(source.accountLevelId);
-    if (!accountLevel) {
-      return res.status(404).json({
-        status: "error",
-        message: "Level Akun tidak ditemukan",
-      });
-    }
-
-    // update level serial user
-    await Serial.update(
-      { accountLevelId: accountLevel.id },
-      { where: { id: user.serialId }, transaction }
+    let injectWallet = parseInt(source.amount);
+    await user.update(
+      { wallet: Sequelize.literal(`wallet + ${injectWallet}`) },
+      { transaction }
     );
-
-    // update level user
-    await user.update({ accountLevelId: accountLevel.id }, { transaction });
-
     // save activity
     await ActivityLog.create(
       {
         userId: userSession.id,
-        activity: `${userSession.username} melakukan update Account Level untuk user '${user.username}' menjadi ${accountLevel.name}`,
+        activity: `${userSession.username} melalukan Inject saldo untuk user '${
+          user.username
+        }' sebanyak Rp. ${new Intl.NumberFormat("id-ID").format(injectWallet)}`,
       },
       { transaction }
     );
@@ -79,7 +57,9 @@ module.exports = async (req, res, next) => {
 
     return res.json({
       status: "success",
-      message: "Level Akun User berhasil diperbarui",
+      message: `Berhasil menambahkan saldo user sebanyak Rp. ${new Intl.NumberFormat(
+        "id-ID"
+      ).format(injectWallet)}`,
     });
   } catch (error) {
     console.log("[!] Error : ", error);

@@ -1,4 +1,9 @@
-const { AccountLevel, Serial, User } = require("../../../../models");
+const {
+  AccountLevel,
+  ActivityLog,
+  Serial,
+  User,
+} = require("../../../../models");
 const db = require("../../../../models");
 const logger = require("../../../../libs/logger");
 const Sequelize = require("sequelize");
@@ -10,6 +15,7 @@ module.exports = async (req, res, next) => {
   const transaction = await db.sequelize.transaction({ autocommit: false });
   try {
     const source = req.body;
+    const userSession = req.user;
 
     const schema = {
       id: "number|empty:false",
@@ -26,7 +32,7 @@ module.exports = async (req, res, next) => {
     logger.info({ source });
 
     const user = await User.findOne({
-      attributes: ["id", "serialId"],
+      attributes: ["id", "serialId", "username"],
       where: { id: source.id },
     });
     if (!user) {
@@ -52,6 +58,15 @@ module.exports = async (req, res, next) => {
 
     // update level user
     await user.update({ accountLevelId: accountLevel.id }, { transaction });
+
+    // save activity
+    await ActivityLog.create(
+      {
+        userId: userSession.id,
+        activity: `${userSession.username} melakukan update Account Level untuk user '${user.username}' menjadi ${accountLevel.name}`,
+      },
+      { transaction }
+    );
 
     transaction.commit();
 
