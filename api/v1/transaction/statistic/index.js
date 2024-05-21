@@ -3,7 +3,7 @@ const Statistic = require("./statistic");
 const IsAdmin = require("../../../middleware/isAdmin");
 
 // admin
-router.get("/", Statistic.ChartSales);
+router.get("/", Statistic.ChartMember);
 router.get("/product", Statistic.Product);
 router.get("/user", Statistic.User); //admin, agen, member
 router.get("/new-member", Statistic.NewMember); //membar baru bulan ini

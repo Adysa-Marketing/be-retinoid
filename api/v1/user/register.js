@@ -1,5 +1,6 @@
 const {
   AccountLevel,
+  Mutation,
   User,
   Serial,
   Referral,
@@ -249,6 +250,25 @@ module.exports = async (req, res) => {
       userData.name, // name of downline
       dataNotification, // data notification
       transaction // db transactional
+    );
+
+    // SIMPAN MUTASI PENDAFTARAN BARU
+    await Mutation.create(
+      {
+        type: "Registrasi",
+        category: "Member",
+        amount: productAmount,
+        description: `Pendaftaran member baru dengan username ${
+          source.username
+        } dengan tipe akun ${
+          serial.AccountLevel?.name
+        } dengan harga Rp.${new Intl.NumberFormat("id-ID").format(
+          productAmount
+        )}`,
+        userId: userData.id,
+        remark: "",
+      },
+      { transaction }
     );
 
     transaction.commit();

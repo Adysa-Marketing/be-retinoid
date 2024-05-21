@@ -1,6 +1,7 @@
 const env = process.env.NODE_ENV;
 const config = require("../../../../config/core")[env];
 const {
+  AccountLevel,
   Agen,
   AgenProduct,
   ATrSale,
@@ -115,6 +116,114 @@ module.exports.ChartSales = (req, res) => {
             label: item.name,
             color: _.sample(color),
             data: item.dataProduct,
+          };
+        });
+
+        return res.json({
+          status: "success",
+          data: {
+            labels,
+            datasets,
+          },
+        });
+      })
+      .catch((error) => {
+        console.log("[!]Error : ", error);
+        return res.status(400).json({
+          status: "error",
+          message: error.message,
+        });
+      });
+  } catch (error) {
+    console.log("[!]Error : ", error);
+    return res.status(500).json({
+      status: "error",
+      message: error.message,
+    });
+  }
+};
+
+module.exports.ChartMember = (req, res) => {
+  try {
+    const source = req.query;
+
+    const startDate = moment().startOf("years").toDate();
+    const endDate = moment().endOf("years").toDate();
+    const formatDate =
+      source.byView === "day"
+        ? "YYYYMMDD"
+        : source.byView === "month"
+        ? "YYYYMM"
+        : "YYYY";
+
+    User.findAll({
+      attributes: ["id", "name", "username", "accountLevelId", "createdAt"],
+      where: {
+        [Op.and]: {
+          roleId: {
+            [Op.in]: [4, 5],
+          },
+          createdAt: {
+            [Op.gte]: startDate,
+            [Op.lte]: endDate,
+          },
+        },
+      },
+    })
+      .then(async (users) => {
+        users = JSON.parse(JSON.stringify(users));
+        users = users.map((item) => {
+          const month = moment(item.createdAt)
+            .utc()
+            .add(7, "hours")
+            .format(formatDate);
+          return {
+            ...item,
+            month,
+          };
+        });
+
+        let labels = moment
+          .monthsShort()
+          .map((item) => moment().month(item).format("MMMM"));
+
+        const dataAccountLevel = await AccountLevel.findAll({
+          attributes: ["id", "name"],
+        });
+
+        const data = dataAccountLevel.map((item) => {
+          let user = users.filter((user) => user.accountLevelId == item.id);
+          user = _.groupBy(user, "month");
+
+          const dataUser = labels.map((lb) => {
+            const key = moment(lb, "MMMM").format("YYYYMM");
+            const label = user[key];
+            const count = label ? label.length : 0;
+            return count;
+          });
+
+          return {
+            name: item.name,
+            dataUser,
+          };
+        });
+
+        const color = [
+          "primary",
+          "secondary",
+          "info",
+          "success",
+          "warning",
+          "error",
+          "light",
+          "dark",
+        ];
+
+        const datasets = data.map((item) => {
+          return {
+            label: item.name,
+            color: _.sample(color),
+            data: item.dataUser,
           };
         });
 
@@ -329,10 +438,15 @@ module.exports.MonthlyMutation = async (req, res) => {
         const outcome = mutation
           .filter((item) => item.type == "Dana Keluar")
           .reduce((prev, curr) => prev + parseInt(curr.amount), 0);
+        const registration = mutation
+          .filter((item) => item.type == "Registrasi")
+          .reduce((prev, curr) => prev + parseInt(curr.amount), 0);
+
         return res.json({
           status: "success",
-          income,
-          outcome,
+          income: income == 0 ? 1 : income,
+          outcome: outcome == 0 ? 1 : outcome,
+          registration: registration == 0 ? 1 : registration,
         });
       })
       .catch((error) => {
