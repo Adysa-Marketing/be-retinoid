@@ -1,4 +1,5 @@
 const {
+  AccountLevel,
   User,
   Serial,
   Country,
@@ -88,6 +89,10 @@ module.exports = async (req, res) => {
             },
           ],
         },
+        {
+          attributes: ["id", "name"],
+          model: AccountLevel
+        }
       ],
     });
 

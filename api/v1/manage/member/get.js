@@ -1,4 +1,5 @@
 const {
+  AccountLevel,
   User,
   Testimonial,
   SponsorKey,
@@ -102,6 +103,10 @@ module.exports = async (req, res) => {
         {
           attributes: ["id", "name"],
           model: Role,
+        },
+        {
+          attributes: ["id", "name"],
+          model: AccountLevel,
         },
       ],
       where: { id, roleId: 4 },

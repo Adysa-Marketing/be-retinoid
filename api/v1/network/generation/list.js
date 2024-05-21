@@ -13,7 +13,7 @@ module.exports = async (req, res) => {
     const user = req.user;
     const schema = {
       keyword: "string|optional",
-      levelId: [
+      level: [
         { type: "string", empty: "false" },
         { type: "number", empty: "false" },
       ],
@@ -76,10 +76,10 @@ module.exports = async (req, res) => {
           }
         : {};
 
-    const queryLevel = source.levelId
-      ? source.levelId == "all"
+    const queryLevel = source.level
+      ? source.level == "all"
         ? {}
-        : { levelId: source.levelId }
+        : { level: source.level }
       : {};
     const queryUpline = { userId: user.id };
 

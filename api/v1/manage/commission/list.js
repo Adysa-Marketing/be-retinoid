@@ -1,4 +1,9 @@
-const { Commission, User, CommissionLevel } = require("../../../../models");
+const {
+  AccountLevel,
+  Commission,
+  User,
+  CommissionLevel,
+} = require("../../../../models");
 const logger = require("../../../../libs/logger");
 const moment = require("moment");
 const { Op } = require("sequelize");
@@ -70,14 +75,26 @@ module.exports = async (req, res) => {
         where: {
           ...queryMember,
         },
+        include: [
+          {
+            attributes: ["id", "name"],
+            model: AccountLevel,
+          },
+        ],
       },
       {
         attributes: ["id", "name"],
         as: "Downline",
         model: User,
+        include: [
+          {
+            attributes: ["id", "name"],
+            model: AccountLevel,
+          },
+        ],
       },
       {
-        attributes: ["id", "name", "percent"],
+        attributes: ["id", "name", "percent", "level"],
         model: CommissionLevel,
       },
     ];
