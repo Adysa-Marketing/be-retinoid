@@ -18,9 +18,6 @@ module.exports = (sequelize, DataTypes) => {
     CommissionLevel.hasMany(models.Commission, {
       foreignKey: "levelId",
     });
-    CommissionLevel.hasMany(models.Generation, {
-      foreignKey: "levelId",
-    });
 
     // belongs to
     CommissionLevel.belongsTo(models.AccountLevel, {

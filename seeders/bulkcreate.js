@@ -1,6 +1,7 @@
 require("dotenv").config({ path: "../.env" });
 
 const {
+  AccountLevel,
   AgenStatus,
   CommissionLevel,
   PaymentType,
@@ -29,12 +30,87 @@ async function createAgenStatus() {
 }
 
 async function createCommissionLevel() {
+  // buat akun level setelah itu buat komisi beradsarkan account level
+  await AccountLevel.bulkCreate([
+    { name: "SILVER", amount: 500000, remark: "PAKET STANDAR" },
+    { name: "GOLD", amount: 2000000, remark: "PAKET PREMIUM" },
+  ]);
+  console.log("[DONE CREATE ACCOUNT-LEVEL]");
+
   await CommissionLevel.bulkCreate([
-    { name: "Level 1", percent: 16 },
-    { name: "Level 2", percent: 10 },
-    { name: "Level 3", percent: 6 },
-    { name: "Level 4", percent: 3 },
-    { name: "Level 5", percent: 2 },
+    // AKUN LEVEL SILVER
+    {
+      name: "Komisi Silver Level 1",
+      percent: 14,
+      level: 1,
+      remark: "komisi level 1 sebanyak 14% untuk member dengan level silver",
+      accountLevelId: 1,
+    },
+    {
+      name: "Komisi Silver Level 2",
+      percent: 6,
+      level: 2,
+      remark: "komisi level 2 sebanyak 6% untuk member dengan level silver",
+      accountLevelId: 1,
+    },
+    {
+      name: "Komisi Silver Level 3",
+      percent: 4,
+      level: 3,
+      remark: "komisi level 3 sebanyak 4% untuk member dengan level silver",
+      accountLevelId: 1,
+    },
+    {
+      name: "Komisi Silver Level 4",
+      percent: 3,
+      level: 4,
+      remark: "komisi level 4 sebanyak 3% untuk member dengan level silver",
+      accountLevelId: 1,
+    },
+    {
+      name: "Komisi Silver Level 5",
+      percent: 2,
+      level: 5,
+      remark: "komisi level 5 sebanyak 2% untuk member dengan level silver",
+      accountLevelId: 1,
+    },
+
+    // AKUN LEVEL GOLD
+    {
+      name: "Komisi Gold Level 1",
+      percent: 20,
+      level: 1,
+      remark: "komisi level 1 sebanyak 20% untuk member dengan level gold",
+      accountLevelId: 2,
+    },
+    {
+      name: "Komisi Gold Level 2",
+      percent: 7,
+      level: 2,
+      remark: "komisi level 2 sebanyak 7% untuk member dengan level gold",
+      accountLevelId: 2,
+    },
+    {
+      name: "Komisi Gold Level 3",
+      percent: 4,
+      level: 3,
+      remark: "komisi level 3 sebanyak 4% untuk member dengan level gold",
+      accountLevelId: 2,
+    },
+    {
+      name: "Komisi Gold Level 4",
+      percent: 3,
+      level: 4,
+      remark: "komisi level 4 sebanyak 3% untuk member dengan level gold",
+      accountLevelId: 2,
+    },
+    {
+      name: "Komisi Gold Level 5",
+      percent: 2,
+      level: 5,
+      remark: "komisi level 5 sebanyak 2% untuk member dengan level gold",
+      accountLevelId: 2,
+    },
   ]);
   console.log("[DONE CREATE COMMISSION-LEVEL]");
 }
@@ -161,6 +237,7 @@ async function createUser() {
       phone: "628121588315",
       gender: "Male",
       kk: "3318161304010001",
+      accountLevelId: 1,
       roleId: 1,
       isActive: true,
     };

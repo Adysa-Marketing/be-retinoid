@@ -1,4 +1,5 @@
 const {
+  AccountLevel,
   User,
   Serial,
   Referral,
@@ -88,6 +89,13 @@ module.exports = async (req, res) => {
     // check serial
     const serial = await Serial.findOne({
       attributes: ["id", "status", "serialNumber"],
+      include: [
+        {
+          attributes: ["id", "name", "amount"],
+          model: AccountLevel,
+          required: true,
+        },
+      ],
       where: {
         [Op.and]: [
           {
@@ -131,6 +139,7 @@ module.exports = async (req, res) => {
       kk: source.kk,
       address: source.address,
       roleId: 4,
+      accountLevelId: serial.AccountLevel?.id || 1, // default using account level silver with id 1
       serialId: serial.id,
       countryId: countryId ? countryId : 1,
       provinceId: provinceId ? provinceId : null,
@@ -161,15 +170,29 @@ module.exports = async (req, res) => {
     await serial.update({ status: 2 }, { transaction });
 
     // proses commission 5 level
-    const productAmount = 500000;
-    const commissionLevel = await CommissionLevel.findOne({ where: { id: 1 } });
+    const userUpliner = await User.findOne({
+      attributes: ["id", "username", "phone"],
+      include: [
+        {
+          attributes: ["id", "name", "amount"],
+          model: AccountLevel,
+        },
+      ],
+      where: { id: sponsor.userId },
+    });
+
+    const productAmount = serial.AccountLevel.amount; // harga produk yg dibeli oleh downline
+
+    // find commission level 1 by accountLevel
+    // persentase komisi upline berdasarkan akun level upline
+    const commissionLevel = await CommissionLevel.findOne({
+      where: { accountLevelId: userUpliner.AccountLevel.id },
+      order: [["level", "ASC"]],
+    });
     const commission = parseInt(
       (commissionLevel.percent * productAmount) / 100
     );
-    const userUpliner = await User.findOne({
-      attributes: ["id", "username", "phone"],
-      where: { id: sponsor.userId },
-    });
+
     const message = `*[Bonus Generasi] - ADYSA MARKETING*\n\nHi *${
       userUpliner.username
     }*, Selamat anda mendapatkan bonus generasi senilai *Rp. ${new Intl.NumberFormat(
@@ -205,7 +228,7 @@ module.exports = async (req, res) => {
       {
         userId: sponsor.userId,
         downlineId: userData.id,
-        levelId: commissionLevel.id,
+        level: 1,
         remark: commissionLevel.name,
       },
       { transaction }
@@ -220,8 +243,8 @@ module.exports = async (req, res) => {
     // proses commission
     await calculateDownlineBonus(
       sponsor.userId, // id penyeponsor
-      productAmount, // 500.000
-      2, // level
+      productAmount, // harga produk yg dibeli downline
+      2, // level bonus
       userData.id, // id downline
       userData.name, // name of downline
       dataNotification, // data notification
@@ -276,7 +299,7 @@ module.exports = async (req, res) => {
 
 const calculateDownlineBonus = async (
   userSponsorId, //uplineId
-  amount, // 500.000
+  amount, // harga produk yg dibeli downline
   level, // commission level
   downlineId, // id downline
   downlineName, // name of downline
@@ -304,14 +327,28 @@ const calculateDownlineBonus = async (
   referral = JSON.parse(JSON.stringify(referral));
 
   const userUplineId = referral.SponsorKey.userId;
-  const commissionLevel = await CommissionLevel.findOne({
-    where: { id: level },
-  });
-  const commission = (commissionLevel.percent * amount) / 100;
   const userUpliner = await User.findOne({
     attributes: ["id", "username", "phone"],
+    include: [
+      {
+        attributes: ["id", "name", "amount"],
+        model: AccountLevel,
+        required: true,
+      },
+    ],
     where: { id: userUplineId },
   });
+
+  // persentase komisi upline berdasarkan akun level upline dan kedalaman bonus
+  const commissionLevel = await CommissionLevel.findOne({
+    where: {
+      level: level,
+      accountLevelId: userUpliner.AccountLevel.id,
+    },
+  });
+
+  const commission = (commissionLevel.percent * amount) / 100;
+
   const message = `*[Bonus Generasi] - ADYSA MARKETING*\n\nHi *${
     userUpliner.username
   }*, Selamat anda mendapatkan bonus generasi senilai *Rp. ${new Intl.NumberFormat(
@@ -348,7 +385,7 @@ const calculateDownlineBonus = async (
     {
       userId: userUplineId,
       downlineId: downlineId,
-      levelId: commissionLevel.id,
+      level: level,
       remark: commissionLevel.name,
     },
     { transaction }
@@ -359,8 +396,6 @@ const calculateDownlineBonus = async (
     { wallet: sequelize.literal(`wallet + ${commission}`) },
     { where: { id: userUplineId }, transaction }
   );
-
-  // kurang notification wa untuk info commission masuk
 
   await calculateDownlineBonus(
     userUplineId,

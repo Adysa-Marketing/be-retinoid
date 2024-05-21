@@ -76,6 +76,7 @@ module.exports = async (req, res) => {
       kk: source.kk,
       address: source.address,
       roleId: 2,
+      accountLevelId: 1, //gold silver
       countryId: countryId ? countryId : 1,
       provinceId: provinceId ? provinceId : null,
       districtId: districtId ? districtId : null,

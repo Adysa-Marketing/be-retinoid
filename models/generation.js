@@ -4,6 +4,7 @@ module.exports = (sequelize, DataTypes) => {
   const Generation = sequelize.define(
     "Generation",
     {
+      level: DataTypes.INTEGER,
       remark: DataTypes.STRING,
     },
     {
@@ -22,11 +23,6 @@ module.exports = (sequelize, DataTypes) => {
       as: "Downline",
       foreignKey: {
         field: "downlineId",
-      },
-    });
-    Generation.belongsTo(models.CommissionLevel, {
-      foreignKey: {
-        field: "levelId",
       },
     });
   };
