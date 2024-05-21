@@ -21,6 +21,7 @@ router.get("/sale-stokis", Statistic.TrStokis);
 router.get("/mon-rw", Statistic.MonthlyTrReward);
 router.get("/mon-wd", Statistic.MonthlyWd);
 router.get("/mon-spend-wd", Statistic.MonthlySpendingWd);
+router.get("/history-register", Statistic.HistoryRegister);
 router.get("/history-sale", Statistic.HistorySale);
 router.get("/history-reward", Statistic.HistoryReward);
 router.get("/history-stokis", Statistic.HistoryStokis);

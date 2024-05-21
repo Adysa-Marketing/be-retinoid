@@ -1274,6 +1274,62 @@ module.exports.HistoryAgenSale = async (req, res) => {
   }
 };
 
+module.exports.HistoryRegister = (req, res) => {
+  try {
+    User.findAll({
+      limit: 10,
+      where: {
+        roleId: {
+          [Op.in]: [3, 4],
+        },
+      },
+      attributes: ["id", "name", "username", "phone", "email"],
+      include: [
+        {
+          attributes: ["id", "name"],
+          model: AccountLevel,
+        },
+      ],
+      order: [["id", "DESC"]],
+    })
+      .then((result) => {
+        result = JSON.parse(JSON.stringify(result));
+
+        const data = result.map((user) => {
+          const code = user.id.toString().padStart(config.maxFill, 0);
+
+          user.date = moment(user.date)
+            .utc()
+            .add(7, "hours")
+            .format("YYYY-MM-DD HH:mm:ss");
+
+          return {
+            ...user,
+            kode: `USR${code}`,
+          };
+        });
+
+        return res.json({
+          status: "success",
+          data,
+        });
+      })
+      .catch((error) => {
+        console.log("[!] Error : ", error);
+        return res.status(500).json({
+          status: "error",
+          message: error.message,
+        });
+      });
+  } catch (error) {
+    console.log("[!]Error : ", error);
+    return res.status(500).json({
+      status: "error",
+      message: error.message,
+    });
+  }
+};
+
 module.exports.HistorySale = (req, res) => {
   try {
     TrSale.findAll({
