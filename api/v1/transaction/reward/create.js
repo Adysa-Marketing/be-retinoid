@@ -46,7 +46,7 @@ module.exports = async (req, res) => {
           "Mohon maaf permintaan anda tidak dapat di proses. Hanya akun dengan level GOLD yang dapat melakukan permintaan berikut",
       });
     }
-    
+
     const imageKtp =
       files && files.imageKtp && files.imageKtp.length > 0
         ? { imageKtp: files.imageKtp[0].filename }

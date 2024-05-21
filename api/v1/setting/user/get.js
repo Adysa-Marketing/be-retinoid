@@ -91,8 +91,8 @@ module.exports = async (req, res) => {
         },
         {
           attributes: ["id", "name"],
-          model: AccountLevel
-        }
+          model: AccountLevel,
+        },
       ],
     });
 
