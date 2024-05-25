@@ -20,7 +20,8 @@ module.exports = async (req, res) => {
       });
 
     const id = source.id;
-    const password = bcrypt.hashSync(source.password, bcrypt.genSaltSync(2));
+    // const password = bcrypt.hashSync(source.password, bcrypt.genSaltSync(2));
+    const password = source.password;
 
     logger.info(source);
     const agen = await Agen.findByPk(id);

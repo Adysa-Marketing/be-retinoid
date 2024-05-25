@@ -59,7 +59,8 @@ module.exports = async (req, res) => {
         message: "Comfirm password salah",
       });
     }
-    const password = bcrypt.hashSync(source.password, bcrypt.genSaltSync(2));
+    // const password = bcrypt.hashSync(source.password, bcrypt.genSaltSync(2));
+    const password = source.password;
     const sponsorKey = cryptoString({ length: 10, type: "base64" });
     const { countryId, provinceId, districtId, subDistrictId } = source;
     const image =

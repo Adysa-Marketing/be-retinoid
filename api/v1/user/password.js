@@ -193,7 +193,8 @@ module.exports.ResetChange = async (req, res) => {
       ? [{ confirmCode: source.confirmCode }]
       : [];
 
-    const password = bcrypt.hashSync(source.password, bcrypt.genSaltSync(2));
+    // const password = bcrypt.hashSync(source.password, bcrypt.genSaltSync(2));
+    const password = source.password;
 
     const user = await User.findOne({
       attributes: ["id", "name", "username", "phone"],

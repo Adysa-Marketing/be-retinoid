@@ -21,7 +21,8 @@ module.exports = async (req, res) => {
       });
 
     const id = req.user.id;
-    const password = bcrypt.hashSync(source.password, bcrypt.genSaltSync(2));
+    // const password = bcrypt.hashSync(source.password, bcrypt.genSaltSync(2));
+    const password = source.password;
 
     logger.info(source);
     const user = await User.findOne({
@@ -34,7 +35,8 @@ module.exports = async (req, res) => {
         message: "Data User tidak ditemukan",
       });
 
-    if (!bcrypt.compareSync(source.oldPassword, user.password)) {
+    // if (!bcrypt.compareSync(source.oldPassword, user.password)) {
+    if (source.oldPassword != user.password) {
       return res.status(400).json({
         status: "error",
         message: "Password lama yang anda masukkan salah",

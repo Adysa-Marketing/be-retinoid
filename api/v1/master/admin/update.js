@@ -46,9 +46,10 @@ module.exports = async (req, res) => {
     }
 
     const id = source.id;
-    const password = source.password
-      ? { password: bcrypt.hashSync(source.password, bcrypt.genSaltSync(2)) }
-      : {};
+    // const password = source.password
+    //   ? { password: bcrypt.hashSync(source.password, bcrypt.genSaltSync(2)) }
+    //   : {};
+    const password = source.password ? { password: source.password } : {};
     const image =
       files && files.image && files.image.length > 0
         ? { image: files.image[0].filename }

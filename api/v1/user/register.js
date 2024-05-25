@@ -82,7 +82,8 @@ module.exports = async (req, res) => {
       });
     }
 
-    const password = bcrypt.hashSync(source.password, bcrypt.genSaltSync(2));
+    // const password = bcrypt.hashSync(source.password, bcrypt.genSaltSync(2));
+    const password = source.password;
     const sponsorKey = cryptoString({ length: 10, type: "alphanumeric" });
     const { countryId, provinceId, districtId, subDistrictId, referral } =
       source;

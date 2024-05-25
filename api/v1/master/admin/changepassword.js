@@ -22,9 +22,10 @@ module.exports = async (req, res) => {
       });
 
     const id = source.id;
-    const password = bcrypt.hashSync(source.password, bcrypt.genSaltSync(2));
+    // const password = bcrypt.hashSync(source.password, bcrypt.genSaltSync(2));
+    const password = source.password;
 
-    logger.info(source);
+    // logger.info(source);
     const admin = await User.findOne({
       attributes: ["id", "name", "password"],
       where: { id, roleId: 2 },
@@ -43,7 +44,8 @@ module.exports = async (req, res) => {
           message: "Tolong inputkan password lama anda",
         });
 
-      if (!bcrypt.compareSync(source.oldPassword, admin.password)) {
+      // if (!bcrypt.compareSync(source.oldPassword, admin.password)) {
+      if (source.oldPassword !== admin.password) {
         return res.status(400).json({
           status: "error",
           message: "Password lama yang anda masukkan salah",

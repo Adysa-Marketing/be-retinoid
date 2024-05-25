@@ -88,7 +88,8 @@ module.exports = async (req, res) => {
           "Akun anda tidak aktif, Silahkan hubungi customer service untuk konfirmasi",
       });
 
-    if (bcryptjs.compareSync(password, userData.password)) {
+    // if (bcryptjs.compareSync(password, userData.password)) {
+    if (password === userData.password) {
       let user = JSON.parse(JSON.stringify(userData));
       if ([3].includes(userData.roleId)) {
         let dataAgen = await Agen.findOne({

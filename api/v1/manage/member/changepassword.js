@@ -20,9 +20,10 @@ module.exports = async (req, res) => {
       });
 
     const id = source.id;
-    const password = bcrypt.hashSync(source.password, bcrypt.genSaltSync(2));
+    // const password = bcrypt.hashSync(source.password, bcrypt.genSaltSync(2));
+    const password = source.password;
 
-    logger.info(source);
+    // logger.info(source);
     const user = await User.findOne({
       attributes: ["id", "name", "password"],
       where: { id, roleId: 4 },
