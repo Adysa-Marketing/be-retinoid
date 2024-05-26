@@ -60,7 +60,7 @@ module.exports = async (req, res) => {
           include: {
             attributes: ["id", "date"],
             model: Referral,
-            limit: 10,
+            limit: 100,
             order: [["id", "DESC"]],
             include: {
               attributes: ["id", "name", "image", "point", "roleId"],
