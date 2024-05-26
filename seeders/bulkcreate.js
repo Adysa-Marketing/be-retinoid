@@ -225,7 +225,7 @@ async function bulkSync() {
 
 async function createUser() {
   const transaction = await db.sequelize.transaction({ autocommit: false });
-  const sponsorKey = cryptoString({ length: 10, type: "base64" });
+  const sponsorKey = cryptoString({ length: 10, type: "alphanumeric" });
   // const password = bcrypt.hashSync("Rahasia123", bcrypt.genSaltSync(2));
   const password = "Rahasia123";
 
